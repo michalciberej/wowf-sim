@@ -1,0 +1,14 @@
+{
+  "name": "wowf-sim",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WoW Forever DPS simulator: React UI, Go WASM engine, protobuf contract",
+  "scripts": {
+    "gen": "buf generate",
+    "wasm": "node scripts/build-wasm.mjs",
+    "cli": "go -C engine run ./cmd/cli",
+    "test": "go -C engine test ./...",
+    "dev": "npm run wasm && npm --prefix web run dev",
+    "build": "npm run wasm && npm --prefix web run build"
+  }
+}
