@@ -1,0 +1,295 @@
+[
+  {
+    "id": "elixir-of-the-mongoose",
+    "name": "Elixir of the Mongoose",
+    "icon": "inv_potion_32",
+    "category": "Consumables",
+    "agility": 25,
+    "meleeCrit": 0.02
+  },
+  {
+    "id": "elixir-of-giants",
+    "name": "Elixir of Giants",
+    "icon": "inv_potion_61",
+    "category": "Consumables",
+    "strength": 25
+  },
+  {
+    "id": "juju-power",
+    "name": "Juju Power",
+    "icon": "inv_misc_monsterscales_11",
+    "category": "Consumables",
+    "strength": 30
+  },
+  {
+    "id": "juju-might",
+    "name": "Juju Might",
+    "icon": "inv_misc_monsterscales_07",
+    "category": "Consumables",
+    "attackPower": 40
+  },
+  {
+    "id": "winterfall-firewater",
+    "name": "Winterfall Firewater",
+    "icon": "inv_potion_92",
+    "category": "Consumables",
+    "attackPower": 35
+  },
+  {
+    "id": "blessed-sunfruit",
+    "name": "Blessed Sunfruit",
+    "icon": "inv_misc_food_41",
+    "category": "Consumables",
+    "strength": 10
+  },
+  {
+    "id": "grilled-squid",
+    "name": "Grilled Squid",
+    "icon": "inv_misc_fish_13",
+    "category": "Consumables",
+    "agility": 10
+  },
+  {
+    "id": "flask-of-supreme-power",
+    "name": "Flask of Supreme Power",
+    "icon": "inv_potion_41",
+    "category": "Consumables",
+    "spellPower": 150
+  },
+  {
+    "id": "greater-arcane-elixir",
+    "name": "Greater Arcane Elixir",
+    "icon": "inv_potion_25",
+    "category": "Consumables",
+    "spellPower": 35
+  },
+  {
+    "id": "brilliant-wizard-oil",
+    "name": "Brilliant Wizard Oil",
+    "icon": "inv_potion_105",
+    "category": "Consumables",
+    "spellPower": 36,
+    "spellCrit": 0.01
+  },
+  {
+    "id": "elemental-sharpening-stone",
+    "name": "Elemental Sharpening Stone",
+    "icon": "inv_stone_02",
+    "category": "Consumables",
+    "meleeCrit": 0.02
+  },
+  {
+    "id": "blessing-of-kings",
+    "name": "Blessing of Kings",
+    "icon": "spell_magic_magearmor",
+    "category": "Raid Buffs",
+    "default": true,
+    "statMul": 0.1
+  },
+  {
+    "id": "blessing-of-might",
+    "name": "Blessing of Might",
+    "icon": "spell_holy_fistofjustice",
+    "category": "Raid Buffs",
+    "default": true,
+    "attackPower": 222
+  },
+  {
+    "id": "gift-of-the-wild",
+    "name": "Gift of the Wild",
+    "icon": "spell_nature_regeneration",
+    "category": "Raid Buffs",
+    "default": true,
+    "strength": 16,
+    "agility": 16,
+    "intellect": 16
+  },
+  {
+    "id": "leader-of-the-pack",
+    "name": "Leader of the Pack",
+    "icon": "spell_nature_unyeildingstamina",
+    "category": "Raid Buffs",
+    "meleeCrit": 0.03
+  },
+  {
+    "id": "moonkin-aura",
+    "name": "Moonkin Aura",
+    "icon": "spell_nature_forceofnature",
+    "category": "Raid Buffs",
+    "spellCrit": 0.03
+  },
+  {
+    "id": "arcane-intellect",
+    "name": "Arcane Intellect",
+    "icon": "spell_holy_magicalsentry",
+    "category": "Raid Buffs",
+    "default": true,
+    "intellect": 31
+  },
+  {
+    "id": "battle-shout",
+    "name": "Battle Shout",
+    "icon": "ability_warrior_battleshout",
+    "category": "Raid Buffs",
+    "default": true,
+    "attackPower": 290
+  },
+  {
+    "id": "trueshot-aura",
+    "name": "Trueshot Aura",
+    "icon": "ability_trueshot",
+    "category": "Raid Buffs",
+    "attackPower": 125
+  },
+  {
+    "id": "strength-of-earth",
+    "name": "Strength of Earth Totem",
+    "icon": "spell_nature_earthbindtotem",
+    "category": "Raid Buffs",
+    "default": true,
+    "strength": 88
+  },
+  {
+    "id": "grace-of-air",
+    "name": "Grace of Air Totem",
+    "icon": "spell_nature_invisibilitytotem",
+    "category": "Raid Buffs",
+    "default": true,
+    "agility": 77
+  },
+  {
+    "id": "windfury-totem",
+    "name": "Windfury Totem",
+    "icon": "spell_nature_windfury",
+    "category": "Raid Buffs",
+    "default": true,
+    "windfury": true,
+    "windfuryAp": 310
+  },
+  {
+    "id": "unleashed-rage",
+    "name": "Unleashed Rage",
+    "icon": "spell_nature_unleashedrage",
+    "category": "Raid Buffs",
+    "apMul": 0.1
+  },
+  {
+    "id": "dragonslayer",
+    "name": "Rallying Cry of the Dragonslayer",
+    "icon": "inv_misc_head_dragon_01",
+    "category": "World Buffs",
+    "attackPower": 140,
+    "meleeCrit": 0.05,
+    "spellCrit": 0.1
+  },
+  {
+    "id": "spirit-of-zandalar",
+    "name": "Spirit of Zandalar",
+    "icon": "ability_creature_poison_05",
+    "category": "World Buffs",
+    "statMul": 0.15
+  },
+  {
+    "id": "songflower",
+    "name": "Songflower Serenade",
+    "icon": "spell_holy_mindvision",
+    "category": "World Buffs",
+    "strength": 15,
+    "agility": 15,
+    "intellect": 15,
+    "meleeCrit": 0.05,
+    "spellCrit": 0.05
+  },
+  {
+    "id": "darkmoon-faire",
+    "name": "Sayge's Fortune (Damage)",
+    "icon": "inv_misc_orb_02",
+    "category": "World Buffs",
+    "damageMul": 0.1
+  },
+  {
+    "id": "fengus-ferocity",
+    "name": "Fengus' Ferocity",
+    "icon": "spell_nature_undyingstrength",
+    "category": "World Buffs",
+    "attackPower": 200
+  },
+  {
+    "id": "slipkiks-savvy",
+    "name": "Slip'kik's Savvy",
+    "icon": "spell_holy_lesserheal02",
+    "category": "World Buffs",
+    "spellCrit": 0.03
+  },
+  {
+    "id": "sunder-armor",
+    "name": "Sunder Armor (5)",
+    "icon": "ability_warrior_sunder",
+    "category": "Debuffs",
+    "default": true,
+    "armor": 2250
+  },
+  {
+    "id": "faerie-fire",
+    "name": "Faerie Fire",
+    "icon": "spell_nature_faeriefire",
+    "category": "Debuffs",
+    "default": true,
+    "armor": 505
+  },
+  {
+    "id": "curse-of-recklessness",
+    "name": "Curse of Recklessness",
+    "icon": "spell_shadow_unholystrength",
+    "category": "Debuffs",
+    "default": true,
+    "armor": 640
+  },
+  {
+    "id": "hunters-mark",
+    "name": "Hunter's Mark",
+    "icon": "ability_hunter_snipershot",
+    "category": "Debuffs",
+    "default": true,
+    "onlyClass": [3],
+    "attackPower": 110
+  },
+  {
+    "id": "curse-of-elements",
+    "name": "Curse of the Elements",
+    "icon": "spell_shadow_chilltouch",
+    "category": "Debuffs",
+    "default": true,
+    "fireMul": 0.1,
+    "frostMul": 0.1
+  },
+  {
+    "id": "curse-of-shadow",
+    "name": "Curse of Shadow",
+    "icon": "spell_shadow_curseofachimonde",
+    "category": "Debuffs",
+    "default": true,
+    "shadowMul": 0.1
+  },
+  {
+    "id": "improved-scorch",
+    "name": "Improved Scorch",
+    "icon": "spell_fire_soulburn",
+    "category": "Debuffs",
+    "fireMul": 0.15
+  },
+  {
+    "id": "shadow-weaving",
+    "name": "Shadow Weaving",
+    "icon": "spell_shadow_blackplague",
+    "category": "Debuffs",
+    "shadowMul": 0.15
+  },
+  {
+    "id": "winters-chill",
+    "name": "Winter's Chill",
+    "icon": "spell_frost_chillingblast",
+    "category": "Debuffs",
+    "spellCrit": 0.1
+  }
+]

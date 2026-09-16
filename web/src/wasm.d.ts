@@ -8,6 +8,7 @@ declare global {
 
   interface Window {
     wowfSimRun: (input: Uint8Array) => Uint8Array
+    wowfSimStatWeights: (input: Uint8Array) => Uint8Array
     wowfSimReady: () => void
   }
 }

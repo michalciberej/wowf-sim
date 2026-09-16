@@ -17,6 +17,23 @@ message Player {
   Race race = 3;
   int32 level = 4;
   Gear gear = 5;
+  repeated TalentPick talents = 6;
+  repeated string raid_buffs = 7;
+  BonusStats bonus_stats = 8;
+}
+
+// Extra stats added after gear, before raid multipliers. Used for EP measurement.
+message BonusStats {
+  double strength = 1;
+  double agility = 2;
+  double intellect = 3;
+  double attack_power = 4;
+  double spell_power = 5;
+  double crit_chance = 6;
+  double hit_chance = 7;
+  double spell_crit_chance = 8;
+  double spell_hit_chance = 9;
+  double weapon_dps = 10;
 }
 
 message Gear {
@@ -27,6 +44,24 @@ message EquippedItem {
   int32 id = 1;
   string name = 2;
   ItemSlot slot = 3;
+  double weapon_dps = 4;
+  int32 attack_speed_ms = 5;
+  int32 strength = 6;
+  int32 agility = 7;
+  int32 attack_power = 8;
+  double crit_chance = 9;
+  string item_subclass = 10;
+  double hit_chance = 11;
+  string hand = 12;
+  int32 intellect = 13;
+  int32 spell_power = 14;
+  double spell_crit_chance = 15;
+  double spell_hit_chance = 16;
+}
+
+message TalentPick {
+  int32 id = 1;
+  int32 rank = 2;
 }
 
 message Encounter {
@@ -45,12 +80,44 @@ message SimResult {
   double dps_max = 4;
   int32 iterations = 5;
   repeated ActionMetric actions = 6;
+  repeated string modifiers = 7;
+  // Cast log from the first iteration so the UI can draw a combat timeline.
+  repeated TimelineEvent timeline = 8;
 }
 
 message ActionMetric {
   string name = 1;
   double dps = 2;
   int64 casts = 3;
+  int64 crits = 4;
+  int64 misses = 5;
+  string icon = 6;
+}
+
+message TimelineEvent {
+  double time_seconds = 1;
+  string name = 2;
+  double damage = 3;
+  bool crit = 4;
+  bool miss = 5;
+  string icon = 6;
+}
+
+message StatWeight {
+  string id = 1;
+  string name = 2;
+  // Mean DPS gained from one unit of this stat (1% for hit/crit).
+  double dps = 3;
+  // DPS weight divided by the class reference stat (AP or spell power).
+  double ep = 4;
+}
+
+message StatWeightsResult {
+  string reference_id = 1;
+  string reference_name = 2;
+  double baseline_dps = 3;
+  int32 iterations = 4;
+  repeated StatWeight weights = 5;
 }
 
 enum Class {

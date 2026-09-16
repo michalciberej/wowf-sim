@@ -1,0 +1,698 @@
+[
+  {
+    "name": "Elemental",
+    "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/classic/261.jpg",
+    "talents": [
+      {
+        "fieldName": "convection",
+        "name": "Convection",
+        "icon": "spell_nature_wispsplode",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104773
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "concussion",
+        "name": "Concussion",
+        "icon": "spell_nature_earthshock",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104772
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "elementalWarding",
+        "name": "Elemental Warding",
+        "icon": "spell_nature_spiritarmor",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104771
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "reverberation",
+        "name": "Reverberation",
+        "icon": "spell_frost_frostward",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104767
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "callOfFlame",
+        "name": "Call of Flame",
+        "icon": "spell_fire_immolation",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104770
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "elementalDevastation",
+        "name": "Elemental Devastation",
+        "icon": "classic_spell_fire_elementaldevastation",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 3
+        },
+        "spellIds": [
+          104769
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "elementalFocus",
+        "name": "Elemental Focus",
+        "icon": "spell_shadow_manaburn",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104768
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "elementalFury",
+        "name": "Elemental Fury",
+        "icon": "spell_fire_volcano",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104766
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "improvedFireNova",
+        "name": "Improved Fire Nova",
+        "icon": "spell_fire_sealoffire",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104764
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "eyeOfTheStorm",
+        "name": "Eye of the Storm",
+        "icon": "spell_nature_eyeofthestorm",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104763
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "callOfThunder",
+        "name": "Call of Thunder",
+        "icon": "spell_nature_callstorm",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104762
+        ],
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 2,
+          "colIdx": 2
+        }
+      },
+      {
+        "fieldName": "elementalReach",
+        "name": "Elemental Reach",
+        "icon": "spell_nature_stormreach",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104761
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "lightningOverload",
+        "name": "Lightning Overload",
+        "icon": "spell_nature_lightningoverload",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104759
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "earthbound",
+        "name": "Earthbound",
+        "icon": "spell_nature_stranglevines",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 3
+        },
+        "spellIds": [
+          104760
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "elementalAlacrity",
+        "name": "Elemental Alacrity",
+        "icon": "spell_lightning_lightningbolt01",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104765
+        ],
+        "maxPoints": 3,
+        "prereqLocation": {
+          "rowIdx": 3,
+          "colIdx": 2
+        }
+      },
+      {
+        "fieldName": "lavaBurst",
+        "name": "Lava Burst",
+        "icon": "spell_shaman_lavaburst",
+        "location": {
+          "rowIdx": 6,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104758
+        ],
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 4,
+          "colIdx": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "Enhancement",
+    "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/classic/263.jpg",
+    "talents": [
+      {
+        "fieldName": "earthSGrasp",
+        "name": "Earth's Grasp",
+        "icon": "spell_nature_stoneclawtotem",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104757
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "thunderingStrikes",
+        "name": "Thundering Strikes",
+        "icon": "ability_thunderbolt",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104753
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "ancestralKnowledge",
+        "name": "Ancestral Knowledge",
+        "icon": "spell_shadow_grimward",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104756
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "guardianTotems",
+        "name": "Guardian Totems",
+        "icon": "spell_nature_stoneskintotem",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104754
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "mentalDexterity",
+        "name": "Mental Dexterity",
+        "icon": "spell_nature_mentalquickness",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104755
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "improvedGhostWolf",
+        "name": "Improved Ghost Wolf",
+        "icon": "spell_nature_spiritwolf",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104752
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "improvedLightningShield",
+        "name": "Improved Lightning Shield",
+        "icon": "spell_nature_lightningshield",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 3
+        },
+        "spellIds": [
+          104751
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "elementalWeapons",
+        "name": "Elemental Weapons",
+        "icon": "spell_fire_flametounge",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104750
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "shamanisticFocus",
+        "name": "Shamanistic Focus",
+        "icon": "spell_nature_elementalabsorption",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104749
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "anticipation",
+        "name": "Anticipation",
+        "icon": "spell_nature_mirrorimage",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 3
+        },
+        "spellIds": [
+          104748
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "toughness",
+        "name": "Toughness",
+        "icon": "spell_holy_devotion",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104746
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "flurry",
+        "name": "Flurry",
+        "icon": "ability_ghoulfrenzy",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104747
+        ],
+        "maxPoints": 5,
+        "prereqLocation": {
+          "rowIdx": 1,
+          "colIdx": 1
+        }
+      },
+      {
+        "fieldName": "stormstrike",
+        "name": "Stormstrike",
+        "icon": "ability_shaman_stormstrike",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104743
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "spiritWeapons",
+        "name": "Spirit Weapons",
+        "icon": "ability_parry",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104745
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "mentalQuickness",
+        "name": "Mental Quickness",
+        "icon": "spell_nature_sleep",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104744
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "improvedStormstrike",
+        "name": "Improved Stormstrike",
+        "icon": "spell_shaman_improvedstormstrike",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104742
+        ],
+        "maxPoints": 2,
+        "prereqLocation": {
+          "rowIdx": 3,
+          "colIdx": 2
+        }
+      },
+      {
+        "fieldName": "maelstromWeapon",
+        "name": "Maelstrom Weapon",
+        "icon": "spell_shaman_maelstromweapon",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104741
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "rageOfTheFarseer",
+        "name": "Rage of the Farseer",
+        "icon": "spell_nature_bloodlust",
+        "location": {
+          "rowIdx": 6,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104740
+        ],
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 4,
+          "colIdx": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "Restoration",
+    "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/classic/262.jpg",
+    "talents": [
+      {
+        "fieldName": "improvedHealingWave",
+        "name": "Improved Healing Wave",
+        "icon": "spell_nature_magicimmunity",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104739
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "tidalMastery",
+        "name": "Tidal Mastery",
+        "icon": "spell_nature_tranquility",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104729
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "mindfulness",
+        "name": "Mindfulness",
+        "icon": "spell_nature_sleep",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104734
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "naturalGrace",
+        "name": "Natural Grace",
+        "icon": "spell_nature_healingtouch",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104736
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "tidalFocus",
+        "name": "Tidal Focus",
+        "icon": "spell_frost_manarecharge",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104735
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "improvedReincarnation",
+        "name": "Improved Reincarnation",
+        "icon": "spell_nature_reincarnation",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 3
+        },
+        "spellIds": [
+          104737
+        ],
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "ancestralHealing",
+        "name": "Ancestral Healing",
+        "icon": "spell_nature_undyingstrength",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104731
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "healingFocus",
+        "name": "Healing Focus",
+        "icon": "spell_nature_healingwavelesser",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104733
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "waterShield",
+        "name": "Water Shield",
+        "icon": "ability_shaman_watershield",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104732
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "totemicFocus",
+        "name": "Totemic Focus",
+        "icon": "spell_nature_moonglow",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 0
+        },
+        "spellIds": [
+          104738
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "restorativeTotems",
+        "name": "Restorative Totems",
+        "icon": "spell_nature_manaregentotem",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104730
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "manaTideTotem",
+        "name": "Mana Tide Totem",
+        "icon": "spell_frost_summonwaterelemental",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104728
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "healingWay",
+        "name": "Healing Way",
+        "icon": "classic_spell_nature_healingway",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104727
+        ],
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "natureSSwiftness",
+        "name": "Nature's Swiftness",
+        "icon": "spell_nature_ravenform",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104726
+        ],
+        "maxPoints": 1
+      },
+      {
+        "fieldName": "purification",
+        "name": "Purification",
+        "icon": "spell_frost_wizardmark",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 2
+        },
+        "spellIds": [
+          104725
+        ],
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "riptide",
+        "name": "Riptide",
+        "icon": "spell_nature_riptide",
+        "location": {
+          "rowIdx": 6,
+          "colIdx": 1
+        },
+        "spellIds": [
+          104724
+        ],
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 4,
+          "colIdx": 1
+        }
+      }
+    ]
+  }
+]

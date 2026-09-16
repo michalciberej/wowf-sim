@@ -1,0 +1,122 @@
+{
+  "Hand of Justice": [
+    {
+      "kind": "proc",
+      "name": "Hand of Justice",
+      "chance": 0.02,
+      "extraAttack": 1,
+      "text": "Equip: 2% chance on melee hit to gain 1 extra attack."
+    }
+  ],
+  "Earthstrike": [
+    {
+      "kind": "use",
+      "name": "Earthstrike",
+      "attackPower": 280,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases your melee and ranged attack power by 280 for 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Kiss of the Spider": [
+    {
+      "kind": "use",
+      "name": "Kiss of the Spider",
+      "haste": 0.2,
+      "duration": 15,
+      "cooldown": 120,
+      "text": "Use: Increases your attack speed by 20% for 15 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Slayer's Crest": [
+    {
+      "kind": "use",
+      "name": "Slayer's Crest",
+      "attackPower": 260,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases attack power by 260 for 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Jom Gabbar": [
+    {
+      "kind": "use",
+      "name": "Jom Gabbar",
+      "stackAP": 65,
+      "interval": 2,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases attack power by 65 every 2 sec for 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Badge of the Swarmguard": [
+    {
+      "kind": "use",
+      "name": "Badge of the Swarmguard",
+      "armorIgnore": 1200,
+      "duration": 30,
+      "cooldown": 180,
+      "text": "Use: Your melee and ranged attacks have a chance to grant 200 armor ignore, stacking up to 6 times. Lasts 30 sec. (3 Min Cooldown)"
+    }
+  ],
+  "Talisman of Ephemeral Power": [
+    {
+      "kind": "use",
+      "name": "Talisman of Ephemeral Power",
+      "spellPower": 175,
+      "duration": 15,
+      "cooldown": 90,
+      "text": "Use: Increases damage and healing done by magical spells and effects by up to 175 for 15 sec. (1.5 Min Cooldown)"
+    }
+  ],
+  "The Restrained Essence of Sapphiron": [
+    {
+      "kind": "use",
+      "name": "The Restrained Essence of Sapphiron",
+      "spellPower": 130,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases damage and healing done by magical spells and effects by up to 130 for 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Zandalarian Hero Charm": [
+    {
+      "kind": "use",
+      "name": "Zandalarian Hero Charm",
+      "spellPower": 204,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases spell damage by up to 204, decreasing as you cast. Lasts 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Mind Quickening Gem": [
+    {
+      "kind": "use",
+      "name": "Mind Quickening Gem",
+      "haste": 0.33,
+      "duration": 20,
+      "cooldown": 300,
+      "text": "Use: Increases your casting speed by 33% for 20 sec. (5 Min Cooldown)"
+    }
+  ],
+  "Natural Alignment Crystal": [
+    {
+      "kind": "use",
+      "name": "Natural Alignment Crystal",
+      "spellPower": 150,
+      "duration": 20,
+      "cooldown": 300,
+      "text": "Use: Increases Nature spell damage by up to 150 for 20 sec. (5 Min Cooldown)"
+    }
+  ],
+  "Diamond Flask": [
+    {
+      "kind": "use",
+      "name": "Diamond Flask",
+      "strength": 75,
+      "duration": 60,
+      "cooldown": 360,
+      "text": "Use: Increases Strength by 75 for 1 min. (6 Min Cooldown)"
+    }
+  ]
+}

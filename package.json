@@ -7,7 +7,11 @@
     "gen": "buf generate",
     "wasm": "node scripts/build-wasm.mjs",
     "cli": "go -C engine run ./cmd/cli",
-    "test": "go -C engine test ./...",
+    "cli:debug-rotation": "go -C engine run ./cmd/cli --debug-rotation",
+    "catalog": "node scripts/build-catalog.mjs",
+    "wowhead": "node scripts/wowhead/ingest.mjs",
+    "wowhead:test": "node --test scripts/wowhead/parse.test.mjs",
+    "test": "node --test scripts/wowhead/parse.test.mjs && go -C engine test ./...",
     "dev": "npm run wasm && npm --prefix web run dev",
     "build": "npm run wasm && npm --prefix web run build"
   }

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file wowfsim/sim.proto.
  */
 export const file_wowfsim_sim: GenFile = /*@__PURE__*/
-  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMifgoGUGxheWVyEgwKBG5hbWUYASABKAkSHQoFY2xhc3MYAiABKA4yDi53b3dmc2ltLkNsYXNzEhsKBHJhY2UYAyABKA4yDS53b3dmc2ltLlJhY2USDQoFbGV2ZWwYBCABKAUSGwoEZ2VhchgFIAEoCzINLndvd2ZzaW0uR2VhciIsCgRHZWFyEiQKBWl0ZW1zGAEgAygLMhUud293ZnNpbS5FcXVpcHBlZEl0ZW0iSQoMRXF1aXBwZWRJdGVtEgoKAmlkGAEgASgFEgwKBG5hbWUYAiABKAkSHwoEc2xvdBgDIAEoDjIRLndvd2ZzaW0uSXRlbVNsb3QiJQoJRW5jb3VudGVyEhgKEGR1cmF0aW9uX3NlY29uZHMYASABKAEiMgoKU2ltT3B0aW9ucxISCgppdGVyYXRpb25zGAEgASgFEhAKCHJuZ19zZWVkGAIgASgDIo4BCglTaW1SZXN1bHQSEAoIZHBzX21lYW4YASABKAESEQoJZHBzX3N0ZGV2GAIgASgBEg8KB2Rwc19taW4YAyABKAESDwoHZHBzX21heBgEIAEoARISCgppdGVyYXRpb25zGAUgASgFEiYKB2FjdGlvbnMYBiADKAsyFS53b3dmc2ltLkFjdGlvbk1ldHJpYyI4CgxBY3Rpb25NZXRyaWMSDAoEbmFtZRgBIAEoCRILCgNkcHMYAiABKAESDQoFY2FzdHMYAyABKAMqvwEKBUNsYXNzEhUKEUNMQVNTX1VOU1BFQ0lGSUVEEAASEQoNQ0xBU1NfV0FSUklPUhABEhEKDUNMQVNTX1BBTEFESU4QAhIQCgxDTEFTU19IVU5URVIQAxIPCgtDTEFTU19ST0dVRRAEEhAKDENMQVNTX1BSSUVTVBAFEhAKDENMQVNTX1NIQU1BThAGEg4KCkNMQVNTX01BR0UQBxIRCg1DTEFTU19XQVJMT0NLEAgSDwoLQ0xBU1NfRFJVSUQQCSqzAQoEUmFjZRIUChBSQUNFX1VOU1BFQ0lGSUVEEAASDgoKUkFDRV9IVU1BThABEgwKCFJBQ0VfT1JDEAISDgoKUkFDRV9EV0FSRhADEhIKDlJBQ0VfTklHSFRfRUxGEAQSDwoLUkFDRV9VTkRFQUQQBRIPCgtSQUNFX1RBVVJFThAGEg4KClJBQ0VfR05PTUUQBxIOCgpSQUNFX1RST0xMEAgSEQoNUkFDRV9TS1lCT1JORRAJKp4DCghJdGVtU2xvdBIZChVJVEVNX1NMT1RfVU5TUEVDSUZJRUQQABISCg5JVEVNX1NMT1RfSEVBRBABEhIKDklURU1fU0xPVF9ORUNLEAISFgoSSVRFTV9TTE9UX1NIT1VMREVSEAMSEgoOSVRFTV9TTE9UX0JBQ0sQBBITCg9JVEVNX1NMT1RfQ0hFU1QQBRITCg9JVEVNX1NMT1RfV1JJU1QQBhITCg9JVEVNX1NMT1RfSEFORFMQBxITCg9JVEVNX1NMT1RfV0FJU1QQCBISCg5JVEVNX1NMT1RfTEVHUxAJEhIKDklURU1fU0xPVF9GRUVUEAoSFgoSSVRFTV9TTE9UX0ZJTkdFUl8xEAsSFgoSSVRFTV9TTE9UX0ZJTkdFUl8yEAwSFwoTSVRFTV9TTE9UX1RSSU5LRVRfMRANEhcKE0lURU1fU0xPVF9UUklOS0VUXzIQDhIXChNJVEVNX1NMT1RfTUFJTl9IQU5EEA8SFgoSSVRFTV9TTE9UX09GRl9IQU5EEBASFAoQSVRFTV9TTE9UX1JBTkdFRBARQh1aG3dvd2Ytc2ltL2VuZ2luZS9nZW4vd293ZnNpbWIGcHJvdG8z");
+  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMi4gEKBlBsYXllchIMCgRuYW1lGAEgASgJEh0KBWNsYXNzGAIgASgOMg4ud293ZnNpbS5DbGFzcxIbCgRyYWNlGAMgASgOMg0ud293ZnNpbS5SYWNlEg0KBWxldmVsGAQgASgFEhsKBGdlYXIYBSABKAsyDS53b3dmc2ltLkdlYXISJAoHdGFsZW50cxgGIAMoCzITLndvd2ZzaW0uVGFsZW50UGljaxISCgpyYWlkX2J1ZmZzGAcgAygJEigKC2JvbnVzX3N0YXRzGAggASgLMhMud293ZnNpbS5Cb251c1N0YXRzIt8BCgpCb251c1N0YXRzEhAKCHN0cmVuZ3RoGAEgASgBEg8KB2FnaWxpdHkYAiABKAESEQoJaW50ZWxsZWN0GAMgASgBEhQKDGF0dGFja19wb3dlchgEIAEoARITCgtzcGVsbF9wb3dlchgFIAEoARITCgtjcml0X2NoYW5jZRgGIAEoARISCgpoaXRfY2hhbmNlGAcgASgBEhkKEXNwZWxsX2NyaXRfY2hhbmNlGAggASgBEhgKEHNwZWxsX2hpdF9jaGFuY2UYCSABKAESEgoKd2VhcG9uX2RwcxgKIAEoASIsCgRHZWFyEiQKBWl0ZW1zGAEgAygLMhUud293ZnNpbS5FcXVpcHBlZEl0ZW0i2gIKDEVxdWlwcGVkSXRlbRIKCgJpZBgBIAEoBRIMCgRuYW1lGAIgASgJEh8KBHNsb3QYAyABKA4yES53b3dmc2ltLkl0ZW1TbG90EhIKCndlYXBvbl9kcHMYBCABKAESFwoPYXR0YWNrX3NwZWVkX21zGAUgASgFEhAKCHN0cmVuZ3RoGAYgASgFEg8KB2FnaWxpdHkYByABKAUSFAoMYXR0YWNrX3Bvd2VyGAggASgFEhMKC2NyaXRfY2hhbmNlGAkgASgBEhUKDWl0ZW1fc3ViY2xhc3MYCiABKAkSEgoKaGl0X2NoYW5jZRgLIAEoARIMCgRoYW5kGAwgASgJEhEKCWludGVsbGVjdBgNIAEoBRITCgtzcGVsbF9wb3dlchgOIAEoBRIZChFzcGVsbF9jcml0X2NoYW5jZRgPIAEoARIYChBzcGVsbF9oaXRfY2hhbmNlGBAgASgBIiYKClRhbGVudFBpY2sSCgoCaWQYASABKAUSDAoEcmFuaxgCIAEoBSIlCglFbmNvdW50ZXISGAoQZHVyYXRpb25fc2Vjb25kcxgBIAEoASIyCgpTaW1PcHRpb25zEhIKCml0ZXJhdGlvbnMYASABKAUSEAoIcm5nX3NlZWQYAiABKAMiywEKCVNpbVJlc3VsdBIQCghkcHNfbWVhbhgBIAEoARIRCglkcHNfc3RkZXYYAiABKAESDwoHZHBzX21pbhgDIAEoARIPCgdkcHNfbWF4GAQgASgBEhIKCml0ZXJhdGlvbnMYBSABKAUSJgoHYWN0aW9ucxgGIAMoCzIVLndvd2ZzaW0uQWN0aW9uTWV0cmljEhEKCW1vZGlmaWVycxgHIAMoCRIoCgh0aW1lbGluZRgIIAMoCzIWLndvd2ZzaW0uVGltZWxpbmVFdmVudCJlCgxBY3Rpb25NZXRyaWMSDAoEbmFtZRgBIAEoCRILCgNkcHMYAiABKAESDQoFY2FzdHMYAyABKAMSDQoFY3JpdHMYBCABKAMSDgoGbWlzc2VzGAUgASgDEgwKBGljb24YBiABKAkibQoNVGltZWxpbmVFdmVudBIUCgx0aW1lX3NlY29uZHMYASABKAESDAoEbmFtZRgCIAEoCRIOCgZkYW1hZ2UYAyABKAESDAoEY3JpdBgEIAEoCBIMCgRtaXNzGAUgASgIEgwKBGljb24YBiABKAkiPwoKU3RhdFdlaWdodBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEgsKA2RwcxgDIAEoARIKCgJlcBgEIAEoASKRAQoRU3RhdFdlaWdodHNSZXN1bHQSFAoMcmVmZXJlbmNlX2lkGAEgASgJEhYKDnJlZmVyZW5jZV9uYW1lGAIgASgJEhQKDGJhc2VsaW5lX2RwcxgDIAEoARISCgppdGVyYXRpb25zGAQgASgFEiQKB3dlaWdodHMYBSADKAsyEy53b3dmc2ltLlN0YXRXZWlnaHQqvwEKBUNsYXNzEhUKEUNMQVNTX1VOU1BFQ0lGSUVEEAASEQoNQ0xBU1NfV0FSUklPUhABEhEKDUNMQVNTX1BBTEFESU4QAhIQCgxDTEFTU19IVU5URVIQAxIPCgtDTEFTU19ST0dVRRAEEhAKDENMQVNTX1BSSUVTVBAFEhAKDENMQVNTX1NIQU1BThAGEg4KCkNMQVNTX01BR0UQBxIRCg1DTEFTU19XQVJMT0NLEAgSDwoLQ0xBU1NfRFJVSUQQCSqzAQoEUmFjZRIUChBSQUNFX1VOU1BFQ0lGSUVEEAASDgoKUkFDRV9IVU1BThABEgwKCFJBQ0VfT1JDEAISDgoKUkFDRV9EV0FSRhADEhIKDlJBQ0VfTklHSFRfRUxGEAQSDwoLUkFDRV9VTkRFQUQQBRIPCgtSQUNFX1RBVVJFThAGEg4KClJBQ0VfR05PTUUQBxIOCgpSQUNFX1RST0xMEAgSEQoNUkFDRV9TS1lCT1JORRAJKp4DCghJdGVtU2xvdBIZChVJVEVNX1NMT1RfVU5TUEVDSUZJRUQQABISCg5JVEVNX1NMT1RfSEVBRBABEhIKDklURU1fU0xPVF9ORUNLEAISFgoSSVRFTV9TTE9UX1NIT1VMREVSEAMSEgoOSVRFTV9TTE9UX0JBQ0sQBBITCg9JVEVNX1NMT1RfQ0hFU1QQBRITCg9JVEVNX1NMT1RfV1JJU1QQBhITCg9JVEVNX1NMT1RfSEFORFMQBxITCg9JVEVNX1NMT1RfV0FJU1QQCBISCg5JVEVNX1NMT1RfTEVHUxAJEhIKDklURU1fU0xPVF9GRUVUEAoSFgoSSVRFTV9TTE9UX0ZJTkdFUl8xEAsSFgoSSVRFTV9TTE9UX0ZJTkdFUl8yEAwSFwoTSVRFTV9TTE9UX1RSSU5LRVRfMRANEhcKE0lURU1fU0xPVF9UUklOS0VUXzIQDhIXChNJVEVNX1NMT1RfTUFJTl9IQU5EEA8SFgoSSVRFTV9TTE9UX09GRl9IQU5EEBASFAoQSVRFTV9TTE9UX1JBTkdFRBARQh1aG3dvd2Ytc2ltL2VuZ2luZS9nZW4vd293ZnNpbWIGcHJvdG8z");
 
 /**
  * SimRequest is the only input the UI sends into the Go engine.
@@ -69,6 +69,21 @@ export type Player = Message<"wowfsim.Player"> & {
    * @generated from field: wowfsim.Gear gear = 5;
    */
   gear?: Gear | undefined;
+
+  /**
+   * @generated from field: repeated wowfsim.TalentPick talents = 6;
+   */
+  talents: TalentPick[];
+
+  /**
+   * @generated from field: repeated string raid_buffs = 7;
+   */
+  raidBuffs: string[];
+
+  /**
+   * @generated from field: wowfsim.BonusStats bonus_stats = 8;
+   */
+  bonusStats?: BonusStats | undefined;
 };
 
 /**
@@ -77,6 +92,70 @@ export type Player = Message<"wowfsim.Player"> & {
  */
 export const PlayerSchema: GenMessage<Player> = /*@__PURE__*/
   messageDesc(file_wowfsim_sim, 1);
+
+/**
+ * Extra stats added after gear, before raid multipliers. Used for EP measurement.
+ *
+ * @generated from message wowfsim.BonusStats
+ */
+export type BonusStats = Message<"wowfsim.BonusStats"> & {
+  /**
+   * @generated from field: double strength = 1;
+   */
+  strength: number;
+
+  /**
+   * @generated from field: double agility = 2;
+   */
+  agility: number;
+
+  /**
+   * @generated from field: double intellect = 3;
+   */
+  intellect: number;
+
+  /**
+   * @generated from field: double attack_power = 4;
+   */
+  attackPower: number;
+
+  /**
+   * @generated from field: double spell_power = 5;
+   */
+  spellPower: number;
+
+  /**
+   * @generated from field: double crit_chance = 6;
+   */
+  critChance: number;
+
+  /**
+   * @generated from field: double hit_chance = 7;
+   */
+  hitChance: number;
+
+  /**
+   * @generated from field: double spell_crit_chance = 8;
+   */
+  spellCritChance: number;
+
+  /**
+   * @generated from field: double spell_hit_chance = 9;
+   */
+  spellHitChance: number;
+
+  /**
+   * @generated from field: double weapon_dps = 10;
+   */
+  weaponDps: number;
+};
+
+/**
+ * Describes the message wowfsim.BonusStats.
+ * Use `create(BonusStatsSchema)` to create a new message.
+ */
+export const BonusStatsSchema: GenMessage<BonusStats> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 2);
 
 /**
  * @generated from message wowfsim.Gear
@@ -93,7 +172,7 @@ export type Gear = Message<"wowfsim.Gear"> & {
  * Use `create(GearSchema)` to create a new message.
  */
 export const GearSchema: GenMessage<Gear> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 2);
+  messageDesc(file_wowfsim_sim, 3);
 
 /**
  * @generated from message wowfsim.EquippedItem
@@ -113,6 +192,71 @@ export type EquippedItem = Message<"wowfsim.EquippedItem"> & {
    * @generated from field: wowfsim.ItemSlot slot = 3;
    */
   slot: ItemSlot;
+
+  /**
+   * @generated from field: double weapon_dps = 4;
+   */
+  weaponDps: number;
+
+  /**
+   * @generated from field: int32 attack_speed_ms = 5;
+   */
+  attackSpeedMs: number;
+
+  /**
+   * @generated from field: int32 strength = 6;
+   */
+  strength: number;
+
+  /**
+   * @generated from field: int32 agility = 7;
+   */
+  agility: number;
+
+  /**
+   * @generated from field: int32 attack_power = 8;
+   */
+  attackPower: number;
+
+  /**
+   * @generated from field: double crit_chance = 9;
+   */
+  critChance: number;
+
+  /**
+   * @generated from field: string item_subclass = 10;
+   */
+  itemSubclass: string;
+
+  /**
+   * @generated from field: double hit_chance = 11;
+   */
+  hitChance: number;
+
+  /**
+   * @generated from field: string hand = 12;
+   */
+  hand: string;
+
+  /**
+   * @generated from field: int32 intellect = 13;
+   */
+  intellect: number;
+
+  /**
+   * @generated from field: int32 spell_power = 14;
+   */
+  spellPower: number;
+
+  /**
+   * @generated from field: double spell_crit_chance = 15;
+   */
+  spellCritChance: number;
+
+  /**
+   * @generated from field: double spell_hit_chance = 16;
+   */
+  spellHitChance: number;
 };
 
 /**
@@ -120,7 +264,29 @@ export type EquippedItem = Message<"wowfsim.EquippedItem"> & {
  * Use `create(EquippedItemSchema)` to create a new message.
  */
 export const EquippedItemSchema: GenMessage<EquippedItem> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 3);
+  messageDesc(file_wowfsim_sim, 4);
+
+/**
+ * @generated from message wowfsim.TalentPick
+ */
+export type TalentPick = Message<"wowfsim.TalentPick"> & {
+  /**
+   * @generated from field: int32 id = 1;
+   */
+  id: number;
+
+  /**
+   * @generated from field: int32 rank = 2;
+   */
+  rank: number;
+};
+
+/**
+ * Describes the message wowfsim.TalentPick.
+ * Use `create(TalentPickSchema)` to create a new message.
+ */
+export const TalentPickSchema: GenMessage<TalentPick> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 5);
 
 /**
  * @generated from message wowfsim.Encounter
@@ -137,7 +303,7 @@ export type Encounter = Message<"wowfsim.Encounter"> & {
  * Use `create(EncounterSchema)` to create a new message.
  */
 export const EncounterSchema: GenMessage<Encounter> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 4);
+  messageDesc(file_wowfsim_sim, 6);
 
 /**
  * @generated from message wowfsim.SimOptions
@@ -159,7 +325,7 @@ export type SimOptions = Message<"wowfsim.SimOptions"> & {
  * Use `create(SimOptionsSchema)` to create a new message.
  */
 export const SimOptionsSchema: GenMessage<SimOptions> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 5);
+  messageDesc(file_wowfsim_sim, 7);
 
 /**
  * @generated from message wowfsim.SimResult
@@ -194,6 +360,18 @@ export type SimResult = Message<"wowfsim.SimResult"> & {
    * @generated from field: repeated wowfsim.ActionMetric actions = 6;
    */
   actions: ActionMetric[];
+
+  /**
+   * @generated from field: repeated string modifiers = 7;
+   */
+  modifiers: string[];
+
+  /**
+   * Cast log from the first iteration so the UI can draw a combat timeline.
+   *
+   * @generated from field: repeated wowfsim.TimelineEvent timeline = 8;
+   */
+  timeline: TimelineEvent[];
 };
 
 /**
@@ -201,7 +379,7 @@ export type SimResult = Message<"wowfsim.SimResult"> & {
  * Use `create(SimResultSchema)` to create a new message.
  */
 export const SimResultSchema: GenMessage<SimResult> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 6);
+  messageDesc(file_wowfsim_sim, 8);
 
 /**
  * @generated from message wowfsim.ActionMetric
@@ -221,6 +399,21 @@ export type ActionMetric = Message<"wowfsim.ActionMetric"> & {
    * @generated from field: int64 casts = 3;
    */
   casts: bigint;
+
+  /**
+   * @generated from field: int64 crits = 4;
+   */
+  crits: bigint;
+
+  /**
+   * @generated from field: int64 misses = 5;
+   */
+  misses: bigint;
+
+  /**
+   * @generated from field: string icon = 6;
+   */
+  icon: string;
 };
 
 /**
@@ -228,7 +421,122 @@ export type ActionMetric = Message<"wowfsim.ActionMetric"> & {
  * Use `create(ActionMetricSchema)` to create a new message.
  */
 export const ActionMetricSchema: GenMessage<ActionMetric> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 7);
+  messageDesc(file_wowfsim_sim, 9);
+
+/**
+ * @generated from message wowfsim.TimelineEvent
+ */
+export type TimelineEvent = Message<"wowfsim.TimelineEvent"> & {
+  /**
+   * @generated from field: double time_seconds = 1;
+   */
+  timeSeconds: number;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: double damage = 3;
+   */
+  damage: number;
+
+  /**
+   * @generated from field: bool crit = 4;
+   */
+  crit: boolean;
+
+  /**
+   * @generated from field: bool miss = 5;
+   */
+  miss: boolean;
+
+  /**
+   * @generated from field: string icon = 6;
+   */
+  icon: string;
+};
+
+/**
+ * Describes the message wowfsim.TimelineEvent.
+ * Use `create(TimelineEventSchema)` to create a new message.
+ */
+export const TimelineEventSchema: GenMessage<TimelineEvent> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 10);
+
+/**
+ * @generated from message wowfsim.StatWeight
+ */
+export type StatWeight = Message<"wowfsim.StatWeight"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * Mean DPS gained from one unit of this stat (1% for hit/crit).
+   *
+   * @generated from field: double dps = 3;
+   */
+  dps: number;
+
+  /**
+   * DPS weight divided by the class reference stat (AP or spell power).
+   *
+   * @generated from field: double ep = 4;
+   */
+  ep: number;
+};
+
+/**
+ * Describes the message wowfsim.StatWeight.
+ * Use `create(StatWeightSchema)` to create a new message.
+ */
+export const StatWeightSchema: GenMessage<StatWeight> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 11);
+
+/**
+ * @generated from message wowfsim.StatWeightsResult
+ */
+export type StatWeightsResult = Message<"wowfsim.StatWeightsResult"> & {
+  /**
+   * @generated from field: string reference_id = 1;
+   */
+  referenceId: string;
+
+  /**
+   * @generated from field: string reference_name = 2;
+   */
+  referenceName: string;
+
+  /**
+   * @generated from field: double baseline_dps = 3;
+   */
+  baselineDps: number;
+
+  /**
+   * @generated from field: int32 iterations = 4;
+   */
+  iterations: number;
+
+  /**
+   * @generated from field: repeated wowfsim.StatWeight weights = 5;
+   */
+  weights: StatWeight[];
+};
+
+/**
+ * Describes the message wowfsim.StatWeightsResult.
+ * Use `create(StatWeightsResultSchema)` to create a new message.
+ */
+export const StatWeightsResultSchema: GenMessage<StatWeightsResult> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 12);
 
 /**
  * @generated from enum wowfsim.Class

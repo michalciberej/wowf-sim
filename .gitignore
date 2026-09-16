@@ -1,4 +1,5 @@
 # Node
+node_modules/
 web/node_modules/
 web/dist/
 
@@ -11,6 +12,13 @@ engine/bin/
 # WASM build artifacts (copied into web/public on build)
 web/public/wowfsim.wasm
 web/public/wasm_exec.js
+
+# Local caches and secrets
+.env
+.env.*
+data/wowhead/**
+!data/wowhead/.gitkeep
+engine/internal/clientdata/talent-trees/icon-cache.json
 
 # OS / editor
 .DS_Store
