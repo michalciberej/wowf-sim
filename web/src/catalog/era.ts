@@ -224,7 +224,7 @@ export function canEquipItem(item: CatalogItem, playerClass: Class, slot: ItemSl
     if (item.hand === '2h') {
       return false
     }
-    if (item.hand === '1h' || (item.slot === ItemSlot.MAIN_HAND && item.hand !== 'oh' && item.hand !== '2h' && item.weaponDps)) {
+    if (item.hand === '1h' || (item.slot === ItemSlot.MAIN_HAND && item.hand !== 'oh' && item.weaponDps)) {
       return canDualWield(playerClass)
     }
     return item.hand === 'oh' || item.slot === ItemSlot.OFF_HAND

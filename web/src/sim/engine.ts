@@ -1,5 +1,6 @@
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
 import {
+  ActionMetricSchema,
   SimRequestSchema,
   SimResultSchema,
   StatWeightsResultSchema,
@@ -163,14 +164,16 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
     variance = 0
   }
 
-  const mergedActions = [...actions.values()].map((action) => ({
-    name: action.name,
-    icon: action.icon,
-    dps: action.dps / iterations,
-    casts: action.casts / BigInt(iterations),
-    crits: action.crits / BigInt(iterations),
-    misses: action.misses / BigInt(iterations),
-  }))
+  const mergedActions = [...actions.values()].map((action) =>
+    create(ActionMetricSchema, {
+      name: action.name,
+      icon: action.icon,
+      dps: action.dps / iterations,
+      casts: action.casts / BigInt(iterations),
+      crits: action.crits / BigInt(iterations),
+      misses: action.misses / BigInt(iterations),
+    }),
+  )
   mergedActions.sort((a, b) => {
     if (a.name === 'Auto Attack') {
       return -1
@@ -181,16 +184,16 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
     return b.dps - a.dps
   })
 
-  return {
-    ...parts[0],
+  return create(SimResultSchema, {
     dpsMean: mean,
     dpsStdev: Math.sqrt(variance),
     dpsMin,
     dpsMax,
     iterations,
     actions: mergedActions,
+    modifiers: parts[0].modifiers,
     timeline: parts[0].timeline,
-  }
+  })
 }
 
 export function iterationChunkSize(durationSeconds: number, iterations: number) {
