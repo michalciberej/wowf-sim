@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file wowfsim/sim.proto.
  */
 export const file_wowfsim_sim: GenFile = /*@__PURE__*/
-  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMihwMKBlBsYXllchIMCgRuYW1lGAEgASgJEh0KBWNsYXNzGAIgASgOMg4ud293ZnNpbS5DbGFzcxIbCgRyYWNlGAMgASgOMg0ud293ZnNpbS5SYWNlEg0KBWxldmVsGAQgASgFEhsKBGdlYXIYBSABKAsyDS53b3dmc2ltLkdlYXISJAoHdGFsZW50cxgGIAMoCzITLndvd2ZzaW0uVGFsZW50UGljaxISCgpyYWlkX2J1ZmZzGAcgAygJEigKC2JvbnVzX3N0YXRzGAggASgLMhMud293ZnNpbS5Cb251c1N0YXRzEjQKEmFiaWxpdHlfcHJpb3JpdGllcxgJIAMoCzIYLndvd2ZzaW0uQWJpbGl0eVByaW9yaXR5EiYKBnN0YW5jZRgKIAEoDjIWLndvd2ZzaW0uV2FycmlvclN0YW5jZRIVCg1jb21iYXRfcG90aW9uGAsgASgFEhYKDm1oX3dlYXBvbl90ZW1wGAwgASgJEhYKDm9oX3dlYXBvbl90ZW1wGA0gASgJIi8KD0FiaWxpdHlQcmlvcml0eRIKCgJpZBgBIAEoCRIQCghwcmlvcml0eRgCIAEoBSLfAQoKQm9udXNTdGF0cxIQCghzdHJlbmd0aBgBIAEoARIPCgdhZ2lsaXR5GAIgASgBEhEKCWludGVsbGVjdBgDIAEoARIUCgxhdHRhY2tfcG93ZXIYBCABKAESEwoLc3BlbGxfcG93ZXIYBSABKAESEwoLY3JpdF9jaGFuY2UYBiABKAESEgoKaGl0X2NoYW5jZRgHIAEoARIZChFzcGVsbF9jcml0X2NoYW5jZRgIIAEoARIYChBzcGVsbF9oaXRfY2hhbmNlGAkgASgBEhIKCndlYXBvbl9kcHMYCiABKAEiLAoER2VhchIkCgVpdGVtcxgBIAMoCzIVLndvd2ZzaW0uRXF1aXBwZWRJdGVtIu4CCgxFcXVpcHBlZEl0ZW0SCgoCaWQYASABKAUSDAoEbmFtZRgCIAEoCRIfCgRzbG90GAMgASgOMhEud293ZnNpbS5JdGVtU2xvdBISCgp3ZWFwb25fZHBzGAQgASgBEhcKD2F0dGFja19zcGVlZF9tcxgFIAEoBRIQCghzdHJlbmd0aBgGIAEoBRIPCgdhZ2lsaXR5GAcgASgFEhQKDGF0dGFja19wb3dlchgIIAEoBRITCgtjcml0X2NoYW5jZRgJIAEoARIVCg1pdGVtX3N1YmNsYXNzGAogASgJEhIKCmhpdF9jaGFuY2UYCyABKAESDAoEaGFuZBgMIAEoCRIRCglpbnRlbGxlY3QYDSABKAUSEwoLc3BlbGxfcG93ZXIYDiABKAUSGQoRc3BlbGxfY3JpdF9jaGFuY2UYDyABKAESGAoQc3BlbGxfaGl0X2NoYW5jZRgQIAEoARISCgplbmNoYW50X2lkGBIgASgFIiYKClRhbGVudFBpY2sSCgoCaWQYASABKAUSDAoEcmFuaxgCIAEoBSI0CglFbmNvdW50ZXISGAoQZHVyYXRpb25fc2Vjb25kcxgBIAEoARINCgVhcm1vchgCIAEoASIyCgpTaW1PcHRpb25zEhIKCml0ZXJhdGlvbnMYASABKAUSEAoIcm5nX3NlZWQYAiABKAMi4gEKCVNpbVJlc3VsdBIQCghkcHNfbWVhbhgBIAEoARIRCglkcHNfc3RkZXYYAiABKAESDwoHZHBzX21pbhgDIAEoARIPCgdkcHNfbWF4GAQgASgBEhIKCml0ZXJhdGlvbnMYBSABKAUSJgoHYWN0aW9ucxgGIAMoCzIVLndvd2ZzaW0uQWN0aW9uTWV0cmljEhEKCW1vZGlmaWVycxgHIAMoCRIoCgh0aW1lbGluZRgIIAMoCzIWLndvd2ZzaW0uVGltZWxpbmVFdmVudBIVCg1pdGVyYXRpb25fZHBzGAkgAygBIpoBCgxBY3Rpb25NZXRyaWMSDAoEbmFtZRgBIAEoCRILCgNkcHMYAiABKAESDQoFY2FzdHMYAyABKAESDQoFY3JpdHMYBCABKAESDgoGbWlzc2VzGAUgASgBEgwKBGljb24YBiABKAkSDwoHaGl0X2RwcxgHIAEoARIQCghjcml0X2RwcxgIIAEoARIQCghhdmdfY2FzdBgJIAEoASK+AQoNVGltZWxpbmVFdmVudBIUCgx0aW1lX3NlY29uZHMYASABKAESDAoEbmFtZRgCIAEoCRIOCgZkYW1hZ2UYAyABKAESDAoEY3JpdBgEIAEoCBIMCgRtaXNzGAUgASgIEgwKBGljb24YBiABKAkSFQoNcmVzb3VyY2Vfa2luZBgHIAEoCRIQCghyZXNvdXJjZRgIIAEoARIMCgRraW5kGAkgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYCiABKAEiPwoKU3RhdFdlaWdodBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEgsKA2RwcxgDIAEoARIKCgJlcBgEIAEoASKRAQoRU3RhdFdlaWdodHNSZXN1bHQSFAoMcmVmZXJlbmNlX2lkGAEgASgJEhYKDnJlZmVyZW5jZV9uYW1lGAIgASgJEhQKDGJhc2VsaW5lX2RwcxgDIAEoARISCgppdGVyYXRpb25zGAQgASgFEiQKB3dlaWdodHMYBSADKAsyEy53b3dmc2ltLlN0YXRXZWlnaHQqhgEKDVdhcnJpb3JTdGFuY2USHgoaV0FSUklPUl9TVEFOQ0VfVU5TUEVDSUZJRUQQABIZChVXQVJSSU9SX1NUQU5DRV9CQVRUTEUQARIcChhXQVJSSU9SX1NUQU5DRV9CRVJTRVJLRVIQAhIcChhXQVJSSU9SX1NUQU5DRV9ERUZFTlNJVkUQAyq/AQoFQ2xhc3MSFQoRQ0xBU1NfVU5TUEVDSUZJRUQQABIRCg1DTEFTU19XQVJSSU9SEAESEQoNQ0xBU1NfUEFMQURJThACEhAKDENMQVNTX0hVTlRFUhADEg8KC0NMQVNTX1JPR1VFEAQSEAoMQ0xBU1NfUFJJRVNUEAUSEAoMQ0xBU1NfU0hBTUFOEAYSDgoKQ0xBU1NfTUFHRRAHEhEKDUNMQVNTX1dBUkxPQ0sQCBIPCgtDTEFTU19EUlVJRBAJKrMBCgRSYWNlEhQKEFJBQ0VfVU5TUEVDSUZJRUQQABIOCgpSQUNFX0hVTUFOEAESDAoIUkFDRV9PUkMQAhIOCgpSQUNFX0RXQVJGEAMSEgoOUkFDRV9OSUdIVF9FTEYQBBIPCgtSQUNFX1VOREVBRBAFEg8KC1JBQ0VfVEFVUkVOEAYSDgoKUkFDRV9HTk9NRRAHEg4KClJBQ0VfVFJPTEwQCBIRCg1SQUNFX1NLWUJPUk5FEAkqngMKCEl0ZW1TbG90EhkKFUlURU1fU0xPVF9VTlNQRUNJRklFRBAAEhIKDklURU1fU0xPVF9IRUFEEAESEgoOSVRFTV9TTE9UX05FQ0sQAhIWChJJVEVNX1NMT1RfU0hPVUxERVIQAxISCg5JVEVNX1NMT1RfQkFDSxAEEhMKD0lURU1fU0xPVF9DSEVTVBAFEhMKD0lURU1fU0xPVF9XUklTVBAGEhMKD0lURU1fU0xPVF9IQU5EUxAHEhMKD0lURU1fU0xPVF9XQUlTVBAIEhIKDklURU1fU0xPVF9MRUdTEAkSEgoOSVRFTV9TTE9UX0ZFRVQQChIWChJJVEVNX1NMT1RfRklOR0VSXzEQCxIWChJJVEVNX1NMT1RfRklOR0VSXzIQDBIXChNJVEVNX1NMT1RfVFJJTktFVF8xEA0SFwoTSVRFTV9TTE9UX1RSSU5LRVRfMhAOEhcKE0lURU1fU0xPVF9NQUlOX0hBTkQQDxIWChJJVEVNX1NMT1RfT0ZGX0hBTkQQEBIUChBJVEVNX1NMT1RfUkFOR0VEEBFCHVobd293Zi1zaW0vZW5naW5lL2dlbi93b3dmc2ltYgZwcm90bzM");
+  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMixQMKBlBsYXllchIMCgRuYW1lGAEgASgJEh0KBWNsYXNzGAIgASgOMg4ud293ZnNpbS5DbGFzcxIbCgRyYWNlGAMgASgOMg0ud293ZnNpbS5SYWNlEg0KBWxldmVsGAQgASgFEhsKBGdlYXIYBSABKAsyDS53b3dmc2ltLkdlYXISJAoHdGFsZW50cxgGIAMoCzITLndvd2ZzaW0uVGFsZW50UGljaxISCgpyYWlkX2J1ZmZzGAcgAygJEigKC2JvbnVzX3N0YXRzGAggASgLMhMud293ZnNpbS5Cb251c1N0YXRzEjQKEmFiaWxpdHlfcHJpb3JpdGllcxgJIAMoCzIYLndvd2ZzaW0uQWJpbGl0eVByaW9yaXR5EiYKBnN0YW5jZRgKIAEoDjIWLndvd2ZzaW0uV2FycmlvclN0YW5jZRIVCg1jb21iYXRfcG90aW9uGAsgASgFEhYKDm1oX3dlYXBvbl90ZW1wGAwgASgJEhYKDm9oX3dlYXBvbl90ZW1wGA0gASgJEjwKGmV4ZWN1dGVfYWJpbGl0eV9wcmlvcml0aWVzGA4gAygLMhgud293ZnNpbS5BYmlsaXR5UHJpb3JpdHkiLwoPQWJpbGl0eVByaW9yaXR5EgoKAmlkGAEgASgJEhAKCHByaW9yaXR5GAIgASgFIt8BCgpCb251c1N0YXRzEhAKCHN0cmVuZ3RoGAEgASgBEg8KB2FnaWxpdHkYAiABKAESEQoJaW50ZWxsZWN0GAMgASgBEhQKDGF0dGFja19wb3dlchgEIAEoARITCgtzcGVsbF9wb3dlchgFIAEoARITCgtjcml0X2NoYW5jZRgGIAEoARISCgpoaXRfY2hhbmNlGAcgASgBEhkKEXNwZWxsX2NyaXRfY2hhbmNlGAggASgBEhgKEHNwZWxsX2hpdF9jaGFuY2UYCSABKAESEgoKd2VhcG9uX2RwcxgKIAEoASIsCgRHZWFyEiQKBWl0ZW1zGAEgAygLMhUud293ZnNpbS5FcXVpcHBlZEl0ZW0ilAMKDEVxdWlwcGVkSXRlbRIKCgJpZBgBIAEoBRIMCgRuYW1lGAIgASgJEh8KBHNsb3QYAyABKA4yES53b3dmc2ltLkl0ZW1TbG90EhIKCndlYXBvbl9kcHMYBCABKAESFwoPYXR0YWNrX3NwZWVkX21zGAUgASgFEhAKCHN0cmVuZ3RoGAYgASgFEg8KB2FnaWxpdHkYByABKAUSFAoMYXR0YWNrX3Bvd2VyGAggASgFEhMKC2NyaXRfY2hhbmNlGAkgASgBEhUKDWl0ZW1fc3ViY2xhc3MYCiABKAkSEgoKaGl0X2NoYW5jZRgLIAEoARIMCgRoYW5kGAwgASgJEhEKCWludGVsbGVjdBgNIAEoBRITCgtzcGVsbF9wb3dlchgOIAEoBRIZChFzcGVsbF9jcml0X2NoYW5jZRgPIAEoARIYChBzcGVsbF9oaXRfY2hhbmNlGBAgASgBEhIKCmVuY2hhbnRfaWQYEiABKAUSJAoHZWZmZWN0cxgTIAMoCzITLndvd2ZzaW0uSXRlbUVmZmVjdCLBAgoKSXRlbUVmZmVjdBIMCgRraW5kGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEdGV4dBgDIAEoCRIUCgxhdHRhY2tfcG93ZXIYBCABKAESEwoLc3BlbGxfcG93ZXIYBSABKAESDQoFaGFzdGUYBiABKAESDAoEY3JpdBgHIAEoARIQCghzdHJlbmd0aBgIIAEoARIPCgdhZ2lsaXR5GAkgASgBEhQKDGFybW9yX2lnbm9yZRgKIAEoARIMCgRyYWdlGAsgASgBEhAKCGR1cmF0aW9uGAwgASgBEhAKCGNvb2xkb3duGA0gASgBEg4KBmNoYW5jZRgOIAEoARIUCgxleHRyYV9hdHRhY2sYDyABKAUSEAoIc3RhY2tfYXAYECABKAESEAoIaW50ZXJ2YWwYESABKAESDAoEaWNvbhgSIAEoCSImCgpUYWxlbnRQaWNrEgoKAmlkGAEgASgFEgwKBHJhbmsYAiABKAUiNAoJRW5jb3VudGVyEhgKEGR1cmF0aW9uX3NlY29uZHMYASABKAESDQoFYXJtb3IYAiABKAEiMgoKU2ltT3B0aW9ucxISCgppdGVyYXRpb25zGAEgASgFEhAKCHJuZ19zZWVkGAIgASgDIuIBCglTaW1SZXN1bHQSEAoIZHBzX21lYW4YASABKAESEQoJZHBzX3N0ZGV2GAIgASgBEg8KB2Rwc19taW4YAyABKAESDwoHZHBzX21heBgEIAEoARISCgppdGVyYXRpb25zGAUgASgFEiYKB2FjdGlvbnMYBiADKAsyFS53b3dmc2ltLkFjdGlvbk1ldHJpYxIRCgltb2RpZmllcnMYByADKAkSKAoIdGltZWxpbmUYCCADKAsyFi53b3dmc2ltLlRpbWVsaW5lRXZlbnQSFQoNaXRlcmF0aW9uX2RwcxgJIAMoASKaAQoMQWN0aW9uTWV0cmljEgwKBG5hbWUYASABKAkSCwoDZHBzGAIgASgBEg0KBWNhc3RzGAMgASgBEg0KBWNyaXRzGAQgASgBEg4KBm1pc3NlcxgFIAEoARIMCgRpY29uGAYgASgJEg8KB2hpdF9kcHMYByABKAESEAoIY3JpdF9kcHMYCCABKAESEAoIYXZnX2Nhc3QYCSABKAEivgEKDVRpbWVsaW5lRXZlbnQSFAoMdGltZV9zZWNvbmRzGAEgASgBEgwKBG5hbWUYAiABKAkSDgoGZGFtYWdlGAMgASgBEgwKBGNyaXQYBCABKAgSDAoEbWlzcxgFIAEoCBIMCgRpY29uGAYgASgJEhUKDXJlc291cmNlX2tpbmQYByABKAkSEAoIcmVzb3VyY2UYCCABKAESDAoEa2luZBgJIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAogASgBIj8KClN0YXRXZWlnaHQSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRILCgNkcHMYAyABKAESCgoCZXAYBCABKAEikQEKEVN0YXRXZWlnaHRzUmVzdWx0EhQKDHJlZmVyZW5jZV9pZBgBIAEoCRIWCg5yZWZlcmVuY2VfbmFtZRgCIAEoCRIUCgxiYXNlbGluZV9kcHMYAyABKAESEgoKaXRlcmF0aW9ucxgEIAEoBRIkCgd3ZWlnaHRzGAUgAygLMhMud293ZnNpbS5TdGF0V2VpZ2h0KoYBCg1XYXJyaW9yU3RhbmNlEh4KGldBUlJJT1JfU1RBTkNFX1VOU1BFQ0lGSUVEEAASGQoVV0FSUklPUl9TVEFOQ0VfQkFUVExFEAESHAoYV0FSUklPUl9TVEFOQ0VfQkVSU0VSS0VSEAISHAoYV0FSUklPUl9TVEFOQ0VfREVGRU5TSVZFEAMqvwEKBUNsYXNzEhUKEUNMQVNTX1VOU1BFQ0lGSUVEEAASEQoNQ0xBU1NfV0FSUklPUhABEhEKDUNMQVNTX1BBTEFESU4QAhIQCgxDTEFTU19IVU5URVIQAxIPCgtDTEFTU19ST0dVRRAEEhAKDENMQVNTX1BSSUVTVBAFEhAKDENMQVNTX1NIQU1BThAGEg4KCkNMQVNTX01BR0UQBxIRCg1DTEFTU19XQVJMT0NLEAgSDwoLQ0xBU1NfRFJVSUQQCSqzAQoEUmFjZRIUChBSQUNFX1VOU1BFQ0lGSUVEEAASDgoKUkFDRV9IVU1BThABEgwKCFJBQ0VfT1JDEAISDgoKUkFDRV9EV0FSRhADEhIKDlJBQ0VfTklHSFRfRUxGEAQSDwoLUkFDRV9VTkRFQUQQBRIPCgtSQUNFX1RBVVJFThAGEg4KClJBQ0VfR05PTUUQBxIOCgpSQUNFX1RST0xMEAgSEQoNUkFDRV9TS1lCT1JORRAJKp4DCghJdGVtU2xvdBIZChVJVEVNX1NMT1RfVU5TUEVDSUZJRUQQABISCg5JVEVNX1NMT1RfSEVBRBABEhIKDklURU1fU0xPVF9ORUNLEAISFgoSSVRFTV9TTE9UX1NIT1VMREVSEAMSEgoOSVRFTV9TTE9UX0JBQ0sQBBITCg9JVEVNX1NMT1RfQ0hFU1QQBRITCg9JVEVNX1NMT1RfV1JJU1QQBhITCg9JVEVNX1NMT1RfSEFORFMQBxITCg9JVEVNX1NMT1RfV0FJU1QQCBISCg5JVEVNX1NMT1RfTEVHUxAJEhIKDklURU1fU0xPVF9GRUVUEAoSFgoSSVRFTV9TTE9UX0ZJTkdFUl8xEAsSFgoSSVRFTV9TTE9UX0ZJTkdFUl8yEAwSFwoTSVRFTV9TTE9UX1RSSU5LRVRfMRANEhcKE0lURU1fU0xPVF9UUklOS0VUXzIQDhIXChNJVEVNX1NMT1RfTUFJTl9IQU5EEA8SFgoSSVRFTV9TTE9UX09GRl9IQU5EEBASFAoQSVRFTV9TTE9UX1JBTkdFRBARQh1aG3dvd2Ytc2ltL2VuZ2luZS9nZW4vd293ZnNpbWIGcHJvdG8z");
 
 /**
  * SimRequest is the only input the UI sends into the Go engine.
@@ -117,6 +117,13 @@ export type Player = Message<"wowfsim.Player"> & {
    * @generated from field: string oh_weapon_temp = 13;
    */
   ohWeaponTemp: string;
+
+  /**
+   * Used at 20% target health. Missing IDs keep ability_priorities.
+   *
+   * @generated from field: repeated wowfsim.AbilityPriority execute_ability_priorities = 14;
+   */
+  executeAbilityPriorities: AbilityPriority[];
 };
 
 /**
@@ -319,6 +326,13 @@ export type EquippedItem = Message<"wowfsim.EquippedItem"> & {
    * @generated from field: int32 enchant_id = 18;
    */
   enchantId: number;
+
+  /**
+   * Proc / on-use effects. The UI sends these so WASM does not embed the item catalog.
+   *
+   * @generated from field: repeated wowfsim.ItemEffect effects = 19;
+   */
+  effects: ItemEffect[];
 };
 
 /**
@@ -327,6 +341,108 @@ export type EquippedItem = Message<"wowfsim.EquippedItem"> & {
  */
 export const EquippedItemSchema: GenMessage<EquippedItem> = /*@__PURE__*/
   messageDesc(file_wowfsim_sim, 5);
+
+/**
+ * @generated from message wowfsim.ItemEffect
+ */
+export type ItemEffect = Message<"wowfsim.ItemEffect"> & {
+  /**
+   * @generated from field: string kind = 1;
+   */
+  kind: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string text = 3;
+   */
+  text: string;
+
+  /**
+   * @generated from field: double attack_power = 4;
+   */
+  attackPower: number;
+
+  /**
+   * @generated from field: double spell_power = 5;
+   */
+  spellPower: number;
+
+  /**
+   * @generated from field: double haste = 6;
+   */
+  haste: number;
+
+  /**
+   * @generated from field: double crit = 7;
+   */
+  crit: number;
+
+  /**
+   * @generated from field: double strength = 8;
+   */
+  strength: number;
+
+  /**
+   * @generated from field: double agility = 9;
+   */
+  agility: number;
+
+  /**
+   * @generated from field: double armor_ignore = 10;
+   */
+  armorIgnore: number;
+
+  /**
+   * @generated from field: double rage = 11;
+   */
+  rage: number;
+
+  /**
+   * @generated from field: double duration = 12;
+   */
+  duration: number;
+
+  /**
+   * @generated from field: double cooldown = 13;
+   */
+  cooldown: number;
+
+  /**
+   * @generated from field: double chance = 14;
+   */
+  chance: number;
+
+  /**
+   * @generated from field: int32 extra_attack = 15;
+   */
+  extraAttack: number;
+
+  /**
+   * @generated from field: double stack_ap = 16;
+   */
+  stackAp: number;
+
+  /**
+   * @generated from field: double interval = 17;
+   */
+  interval: number;
+
+  /**
+   * @generated from field: string icon = 18;
+   */
+  icon: string;
+};
+
+/**
+ * Describes the message wowfsim.ItemEffect.
+ * Use `create(ItemEffectSchema)` to create a new message.
+ */
+export const ItemEffectSchema: GenMessage<ItemEffect> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 6);
 
 /**
  * @generated from message wowfsim.TalentPick
@@ -348,7 +464,7 @@ export type TalentPick = Message<"wowfsim.TalentPick"> & {
  * Use `create(TalentPickSchema)` to create a new message.
  */
 export const TalentPickSchema: GenMessage<TalentPick> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 6);
+  messageDesc(file_wowfsim_sim, 7);
 
 /**
  * @generated from message wowfsim.Encounter
@@ -372,7 +488,7 @@ export type Encounter = Message<"wowfsim.Encounter"> & {
  * Use `create(EncounterSchema)` to create a new message.
  */
 export const EncounterSchema: GenMessage<Encounter> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 7);
+  messageDesc(file_wowfsim_sim, 8);
 
 /**
  * @generated from message wowfsim.SimOptions
@@ -394,7 +510,7 @@ export type SimOptions = Message<"wowfsim.SimOptions"> & {
  * Use `create(SimOptionsSchema)` to create a new message.
  */
 export const SimOptionsSchema: GenMessage<SimOptions> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 8);
+  messageDesc(file_wowfsim_sim, 9);
 
 /**
  * @generated from message wowfsim.SimResult
@@ -455,7 +571,7 @@ export type SimResult = Message<"wowfsim.SimResult"> & {
  * Use `create(SimResultSchema)` to create a new message.
  */
 export const SimResultSchema: GenMessage<SimResult> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 9);
+  messageDesc(file_wowfsim_sim, 10);
 
 /**
  * @generated from message wowfsim.ActionMetric
@@ -516,7 +632,7 @@ export type ActionMetric = Message<"wowfsim.ActionMetric"> & {
  * Use `create(ActionMetricSchema)` to create a new message.
  */
 export const ActionMetricSchema: GenMessage<ActionMetric> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 10);
+  messageDesc(file_wowfsim_sim, 11);
 
 /**
  * @generated from message wowfsim.TimelineEvent
@@ -582,7 +698,7 @@ export type TimelineEvent = Message<"wowfsim.TimelineEvent"> & {
  * Use `create(TimelineEventSchema)` to create a new message.
  */
 export const TimelineEventSchema: GenMessage<TimelineEvent> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 11);
+  messageDesc(file_wowfsim_sim, 12);
 
 /**
  * @generated from message wowfsim.StatWeight
@@ -618,7 +734,7 @@ export type StatWeight = Message<"wowfsim.StatWeight"> & {
  * Use `create(StatWeightSchema)` to create a new message.
  */
 export const StatWeightSchema: GenMessage<StatWeight> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 12);
+  messageDesc(file_wowfsim_sim, 13);
 
 /**
  * @generated from message wowfsim.StatWeightsResult
@@ -655,7 +771,7 @@ export type StatWeightsResult = Message<"wowfsim.StatWeightsResult"> & {
  * Use `create(StatWeightsResultSchema)` to create a new message.
  */
 export const StatWeightsResultSchema: GenMessage<StatWeightsResult> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 13);
+  messageDesc(file_wowfsim_sim, 14);
 
 /**
  * @generated from enum wowfsim.WarriorStance

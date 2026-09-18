@@ -385,10 +385,12 @@ type Player struct {
 	// Wowhead Forever potion item id. 0 means none. Used off GCD like a trinket.
 	CombatPotion int32 `protobuf:"varint,11,opt,name=combat_potion,json=combatPotion,proto3" json:"combat_potion,omitempty"`
 	// Consumable weapon temp id (sharpening stone / weightstone). Empty means none.
-	MhWeaponTemp  string `protobuf:"bytes,12,opt,name=mh_weapon_temp,json=mhWeaponTemp,proto3" json:"mh_weapon_temp,omitempty"`
-	OhWeaponTemp  string `protobuf:"bytes,13,opt,name=oh_weapon_temp,json=ohWeaponTemp,proto3" json:"oh_weapon_temp,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	MhWeaponTemp string `protobuf:"bytes,12,opt,name=mh_weapon_temp,json=mhWeaponTemp,proto3" json:"mh_weapon_temp,omitempty"`
+	OhWeaponTemp string `protobuf:"bytes,13,opt,name=oh_weapon_temp,json=ohWeaponTemp,proto3" json:"oh_weapon_temp,omitempty"`
+	// Used at 20% target health. Missing IDs keep ability_priorities.
+	ExecuteAbilityPriorities []*AbilityPriority `protobuf:"bytes,14,rep,name=execute_ability_priorities,json=executeAbilityPriorities,proto3" json:"execute_ability_priorities,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *Player) Reset() {
@@ -510,6 +512,13 @@ func (x *Player) GetOhWeaponTemp() string {
 		return x.OhWeaponTemp
 	}
 	return ""
+}
+
+func (x *Player) GetExecuteAbilityPriorities() []*AbilityPriority {
+	if x != nil {
+		return x.ExecuteAbilityPriorities
+	}
+	return nil
 }
 
 type AbilityPriority struct {
@@ -744,7 +753,9 @@ type EquippedItem struct {
 	SpellCritChance float64                `protobuf:"fixed64,15,opt,name=spell_crit_chance,json=spellCritChance,proto3" json:"spell_crit_chance,omitempty"`
 	SpellHitChance  float64                `protobuf:"fixed64,16,opt,name=spell_hit_chance,json=spellHitChance,proto3" json:"spell_hit_chance,omitempty"`
 	// Wowhead Forever enhancement item id (permanent or temporary). 0 means none.
-	EnchantId     int32 `protobuf:"varint,18,opt,name=enchant_id,json=enchantId,proto3" json:"enchant_id,omitempty"`
+	EnchantId int32 `protobuf:"varint,18,opt,name=enchant_id,json=enchantId,proto3" json:"enchant_id,omitempty"`
+	// Proc / on-use effects. The UI sends these so WASM does not embed the item catalog.
+	Effects       []*ItemEffect `protobuf:"bytes,19,rep,name=effects,proto3" json:"effects,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -898,6 +909,193 @@ func (x *EquippedItem) GetEnchantId() int32 {
 	return 0
 }
 
+func (x *EquippedItem) GetEffects() []*ItemEffect {
+	if x != nil {
+		return x.Effects
+	}
+	return nil
+}
+
+type ItemEffect struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Text          string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
+	AttackPower   float64                `protobuf:"fixed64,4,opt,name=attack_power,json=attackPower,proto3" json:"attack_power,omitempty"`
+	SpellPower    float64                `protobuf:"fixed64,5,opt,name=spell_power,json=spellPower,proto3" json:"spell_power,omitempty"`
+	Haste         float64                `protobuf:"fixed64,6,opt,name=haste,proto3" json:"haste,omitempty"`
+	Crit          float64                `protobuf:"fixed64,7,opt,name=crit,proto3" json:"crit,omitempty"`
+	Strength      float64                `protobuf:"fixed64,8,opt,name=strength,proto3" json:"strength,omitempty"`
+	Agility       float64                `protobuf:"fixed64,9,opt,name=agility,proto3" json:"agility,omitempty"`
+	ArmorIgnore   float64                `protobuf:"fixed64,10,opt,name=armor_ignore,json=armorIgnore,proto3" json:"armor_ignore,omitempty"`
+	Rage          float64                `protobuf:"fixed64,11,opt,name=rage,proto3" json:"rage,omitempty"`
+	Duration      float64                `protobuf:"fixed64,12,opt,name=duration,proto3" json:"duration,omitempty"`
+	Cooldown      float64                `protobuf:"fixed64,13,opt,name=cooldown,proto3" json:"cooldown,omitempty"`
+	Chance        float64                `protobuf:"fixed64,14,opt,name=chance,proto3" json:"chance,omitempty"`
+	ExtraAttack   int32                  `protobuf:"varint,15,opt,name=extra_attack,json=extraAttack,proto3" json:"extra_attack,omitempty"`
+	StackAp       float64                `protobuf:"fixed64,16,opt,name=stack_ap,json=stackAp,proto3" json:"stack_ap,omitempty"`
+	Interval      float64                `protobuf:"fixed64,17,opt,name=interval,proto3" json:"interval,omitempty"`
+	Icon          string                 `protobuf:"bytes,18,opt,name=icon,proto3" json:"icon,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ItemEffect) Reset() {
+	*x = ItemEffect{}
+	mi := &file_wowfsim_sim_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ItemEffect) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ItemEffect) ProtoMessage() {}
+
+func (x *ItemEffect) ProtoReflect() protoreflect.Message {
+	mi := &file_wowfsim_sim_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ItemEffect.ProtoReflect.Descriptor instead.
+func (*ItemEffect) Descriptor() ([]byte, []int) {
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ItemEffect) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *ItemEffect) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ItemEffect) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *ItemEffect) GetAttackPower() float64 {
+	if x != nil {
+		return x.AttackPower
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetSpellPower() float64 {
+	if x != nil {
+		return x.SpellPower
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetHaste() float64 {
+	if x != nil {
+		return x.Haste
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetCrit() float64 {
+	if x != nil {
+		return x.Crit
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetStrength() float64 {
+	if x != nil {
+		return x.Strength
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetAgility() float64 {
+	if x != nil {
+		return x.Agility
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetArmorIgnore() float64 {
+	if x != nil {
+		return x.ArmorIgnore
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetRage() float64 {
+	if x != nil {
+		return x.Rage
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetDuration() float64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetCooldown() float64 {
+	if x != nil {
+		return x.Cooldown
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetChance() float64 {
+	if x != nil {
+		return x.Chance
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetExtraAttack() int32 {
+	if x != nil {
+		return x.ExtraAttack
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetStackAp() float64 {
+	if x != nil {
+		return x.StackAp
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetInterval() float64 {
+	if x != nil {
+		return x.Interval
+	}
+	return 0
+}
+
+func (x *ItemEffect) GetIcon() string {
+	if x != nil {
+		return x.Icon
+	}
+	return ""
+}
+
 type TalentPick struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -908,7 +1106,7 @@ type TalentPick struct {
 
 func (x *TalentPick) Reset() {
 	*x = TalentPick{}
-	mi := &file_wowfsim_sim_proto_msgTypes[6]
+	mi := &file_wowfsim_sim_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -920,7 +1118,7 @@ func (x *TalentPick) String() string {
 func (*TalentPick) ProtoMessage() {}
 
 func (x *TalentPick) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[6]
+	mi := &file_wowfsim_sim_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -933,7 +1131,7 @@ func (x *TalentPick) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TalentPick.ProtoReflect.Descriptor instead.
 func (*TalentPick) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{6}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *TalentPick) GetId() int32 {
@@ -961,7 +1159,7 @@ type Encounter struct {
 
 func (x *Encounter) Reset() {
 	*x = Encounter{}
-	mi := &file_wowfsim_sim_proto_msgTypes[7]
+	mi := &file_wowfsim_sim_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +1171,7 @@ func (x *Encounter) String() string {
 func (*Encounter) ProtoMessage() {}
 
 func (x *Encounter) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[7]
+	mi := &file_wowfsim_sim_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,7 +1184,7 @@ func (x *Encounter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Encounter.ProtoReflect.Descriptor instead.
 func (*Encounter) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{7}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Encounter) GetDurationSeconds() float64 {
@@ -1013,7 +1211,7 @@ type SimOptions struct {
 
 func (x *SimOptions) Reset() {
 	*x = SimOptions{}
-	mi := &file_wowfsim_sim_proto_msgTypes[8]
+	mi := &file_wowfsim_sim_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1025,7 +1223,7 @@ func (x *SimOptions) String() string {
 func (*SimOptions) ProtoMessage() {}
 
 func (x *SimOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[8]
+	mi := &file_wowfsim_sim_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1038,7 +1236,7 @@ func (x *SimOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SimOptions.ProtoReflect.Descriptor instead.
 func (*SimOptions) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{8}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SimOptions) GetIterations() int32 {
@@ -1074,7 +1272,7 @@ type SimResult struct {
 
 func (x *SimResult) Reset() {
 	*x = SimResult{}
-	mi := &file_wowfsim_sim_proto_msgTypes[9]
+	mi := &file_wowfsim_sim_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1086,7 +1284,7 @@ func (x *SimResult) String() string {
 func (*SimResult) ProtoMessage() {}
 
 func (x *SimResult) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[9]
+	mi := &file_wowfsim_sim_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1099,7 +1297,7 @@ func (x *SimResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SimResult.ProtoReflect.Descriptor instead.
 func (*SimResult) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{9}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SimResult) GetDpsMean() float64 {
@@ -1184,7 +1382,7 @@ type ActionMetric struct {
 
 func (x *ActionMetric) Reset() {
 	*x = ActionMetric{}
-	mi := &file_wowfsim_sim_proto_msgTypes[10]
+	mi := &file_wowfsim_sim_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1196,7 +1394,7 @@ func (x *ActionMetric) String() string {
 func (*ActionMetric) ProtoMessage() {}
 
 func (x *ActionMetric) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[10]
+	mi := &file_wowfsim_sim_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1209,7 +1407,7 @@ func (x *ActionMetric) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionMetric.ProtoReflect.Descriptor instead.
 func (*ActionMetric) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{10}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ActionMetric) GetName() string {
@@ -1295,7 +1493,7 @@ type TimelineEvent struct {
 
 func (x *TimelineEvent) Reset() {
 	*x = TimelineEvent{}
-	mi := &file_wowfsim_sim_proto_msgTypes[11]
+	mi := &file_wowfsim_sim_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1307,7 +1505,7 @@ func (x *TimelineEvent) String() string {
 func (*TimelineEvent) ProtoMessage() {}
 
 func (x *TimelineEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[11]
+	mi := &file_wowfsim_sim_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1320,7 +1518,7 @@ func (x *TimelineEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TimelineEvent.ProtoReflect.Descriptor instead.
 func (*TimelineEvent) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{11}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *TimelineEvent) GetTimeSeconds() float64 {
@@ -1407,7 +1605,7 @@ type StatWeight struct {
 
 func (x *StatWeight) Reset() {
 	*x = StatWeight{}
-	mi := &file_wowfsim_sim_proto_msgTypes[12]
+	mi := &file_wowfsim_sim_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1419,7 +1617,7 @@ func (x *StatWeight) String() string {
 func (*StatWeight) ProtoMessage() {}
 
 func (x *StatWeight) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[12]
+	mi := &file_wowfsim_sim_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1432,7 +1630,7 @@ func (x *StatWeight) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatWeight.ProtoReflect.Descriptor instead.
 func (*StatWeight) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{12}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *StatWeight) GetId() string {
@@ -1476,7 +1674,7 @@ type StatWeightsResult struct {
 
 func (x *StatWeightsResult) Reset() {
 	*x = StatWeightsResult{}
-	mi := &file_wowfsim_sim_proto_msgTypes[13]
+	mi := &file_wowfsim_sim_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1488,7 +1686,7 @@ func (x *StatWeightsResult) String() string {
 func (*StatWeightsResult) ProtoMessage() {}
 
 func (x *StatWeightsResult) ProtoReflect() protoreflect.Message {
-	mi := &file_wowfsim_sim_proto_msgTypes[13]
+	mi := &file_wowfsim_sim_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1501,7 +1699,7 @@ func (x *StatWeightsResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatWeightsResult.ProtoReflect.Descriptor instead.
 func (*StatWeightsResult) Descriptor() ([]byte, []int) {
-	return file_wowfsim_sim_proto_rawDescGZIP(), []int{13}
+	return file_wowfsim_sim_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *StatWeightsResult) GetReferenceId() string {
@@ -1548,7 +1746,7 @@ const file_wowfsim_sim_proto_rawDesc = "" +
 	"SimRequest\x12'\n" +
 	"\x06player\x18\x01 \x01(\v2\x0f.wowfsim.PlayerR\x06player\x120\n" +
 	"\tencounter\x18\x02 \x01(\v2\x12.wowfsim.EncounterR\tencounter\x12-\n" +
-	"\aoptions\x18\x03 \x01(\v2\x13.wowfsim.SimOptionsR\aoptions\"\x8c\x04\n" +
+	"\aoptions\x18\x03 \x01(\v2\x13.wowfsim.SimOptionsR\aoptions\"\xe4\x04\n" +
 	"\x06Player\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12$\n" +
 	"\x05class\x18\x02 \x01(\x0e2\x0e.wowfsim.ClassR\x05class\x12!\n" +
@@ -1565,7 +1763,8 @@ const file_wowfsim_sim_proto_rawDesc = "" +
 	" \x01(\x0e2\x16.wowfsim.WarriorStanceR\x06stance\x12#\n" +
 	"\rcombat_potion\x18\v \x01(\x05R\fcombatPotion\x12$\n" +
 	"\x0emh_weapon_temp\x18\f \x01(\tR\fmhWeaponTemp\x12$\n" +
-	"\x0eoh_weapon_temp\x18\r \x01(\tR\fohWeaponTemp\"=\n" +
+	"\x0eoh_weapon_temp\x18\r \x01(\tR\fohWeaponTemp\x12V\n" +
+	"\x1aexecute_ability_priorities\x18\x0e \x03(\v2\x18.wowfsim.AbilityPriorityR\x18executeAbilityPriorities\"=\n" +
 	"\x0fAbilityPriority\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\bpriority\x18\x02 \x01(\x05R\bpriority\"\xd9\x02\n" +
@@ -1587,7 +1786,7 @@ const file_wowfsim_sim_proto_rawDesc = "" +
 	"weapon_dps\x18\n" +
 	" \x01(\x01R\tweaponDps\"3\n" +
 	"\x04Gear\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.wowfsim.EquippedItemR\x05items\"\xa6\x04\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.wowfsim.EquippedItemR\x05items\"\xd5\x04\n" +
 	"\fEquippedItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
@@ -1611,7 +1810,30 @@ const file_wowfsim_sim_proto_rawDesc = "" +
 	"\x11spell_crit_chance\x18\x0f \x01(\x01R\x0fspellCritChance\x12(\n" +
 	"\x10spell_hit_chance\x18\x10 \x01(\x01R\x0espellHitChance\x12\x1d\n" +
 	"\n" +
-	"enchant_id\x18\x12 \x01(\x05R\tenchantId\"0\n" +
+	"enchant_id\x18\x12 \x01(\x05R\tenchantId\x12-\n" +
+	"\aeffects\x18\x13 \x03(\v2\x13.wowfsim.ItemEffectR\aeffects\"\xe1\x03\n" +
+	"\n" +
+	"ItemEffect\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12!\n" +
+	"\fattack_power\x18\x04 \x01(\x01R\vattackPower\x12\x1f\n" +
+	"\vspell_power\x18\x05 \x01(\x01R\n" +
+	"spellPower\x12\x14\n" +
+	"\x05haste\x18\x06 \x01(\x01R\x05haste\x12\x12\n" +
+	"\x04crit\x18\a \x01(\x01R\x04crit\x12\x1a\n" +
+	"\bstrength\x18\b \x01(\x01R\bstrength\x12\x18\n" +
+	"\aagility\x18\t \x01(\x01R\aagility\x12!\n" +
+	"\farmor_ignore\x18\n" +
+	" \x01(\x01R\varmorIgnore\x12\x12\n" +
+	"\x04rage\x18\v \x01(\x01R\x04rage\x12\x1a\n" +
+	"\bduration\x18\f \x01(\x01R\bduration\x12\x1a\n" +
+	"\bcooldown\x18\r \x01(\x01R\bcooldown\x12\x16\n" +
+	"\x06chance\x18\x0e \x01(\x01R\x06chance\x12!\n" +
+	"\fextra_attack\x18\x0f \x01(\x05R\vextraAttack\x12\x19\n" +
+	"\bstack_ap\x18\x10 \x01(\x01R\astackAp\x12\x1a\n" +
+	"\binterval\x18\x11 \x01(\x01R\binterval\x12\x12\n" +
+	"\x04icon\x18\x12 \x01(\tR\x04icon\"0\n" +
 	"\n" +
 	"TalentPick\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
@@ -1739,7 +1961,7 @@ func file_wowfsim_sim_proto_rawDescGZIP() []byte {
 }
 
 var file_wowfsim_sim_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_wowfsim_sim_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_wowfsim_sim_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_wowfsim_sim_proto_goTypes = []any{
 	(WarriorStance)(0),        // 0: wowfsim.WarriorStance
 	(Class)(0),                // 1: wowfsim.Class
@@ -1751,36 +1973,39 @@ var file_wowfsim_sim_proto_goTypes = []any{
 	(*BonusStats)(nil),        // 7: wowfsim.BonusStats
 	(*Gear)(nil),              // 8: wowfsim.Gear
 	(*EquippedItem)(nil),      // 9: wowfsim.EquippedItem
-	(*TalentPick)(nil),        // 10: wowfsim.TalentPick
-	(*Encounter)(nil),         // 11: wowfsim.Encounter
-	(*SimOptions)(nil),        // 12: wowfsim.SimOptions
-	(*SimResult)(nil),         // 13: wowfsim.SimResult
-	(*ActionMetric)(nil),      // 14: wowfsim.ActionMetric
-	(*TimelineEvent)(nil),     // 15: wowfsim.TimelineEvent
-	(*StatWeight)(nil),        // 16: wowfsim.StatWeight
-	(*StatWeightsResult)(nil), // 17: wowfsim.StatWeightsResult
+	(*ItemEffect)(nil),        // 10: wowfsim.ItemEffect
+	(*TalentPick)(nil),        // 11: wowfsim.TalentPick
+	(*Encounter)(nil),         // 12: wowfsim.Encounter
+	(*SimOptions)(nil),        // 13: wowfsim.SimOptions
+	(*SimResult)(nil),         // 14: wowfsim.SimResult
+	(*ActionMetric)(nil),      // 15: wowfsim.ActionMetric
+	(*TimelineEvent)(nil),     // 16: wowfsim.TimelineEvent
+	(*StatWeight)(nil),        // 17: wowfsim.StatWeight
+	(*StatWeightsResult)(nil), // 18: wowfsim.StatWeightsResult
 }
 var file_wowfsim_sim_proto_depIdxs = []int32{
 	5,  // 0: wowfsim.SimRequest.player:type_name -> wowfsim.Player
-	11, // 1: wowfsim.SimRequest.encounter:type_name -> wowfsim.Encounter
-	12, // 2: wowfsim.SimRequest.options:type_name -> wowfsim.SimOptions
+	12, // 1: wowfsim.SimRequest.encounter:type_name -> wowfsim.Encounter
+	13, // 2: wowfsim.SimRequest.options:type_name -> wowfsim.SimOptions
 	1,  // 3: wowfsim.Player.class:type_name -> wowfsim.Class
 	2,  // 4: wowfsim.Player.race:type_name -> wowfsim.Race
 	8,  // 5: wowfsim.Player.gear:type_name -> wowfsim.Gear
-	10, // 6: wowfsim.Player.talents:type_name -> wowfsim.TalentPick
+	11, // 6: wowfsim.Player.talents:type_name -> wowfsim.TalentPick
 	7,  // 7: wowfsim.Player.bonus_stats:type_name -> wowfsim.BonusStats
 	6,  // 8: wowfsim.Player.ability_priorities:type_name -> wowfsim.AbilityPriority
 	0,  // 9: wowfsim.Player.stance:type_name -> wowfsim.WarriorStance
-	9,  // 10: wowfsim.Gear.items:type_name -> wowfsim.EquippedItem
-	3,  // 11: wowfsim.EquippedItem.slot:type_name -> wowfsim.ItemSlot
-	14, // 12: wowfsim.SimResult.actions:type_name -> wowfsim.ActionMetric
-	15, // 13: wowfsim.SimResult.timeline:type_name -> wowfsim.TimelineEvent
-	16, // 14: wowfsim.StatWeightsResult.weights:type_name -> wowfsim.StatWeight
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	6,  // 10: wowfsim.Player.execute_ability_priorities:type_name -> wowfsim.AbilityPriority
+	9,  // 11: wowfsim.Gear.items:type_name -> wowfsim.EquippedItem
+	3,  // 12: wowfsim.EquippedItem.slot:type_name -> wowfsim.ItemSlot
+	10, // 13: wowfsim.EquippedItem.effects:type_name -> wowfsim.ItemEffect
+	15, // 14: wowfsim.SimResult.actions:type_name -> wowfsim.ActionMetric
+	16, // 15: wowfsim.SimResult.timeline:type_name -> wowfsim.TimelineEvent
+	17, // 16: wowfsim.StatWeightsResult.weights:type_name -> wowfsim.StatWeight
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_wowfsim_sim_proto_init() }
@@ -1794,7 +2019,7 @@ func file_wowfsim_sim_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_wowfsim_sim_proto_rawDesc), len(file_wowfsim_sim_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   14,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

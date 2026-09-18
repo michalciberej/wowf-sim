@@ -1,11 +1,19 @@
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
-import { copyFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const wasmDir = join(root, 'web', 'src', 'wasm')
+const clientdata = join(root, 'engine', 'internal', 'clientdata')
 mkdirSync(wasmDir, { recursive: true })
+
+const catalog = JSON.parse(readFileSync(join(clientdata, 'catalog.json'), 'utf8'))
+const slim = {
+  items: [],
+  talents: catalog.talents || [],
+}
+writeFileSync(join(clientdata, 'catalog.slim.json'), JSON.stringify(slim))
 
 const goroot = spawnSync('go', ['env', 'GOROOT'], { encoding: 'utf8' })
 if (goroot.status !== 0) {
@@ -33,7 +41,7 @@ if (!wasmExec) {
 
 const build = spawnSync(
   'go',
-  ['build', '-o', join(wasmDir, 'wowfsim.wasm'), './cmd/wasm'],
+  ['build', '-ldflags=-s -w', '-o', join(wasmDir, 'wowfsim.wasm'), './cmd/wasm'],
   {
     cwd: join(root, 'engine'),
     stdio: 'inherit',

@@ -1,6 +1,7 @@
 import { Class } from '../gen/wowfsim/sim_pb.ts'
-import { ITEMS } from './era.ts'
+import { ITEMS, TALENTS } from './era.ts'
 import { potionUseAbility, POTIONS } from './potions.ts'
+import type { TalentRanks } from '../sim/engine.ts'
 import raw from './abilities.json' with { type: 'json' }
 
 export type CatalogAbility = {
@@ -18,6 +19,10 @@ export type CatalogAbility = {
   tooltip?: string
   duration?: number
   priority: number
+  buffDamage?: number
+  buffHaste?: number
+  buffCrit?: number
+  buffAP?: number
   resource?: string
   cost?: number
   cooldown?: number
@@ -90,6 +95,31 @@ export function itemUseAbilityID(name: string) {
     .replace(/'/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')}`
+}
+
+function talentNameKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+export function abilityUnlocked(ability: CatalogAbility, ranks: TalentRanks | undefined): boolean {
+  if (!ability.requiresTalent) {
+    return true
+  }
+  if ((ranks?.[ability.requiresTalent] ?? 0) > 0) {
+    return true
+  }
+  const required = TALENTS.find((talent) => talent.id === ability.requiresTalent)
+  const want = talentNameKey(required?.name ?? ability.name)
+  for (const [id, rank] of Object.entries(ranks ?? {})) {
+    if (!rank) {
+      continue
+    }
+    const talent = TALENTS.find((entry) => entry.id === Number(id))
+    if (talent && talentNameKey(talent.name) === want) {
+      return true
+    }
+  }
+  return false
 }
 
 export function useTrinketAbilities(gearIds: Record<number, number> | undefined): CatalogAbility[] {
@@ -167,4 +197,18 @@ export function defaultPriorities(
       ability.priority,
     ]),
   )
+}
+
+export function defaultExecutePriorities(
+  playerClass: Class,
+  race: number,
+  gearIds?: Record<number, number>,
+  combatPotion?: number,
+): Record<string, number> {
+  const base = defaultPriorities(playerClass, race, gearIds, combatPotion)
+  if (base.execute == null) {
+    return base
+  }
+  const max = Math.max(0, ...Object.values(base))
+  return { ...base, execute: max + 10 }
 }

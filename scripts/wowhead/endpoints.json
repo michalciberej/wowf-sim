@@ -52,10 +52,11 @@
   "consumableLists": [
     "items/consumables/potions"
   ],
-  "enchantLists": {
+    "enchantLists": {
     "permanent": "items/consumables/item-enhancements-permanent",
     "temporary": "items/consumables/item-enhancements-temporary"
   },
+  "racialTraitList": "spells/racial-traits",
   "itemFilter": {
     "minQuality": 2,
     "keepCatalogIds": true

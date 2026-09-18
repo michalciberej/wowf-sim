@@ -32,11 +32,6 @@ export function StatWeightsPanel({
       <header className="panel-head">
         <div>
           <h2>Stat weights</h2>
-          <p>
-            {result
-              ? `Measured vs ${result.referenceName}. Edit any EP; the item list uses these numbers.`
-              : 'Melee EP for this warrior setup. Type values by hand, or calculate from the current sim.'}
-          </p>
         </div>
         <div className="weight-actions">
           <button type="button" className="btn" disabled={running} onClick={onResetMeasured}>

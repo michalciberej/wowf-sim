@@ -29,6 +29,8 @@ message Player {
   // Consumable weapon temp id (sharpening stone / weightstone). Empty means none.
   string mh_weapon_temp = 12;
   string oh_weapon_temp = 13;
+  // Used at 20% target health. Missing IDs keep ability_priorities.
+  repeated AbilityPriority execute_ability_priorities = 14;
 }
 
 message AbilityPriority {
@@ -73,6 +75,29 @@ message EquippedItem {
   double spell_hit_chance = 16;
   // Wowhead Forever enhancement item id (permanent or temporary). 0 means none.
   int32 enchant_id = 18;
+  // Proc / on-use effects. The UI sends these so WASM does not embed the item catalog.
+  repeated ItemEffect effects = 19;
+}
+
+message ItemEffect {
+  string kind = 1;
+  string name = 2;
+  string text = 3;
+  double attack_power = 4;
+  double spell_power = 5;
+  double haste = 6;
+  double crit = 7;
+  double strength = 8;
+  double agility = 9;
+  double armor_ignore = 10;
+  double rage = 11;
+  double duration = 12;
+  double cooldown = 13;
+  double chance = 14;
+  int32 extra_attack = 15;
+  double stack_ap = 16;
+  double interval = 17;
+  string icon = 18;
 }
 
 message TalentPick {
@@ -129,7 +154,9 @@ message TimelineEvent {
   // Remaining rage/energy after this event. Empty kind means no resource bar.
   string resource_kind = 7;
   double resource = 8;
-  // hit, tick, dot, or buff. Empty is treated as a hit.
+  // hit, tick, dot, buff, or cast. Empty is treated as a hit.
+  // Cast events use time_seconds as the start and duration_seconds as the hard-cast length;
+  // the matching hit is emitted when the cast lands.
   string kind = 9;
   double duration_seconds = 10;
 }

@@ -2,9 +2,30 @@ import { Class, ItemSlot, Race, WarriorStance } from '../gen/wowfsim/sim_pb.ts'
 import { ITEMS, TALENTS, type CatalogItem, type ItemEffect } from './era.ts'
 import { enchantById } from './enchants.ts'
 import { BUFFS } from './buffs.ts'
+import { activeSetBonuses } from './sets.ts'
 import overlayEffects from './item-effects.json' with { type: 'json' }
+import RACIALS from './racials.json' with { type: 'json' }
 import { itemUseAbilityID } from './abilities.ts'
 import type { TalentRanks } from '../sim/engine.ts'
+
+export const STAT_PARTS = ['base', 'gear', 'buffs', 'consumables', 'talents'] as const
+export type StatPart = (typeof STAT_PARTS)[number]
+export type StatParts = Record<StatPart, number>
+export type StatBreakdownKind = 'int' | 'pct' | 'dps' | 'sec'
+
+export const STAT_PART_LABELS: Record<StatPart, string> = {
+  base: 'Base',
+  gear: 'Gear',
+  buffs: 'Buffs',
+  consumables: 'Consumables',
+  talents: 'Talents',
+}
+
+export type StatBreakdown = {
+  total: number
+  parts: StatParts
+  kind: StatBreakdownKind
+}
 
 export type SheetStats = {
   strength: number
@@ -32,6 +53,49 @@ export type SheetStats = {
   melee: boolean
   stanceDamage: number
   stanceCrit: number
+  breakdowns: Record<string, StatBreakdown>
+}
+
+function emptyParts(): StatParts {
+  return { base: 0, gear: 0, buffs: 0, consumables: 0, talents: 0 }
+}
+
+function sumParts(p: StatParts): number {
+  return p.base + p.gear + p.buffs + p.consumables + p.talents
+}
+
+function addPart(p: StatParts, part: StatPart, n: number) {
+  if (!n) return
+  p[part] += n
+}
+
+function mulExtra(p: StatParts, mul: number, dest: StatPart) {
+  if (mul === 1) return
+  addPart(p, dest, sumParts(p) * (mul - 1))
+}
+
+function scaleParts(src: StatParts, factor: number): StatParts {
+  return {
+    base: src.base * factor,
+    gear: src.gear * factor,
+    buffs: src.buffs * factor,
+    consumables: src.consumables * factor,
+    talents: src.talents * factor,
+  }
+}
+
+function addParts(a: StatParts, b: StatParts): StatParts {
+  return {
+    base: a.base + b.base,
+    gear: a.gear + b.gear,
+    buffs: a.buffs + b.buffs,
+    consumables: a.consumables + b.consumables,
+    talents: a.talents + b.talents,
+  }
+}
+
+function makeBreakdown(total: number, parts: StatParts, kind: StatBreakdownKind): StatBreakdown {
+  return { total, parts: { ...parts }, kind }
 }
 
 const CLASS_BASE: Record<number, { str: number; agi: number; intel: number; sta: number; spi: number; ap: number }> = {
@@ -125,10 +189,45 @@ const CLASS_BASE_HEALTH: Record<number, number> = {
 function healthFromStamina(playerClass: Class, race: Race, stamina: number) {
   const base = CLASS_BASE_HEALTH[playerClass] ?? 1400
   let hp = base + Math.round(stamina) * 10
-  if (race === Race.TAUREN) {
-    hp *= 1.05
+  for (const racial of RACIALS as Array<{ race?: number; passive?: boolean; healthMul?: number }>) {
+    if (racial.passive && racial.race === race && racial.healthMul) {
+      hp *= 1 + racial.healthMul
+    }
   }
   return Math.floor(hp)
+}
+
+function weaponMatches(subclass: string, kind: string) {
+  return Boolean(subclass && kind && subclass.toLowerCase().includes(kind.toLowerCase()))
+}
+
+function racialPassives(race: Race, subclasses: string[]) {
+  let meleeHit = 0
+  let meleeCrit = 0
+  let spellCrit = 0
+  let haste = 0
+  for (const racial of RACIALS as Array<{
+    race?: number
+    passive?: boolean
+    hitChance?: number
+    haste?: number
+    critWhile?: number
+    critWhileWeapon?: string
+  }>) {
+    if (!racial.passive || racial.race !== race) {
+      continue
+    }
+    meleeHit += racial.hitChance ?? 0
+    haste += racial.haste ?? 0
+    if (
+      racial.critWhile &&
+      subclasses.some((subclass) => weaponMatches(subclass, racial.critWhileWeapon ?? ''))
+    ) {
+      meleeCrit += racial.critWhile
+      spellCrit += racial.critWhile
+    }
+  }
+  return { meleeHit, meleeCrit, spellCrit, haste }
 }
 
 function isDualWield(mh?: CatalogItem, oh?: CatalogItem) {
@@ -156,6 +255,7 @@ function talentPassives(playerClass: Class, ranks: TalentRanks) {
   let intMul = 1
   if (playerClass === Class.WARRIOR) {
     hit += 0.01 * talentRankByName(ranks, 'Precision')
+    meleeCrit += 0.01 * talentRankByName(ranks, 'Cruelty')
     return { meleeCrit, hit, strMul, agiMul, intMul }
   }
   for (const [idKey, rank] of Object.entries(ranks)) {
@@ -364,95 +464,124 @@ export function computeSheetStats(opts: {
 }): SheetStats {
   const base = CLASS_BASE[opts.playerClass] ?? { str: 80, agi: 80, intel: 80, sta: 80, spi: 80, ap: 0 }
   const race = RACE_OFFSET[opts.race] ?? { str: 0, agi: 0, intel: 0, sta: 0, spi: 0 }
-  let str = base.str + race.str
-  let agi = base.agi + race.agi
-  let intel = base.intel + race.intel
-  let sta = base.sta + race.sta
-  let spi = base.spi + race.spi
-  let gearAP = base.ap
-  let spellPower = 0
-  let meleeHit = 0
-  let spellHit = 0
-  let gearCrit = 0
+  const p = {
+    str: emptyParts(),
+    agi: emptyParts(),
+    intel: emptyParts(),
+    sta: emptyParts(),
+    spi: emptyParts(),
+    ap: emptyParts(),
+    sp: emptyParts(),
+    meleeHit: emptyParts(),
+    spellHit: emptyParts(),
+    meleeCrit: emptyParts(),
+    spellCrit: emptyParts(),
+    haste: emptyParts(),
+    mhDps: emptyParts(),
+    ohDps: emptyParts(),
+  }
+
+  addPart(p.str, 'base', base.str + race.str)
+  addPart(p.agi, 'base', base.agi + race.agi)
+  addPart(p.intel, 'base', base.intel + race.intel)
+  addPart(p.sta, 'base', base.sta + race.sta)
+  addPart(p.spi, 'base', base.spi + race.spi)
+  addPart(p.ap, 'base', base.ap)
+
   const stanceCrit =
     opts.playerClass === Class.WARRIOR && opts.stance !== WarriorStance.BATTLE && opts.stance !== WarriorStance.DEFENSIVE
       ? 0.03
       : 0
   const stanceDamage = opts.playerClass === Class.WARRIOR && opts.stance === WarriorStance.DEFENSIVE ? -0.1 : 0
-  let gearSpellCrit = 0
-  let mhDps = 0
-  let mhSpeed = 0
-  let ohDps = 0
-  let ohSpeed = 0
 
   const items: CatalogItem[] = Object.values(opts.gearIds).flatMap((id) => {
     const item = ITEMS.find((entry) => entry.id === id)
     return item ? [item] : []
   })
   for (const item of items) {
-    str += item.strength ?? 0
-    agi += item.agility ?? 0
-    intel += item.intellect ?? 0
-    sta += item.stamina ?? 0
-    spi += item.spirit ?? 0
-    gearAP += item.attackPower ?? 0
-    spellPower += staticSpellPower(item)
-    meleeHit += item.hitChance ?? 0
-    spellHit += item.spellHitChance ?? 0
-    gearCrit += item.critChance ?? 0
-    gearSpellCrit += item.spellCritChance ?? 0
+    addPart(p.str, 'gear', item.strength ?? 0)
+    addPart(p.agi, 'gear', item.agility ?? 0)
+    addPart(p.intel, 'gear', item.intellect ?? 0)
+    addPart(p.sta, 'gear', item.stamina ?? 0)
+    addPart(p.spi, 'gear', item.spirit ?? 0)
+    addPart(p.ap, 'gear', item.attackPower ?? 0)
+    addPart(p.sp, 'gear', staticSpellPower(item))
+    addPart(p.meleeHit, 'gear', item.hitChance ?? 0)
+    addPart(p.spellHit, 'gear', item.spellHitChance ?? 0)
+    addPart(p.meleeCrit, 'gear', item.critChance ?? 0)
+    addPart(p.spellCrit, 'gear', item.spellCritChance ?? 0)
   }
-  let mhEnchantDmg = 0
-  let ohEnchantDmg = 0
-  let enchantHaste = 0
+  for (const bonus of activeSetBonuses(items)) {
+    addPart(p.str, 'gear', bonus.strength ?? 0)
+    addPart(p.agi, 'gear', bonus.agility ?? 0)
+    addPart(p.intel, 'gear', bonus.intellect ?? 0)
+    addPart(p.sta, 'gear', bonus.stamina ?? 0)
+    addPart(p.spi, 'gear', bonus.spirit ?? 0)
+    addPart(p.ap, 'gear', bonus.attackPower ?? 0)
+    if (opts.playerClass === Class.HUNTER) {
+      addPart(p.ap, 'gear', bonus.rangedAttackPower ?? 0)
+    }
+    addPart(p.sp, 'gear', bonus.spellPower ?? 0)
+    addPart(p.meleeHit, 'gear', bonus.hitChance ?? 0)
+    addPart(p.spellHit, 'gear', bonus.spellHitChance ?? 0)
+    addPart(p.meleeCrit, 'gear', bonus.critChance ?? 0)
+    addPart(p.spellCrit, 'gear', bonus.spellCritChance ?? 0)
+    addPart(p.haste, 'gear', bonus.haste ?? 0)
+  }
+  let mhEnchantDmgGear = 0
+  let mhEnchantDmgTemp = 0
+  let ohEnchantDmgGear = 0
+  let ohEnchantDmgTemp = 0
   for (const [slotKey, id] of Object.entries(opts.enchantIds ?? {})) {
     const enchant = enchantById(id)
     if (!enchant) {
       continue
     }
-    str += enchant.strength ?? 0
-    agi += enchant.agility ?? 0
-    intel += enchant.intellect ?? 0
-    sta += enchant.stamina ?? 0
-    spi += enchant.spirit ?? 0
-    gearAP += enchant.attackPower ?? 0
-    spellPower += enchant.spellPower ?? 0
-    meleeHit += enchant.hitChance ?? 0
-    spellHit += enchant.spellHitChance ?? 0
-    gearCrit += enchant.critChance ?? 0
-    gearSpellCrit += enchant.spellCritChance ?? 0
-    enchantHaste += enchant.haste ?? 0
+    addPart(p.str, 'gear', enchant.strength ?? 0)
+    addPart(p.agi, 'gear', enchant.agility ?? 0)
+    addPart(p.intel, 'gear', enchant.intellect ?? 0)
+    addPart(p.sta, 'gear', enchant.stamina ?? 0)
+    addPart(p.spi, 'gear', enchant.spirit ?? 0)
+    addPart(p.ap, 'gear', enchant.attackPower ?? 0)
+    addPart(p.sp, 'gear', enchant.spellPower ?? 0)
+    addPart(p.meleeHit, 'gear', enchant.hitChance ?? 0)
+    addPart(p.spellHit, 'gear', enchant.spellHitChance ?? 0)
+    addPart(p.meleeCrit, 'gear', enchant.critChance ?? 0)
+    addPart(p.spellCrit, 'gear', enchant.spellCritChance ?? 0)
+    addPart(p.haste, 'gear', enchant.haste ?? 0)
     if (Number(slotKey) === ItemSlot.MAIN_HAND) {
-      mhEnchantDmg += enchant.weaponDamage ?? 0
+      mhEnchantDmgGear += enchant.weaponDamage ?? 0
     }
     if (Number(slotKey) === ItemSlot.OFF_HAND) {
-      ohEnchantDmg += enchant.weaponDamage ?? 0
+      ohEnchantDmgGear += enchant.weaponDamage ?? 0
     }
   }
 
   const mhTemp = BUFFS.find((buff) => buff.id === opts.mhWeaponTemp && buff.category === 'Weapon Enchant')
   const ohTemp = BUFFS.find((buff) => buff.id === opts.ohWeaponTemp && buff.category === 'Weapon Enchant')
   if (mhTemp) {
-    mhEnchantDmg += mhTemp.weaponDamage ?? 0
-    gearCrit += mhTemp.meleeCrit ?? 0
-    spellPower += mhTemp.spellPower ?? 0
-    gearSpellCrit += mhTemp.spellCrit ?? 0
+    mhEnchantDmgTemp += mhTemp.weaponDamage ?? 0
+    addPart(p.meleeCrit, 'consumables', mhTemp.meleeCrit ?? 0)
+    addPart(p.sp, 'consumables', mhTemp.spellPower ?? 0)
+    addPart(p.spellCrit, 'consumables', mhTemp.spellCrit ?? 0)
   }
 
   const mh = ITEMS.find((entry) => entry.id === (opts.gearIds[ItemSlot.MAIN_HAND] ?? 0))
   const oh = ITEMS.find((entry) => entry.id === (opts.gearIds[ItemSlot.OFF_HAND] ?? 0))
   const dualWield = isDualWield(mh, oh)
+  const racial = racialPassives(
+    opts.race,
+    [mh?.itemSubclass, oh?.itemSubclass].filter((value): value is string => Boolean(value)),
+  )
+  addPart(p.meleeHit, 'base', racial.meleeHit)
+  addPart(p.meleeCrit, 'base', racial.meleeCrit)
+  addPart(p.spellCrit, 'base', racial.spellCrit)
+  addPart(p.haste, 'base', racial.haste)
   if (ohTemp && dualWield) {
-    ohEnchantDmg += ohTemp.weaponDamage ?? 0
-    gearCrit += ohTemp.meleeCrit ?? 0
+    ohEnchantDmgTemp += ohTemp.weaponDamage ?? 0
+    addPart(p.meleeCrit, 'consumables', ohTemp.meleeCrit ?? 0)
   }
 
-  let useStr = 0
-  let useAgi = 0
-  let useAP = 0
-  let useSP = 0
-  let useCrit = 0
-  let useHaste = 0
   for (const item of items) {
     for (const effect of itemEffectsFor(item) as ItemEffect[]) {
       if (effect.kind !== 'use') {
@@ -462,85 +591,130 @@ export function computeSheetStats(opts: {
       if (prio !== undefined && prio <= 0) {
         continue
       }
-      useStr += effect.strength ?? 0
-      useAgi += effect.agility ?? 0
-      useAP += useAttackPower(effect)
-      useSP += effect.spellPower ?? 0
-      useCrit += effect.crit ?? 0
-      useHaste += effect.haste ?? 0
+      addPart(p.str, 'gear', effect.strength ?? 0)
+      addPart(p.agi, 'gear', effect.agility ?? 0)
+      addPart(p.sp, 'gear', effect.spellPower ?? 0)
+      addPart(p.meleeCrit, 'gear', effect.crit ?? 0)
+      addPart(p.haste, 'gear', effect.haste ?? 0)
     }
   }
-  str += useStr
-  agi += useAgi
-  spellPower += useSP
-  gearCrit += useCrit
 
+  const mhSpeed = mh?.weaponDps ? (mh.attackSpeedMs ?? 0) / 1000 : 0
+  const ohSpeed = dualWield && oh?.weaponDps ? (oh.attackSpeedMs ?? 0) / 1000 : 0
   if (mh?.weaponDps) {
-    mhDps = mh.weaponDps
-    mhSpeed = (mh.attackSpeedMs ?? 0) / 1000
-    if (mhEnchantDmg && mhSpeed) {
-      mhDps += mhEnchantDmg / mhSpeed
+    addPart(p.mhDps, 'gear', mh.weaponDps)
+    if (mhSpeed) {
+      addPart(p.mhDps, 'gear', mhEnchantDmgGear / mhSpeed)
+      addPart(p.mhDps, 'consumables', mhEnchantDmgTemp / mhSpeed)
     }
   }
   if (dualWield && oh?.weaponDps) {
-    ohDps = oh.weaponDps
-    ohSpeed = (oh.attackSpeedMs ?? 0) / 1000
-    if (ohEnchantDmg && ohSpeed) {
-      ohDps += ohEnchantDmg / ohSpeed
+    addPart(p.ohDps, 'gear', oh.weaponDps)
+    if (ohSpeed) {
+      addPart(p.ohDps, 'gear', ohEnchantDmgGear / ohSpeed)
+      addPart(p.ohDps, 'consumables', ohEnchantDmgTemp / ohSpeed)
     }
   }
 
-  let raidStr = 0
-  let raidAgi = 0
-  let raidInt = 0
-  let raidAP = 0
-  let raidSP = 0
-  let raidMeleeCrit = 0
-  let raidSpellCrit = 0
-  let raidHit = 0
-  let raidSpellHit = 0
   let statMul = 1
   let apMul = 1
   for (const buff of BUFFS) {
     if (!opts.raidBuffs[buff.id] || !buffApplies(buff, opts.playerClass) || buff.category === 'Weapon Enchant') {
       continue
     }
-    raidStr += buff.strength ?? 0
-    raidAgi += buff.agility ?? 0
-    raidInt += buff.intellect ?? 0
-    raidAP += buff.attackPower ?? 0
-    raidSP += buff.spellPower ?? 0
-    raidMeleeCrit += buff.meleeCrit ?? 0
-    raidSpellCrit += buff.spellCrit ?? 0
-    raidHit += buff.hitChance ?? 0
-    raidSpellHit += buff.spellHit ?? 0
+    const part: StatPart = buff.category === 'Consumables' ? 'consumables' : 'buffs'
+    addPart(p.str, part, buff.strength ?? 0)
+    addPart(p.agi, part, buff.agility ?? 0)
+    addPart(p.intel, part, buff.intellect ?? 0)
+    addPart(p.ap, part, buff.attackPower ?? 0)
+    addPart(p.sp, part, buff.spellPower ?? 0)
+    addPart(p.meleeCrit, part, buff.meleeCrit ?? 0)
+    addPart(p.spellCrit, part, buff.spellCrit ?? 0)
+    addPart(p.meleeHit, part, buff.hitChance ?? 0)
+    addPart(p.spellHit, part, buff.spellHit ?? 0)
     statMul *= 1 + (buff.statMul ?? 0)
     apMul *= 1 + (buff.apMul ?? 0)
   }
 
-  str = (str + raidStr) * statMul
-  agi = (agi + raidAgi) * statMul
-  intel = (intel + raidInt) * statMul
-  sta = sta * statMul
-  spi = spi * statMul
+  mulExtra(p.str, statMul, 'buffs')
+  mulExtra(p.agi, statMul, 'buffs')
+  mulExtra(p.intel, statMul, 'buffs')
+  mulExtra(p.sta, statMul, 'buffs')
+  mulExtra(p.spi, statMul, 'buffs')
+
   const passives = talentPassives(opts.playerClass, opts.talents)
-  str *= passives.strMul
-  agi *= passives.agiMul
-  intel *= passives.intMul
-  spellPower += raidSP
-  meleeHit += raidHit + passives.hit
-  spellHit += raidSpellHit
-  gearCrit += raidMeleeCrit + passives.meleeCrit
-  gearSpellCrit += raidSpellCrit
+  mulExtra(p.str, passives.strMul, 'talents')
+  mulExtra(p.agi, passives.agiMul, 'talents')
+  mulExtra(p.intel, passives.intMul, 'talents')
+  addPart(p.meleeHit, 'talents', passives.hit)
+  addPart(p.meleeCrit, 'talents', passives.meleeCrit)
+  addPart(p.ap, 'buffs', selfClassAP(opts.playerClass, opts.talents, opts.raidBuffs))
+  mulExtra(p.ap, apMul, 'buffs')
+
+  const str = sumParts(p.str)
+  const agi = sumParts(p.agi)
+  const intel = sumParts(p.intel)
+  const spi = sumParts(p.spi)
+  const sta = sumParts(p.sta)
 
   const melee = usesMeleeAutos(opts.playerClass, opts.talents)
-  let attackPower = (gearAP + raidAP + selfClassAP(opts.playerClass, opts.talents, opts.raidBuffs)) * apMul
   if (melee) {
-    attackPower += attackPowerFromStats(opts.playerClass, str, agi) * apMul
-    attackPower += useAP
+    const fromStr = attackPowerFromStats(opts.playerClass, str, 0) * apMul
+    const fromAgi =
+      (attackPowerFromStats(opts.playerClass, str, agi) - attackPowerFromStats(opts.playerClass, str, 0)) * apMul
+    if (str) p.ap = addParts(p.ap, scaleParts(p.str, fromStr / str))
+    if (agi) p.ap = addParts(p.ap, scaleParts(p.agi, fromAgi / agi))
+    for (const item of items) {
+      for (const effect of itemEffectsFor(item) as ItemEffect[]) {
+        if (effect.kind !== 'use') continue
+        const prio = opts.abilityPriorities?.[itemUseAbilityID(item.name)]
+        if (prio !== undefined && prio <= 0) continue
+        addPart(p.ap, 'gear', useAttackPower(effect))
+      }
+    }
   } else {
-    attackPower = 0
+    p.ap = emptyParts()
   }
+
+  addPart(p.meleeCrit, 'base', classBaseMeleeCrit(opts.playerClass) + stanceCrit)
+  if (agi) {
+    p.meleeCrit = addParts(p.meleeCrit, scaleParts(p.agi, meleeCritFromAgi(opts.playerClass, agi) / agi))
+  }
+  addPart(p.spellCrit, 'base', baseSpellCrit(opts.playerClass))
+  if (intel) {
+    p.spellCrit = addParts(p.spellCrit, scaleParts(p.intel, spellCritFromInt(opts.playerClass, intel) / intel))
+  }
+
+  const dwOhHit = dualWield && opts.playerClass === Class.WARRIOR
+    ? 0.02 * talentRankByName(opts.talents, 'Dual Wield Specialization')
+    : 0
+  const ohHitParts = { ...p.meleeHit }
+  addPart(ohHitParts, 'talents', dwOhHit)
+
+  const health = healthFromStamina(opts.playerClass, opts.race, sta)
+  const fromSta = Math.round(sta) * 10
+  let healthParts = emptyParts()
+  addPart(healthParts, 'base', CLASS_BASE_HEALTH[opts.playerClass] ?? 1400)
+  if (sta) healthParts = addParts(healthParts, scaleParts(p.sta, fromSta / sta))
+  addPart(healthParts, 'base', health - sumParts(healthParts))
+
+  const mhSpeedParts = emptyParts()
+  const ohSpeedParts = emptyParts()
+  addPart(mhSpeedParts, 'gear', mhSpeed)
+  addPart(ohSpeedParts, 'gear', ohSpeed)
+  const stanceParts = emptyParts()
+  addPart(stanceParts, 'base', stanceDamage)
+
+  const attackPower = sumParts(p.ap)
+  const spellPower = sumParts(p.sp)
+  const meleeHit = sumParts(p.meleeHit)
+  const spellHit = sumParts(p.spellHit)
+  const meleeCrit = sumParts(p.meleeCrit)
+  const spellCrit = sumParts(p.spellCrit)
+  const meleeHaste = sumParts(p.haste)
+  const mhDps = sumParts(p.mhDps)
+  const ohDps = sumParts(p.ohDps)
+  const ohHit = dualWield ? meleeHit + dwOhHit : 0
 
   return {
     strength: str,
@@ -548,21 +722,19 @@ export function computeSheetStats(opts: {
     intellect: intel,
     spirit: spi,
     stamina: sta,
-    health: healthFromStamina(opts.playerClass, opts.race, sta),
+    health,
     attackPower,
     spellPower,
     meleeHit,
     meleeHitCap: YELLOW_MISS,
     mhHit: meleeHit,
     mhHitCap: dualWield ? WHITE_MISS_DW : YELLOW_MISS,
-    ohHit: dualWield
-      ? meleeHit + (opts.playerClass === Class.WARRIOR ? 0.02 * talentRankByName(opts.talents, 'Dual Wield Specialization') : 0)
-      : 0,
+    ohHit,
     ohHitCap: WHITE_MISS_DW,
-    meleeCrit: classBaseMeleeCrit(opts.playerClass) + meleeCritFromAgi(opts.playerClass, agi) + gearCrit + stanceCrit,
+    meleeCrit,
     spellHit,
-    spellCrit: baseSpellCrit(opts.playerClass) + spellCritFromInt(opts.playerClass, intel) + gearSpellCrit,
-    meleeHaste: useHaste + enchantHaste,
+    spellCrit,
+    meleeHaste,
     mhDps,
     mhSpeed,
     ohDps,
@@ -570,5 +742,27 @@ export function computeSheetStats(opts: {
     melee,
     stanceDamage,
     stanceCrit,
+    breakdowns: {
+      health: makeBreakdown(health, healthParts, 'int'),
+      strength: makeBreakdown(str, p.str, 'int'),
+      agility: makeBreakdown(agi, p.agi, 'int'),
+      intellect: makeBreakdown(intel, p.intel, 'int'),
+      spirit: makeBreakdown(spi, p.spi, 'int'),
+      stamina: makeBreakdown(sta, p.sta, 'int'),
+      attackPower: makeBreakdown(attackPower, p.ap, 'int'),
+      spellPower: makeBreakdown(spellPower, p.sp, 'int'),
+      meleeHit: makeBreakdown(meleeHit, p.meleeHit, 'pct'),
+      mhHit: makeBreakdown(meleeHit, p.meleeHit, 'pct'),
+      ohHit: makeBreakdown(ohHit, ohHitParts, 'pct'),
+      meleeCrit: makeBreakdown(meleeCrit, p.meleeCrit, 'pct'),
+      spellHit: makeBreakdown(spellHit, p.spellHit, 'pct'),
+      spellCrit: makeBreakdown(spellCrit, p.spellCrit, 'pct'),
+      meleeHaste: makeBreakdown(meleeHaste, p.haste, 'pct'),
+      mhDps: makeBreakdown(mhDps, p.mhDps, 'dps'),
+      mhSpeed: makeBreakdown(mhSpeed, mhSpeedParts, 'sec'),
+      ohDps: makeBreakdown(ohDps, p.ohDps, 'dps'),
+      ohSpeed: makeBreakdown(ohSpeed, ohSpeedParts, 'sec'),
+      stanceDamage: makeBreakdown(stanceDamage, stanceParts, 'pct'),
+    },
   }
 }

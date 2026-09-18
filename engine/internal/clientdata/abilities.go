@@ -46,6 +46,8 @@ type Ability struct {
 	DumpAbove         float64 `json:"dumpAbove"`
 	HealthBelow       float64 `json:"healthBelow"`
 	HealthAbove       float64 `json:"healthAbove"`
+	WaitForReadyAbove float64 `json:"waitForReadyAbove"`
+	MinTargets        int     `json:"minTargets"`
 	ComboMin          int     `json:"comboMin"`
 	ComboGen          int     `json:"comboGen"`
 	ConsumeCombo      bool    `json:"consumeCombo"`

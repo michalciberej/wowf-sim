@@ -60,7 +60,6 @@
     "priority": 715,
     "resource": "rage",
     "cost": 15,
-    "healthAbove": 0.2,
     "spellId": 105949
   },
   {
@@ -73,10 +72,10 @@
     "gcd": false,
     "cooldown": 120,
     "duration": 15,
-    "buffDamage": 0.25,
+    "buffDamage": 0.1,
     "priority": 950,
     "spellId": 20572,
-    "tooltip": "Blood Fury\nInstant\n2 min cooldown\nIncreases base melee attack power by 25% for 15 sec and reduces healing effects on you by 50% for 25 sec."
+    "tooltip": "Blood Fury\nInstant\n2 min cooldown\nIncreases Attack Power and Spell Power by 10% for 15 sec."
   },
   {
     "id": "berserking",
@@ -91,7 +90,22 @@
     "buffHaste": 0.1,
     "priority": 940,
     "spellId": 20554,
-    "tooltip": "Berserking\n7% of base mana\nInstant\n3 min cooldown\nIncreases your casting and attack speed by 10% to 30%. At full health the speed increase is 10% with a greater effect up to 30% if you are badly hurt when you activate Berserking. Lasts 10 sec."
+    "tooltip": "Berserking\nInstant\n3 min cooldown\nRequires level 1\nIncreases your spellcasting and attack speed by 10% for 10 sec."
+  },
+  {
+    "id": "elunes-light",
+    "name": "Elune's Light",
+    "icon": "spell_nature_moonglow",
+    "race": 4,
+    "rank": 1,
+    "kind": "buff",
+    "gcd": false,
+    "cooldown": 180,
+    "duration": 15,
+    "buffCrit": 0.1,
+    "priority": 942,
+    "spellId": 1259799,
+    "tooltip": "Elune's Light\nInstant\n3 min cooldown\nIncreases your critical strike chance with all spells and attacks by 10% for 15 sec."
   },
   {
     "id": "recklessness",
@@ -194,7 +208,7 @@
     "cooldown": 5,
     "damageFlat": 35,
     "damageWeapon": 1,
-    "priority": 670,
+    "priority": 0,
     "resource": "rage",
     "cost": 5,
     "requiresStance": "battle",
@@ -216,7 +230,6 @@
     "priority": 720,
     "resource": "rage",
     "cost": 30,
-    "healthAbove": 0.2,
     "spellId": 23894,
     "tooltip": "Bloodthirst\nTalent\n30 Rage\nMelee Range\nInstant cast\n6 sec cooldown\nRequires Warrior\nRequires level 60\nInstantly attack the target causing damage equal to 45% of your attack power. In addition, the next 5 successful melee attacks will restore 20 health. This effect lasts 8 sec."
   },
@@ -235,7 +248,6 @@
     "priority": 710,
     "resource": "rage",
     "cost": 30,
-    "healthAbove": 0.2,
     "spellId": 21553,
     "tooltip": "Mortal Strike\nTalent\n30 Rage\nMelee Range\nInstant cast\n6 sec cooldown\nRequires Warrior\nRequires level 60\nRequires Melee Weapon\nA vicious strike that deals weapon damage plus 160 and wounds the target, reducing the effectiveness of any healing by 50% for 10 sec."
   },
@@ -270,7 +282,7 @@
     "priority": 680,
     "resource": "rage",
     "cost": 25,
-    "healthAbove": 0.2,
+    "waitForReadyAbove": 1.5,
     "requiresStance": "berserker",
     "spellId": 1680,
     "tooltip": "Whirlwind\n25 Rage\nInstant cast\n10 sec cooldown\nRequires Warrior\nRequires level 36\nRequires Melee Weapon\nRequires Berserker Stance\nIn a whirlwind of steel you attack up to 4 enemies within 8 yards, causing weapon damage to each enemy."
@@ -285,7 +297,7 @@
     "gcd": true,
     "cooldown": 0,
     "duration": 21,
-    "priority": 665,
+    "priority": 0,
     "resource": "rage",
     "cost": 10,
     "healthAbove": 0.2,
@@ -305,10 +317,11 @@
     "cooldown": 0,
     "damageFlat": 87,
     "damageWeapon": 1,
-    "priority": 620,
+    "priority": 0,
     "resource": "rage",
     "cost": 15,
     "healthAbove": 0.2,
+    "waitForReadyAbove": 1.5,
     "spellId": 11605,
     "castTime": 1.5,
     "tooltip": "Slam\n15 Rage\nMelee Range\n1.5 sec cast\nRequires Warrior\nRequires level 54\nRequires Melee Weapon\nSlams the opponent, causing weapon damage plus 87."
@@ -329,6 +342,24 @@
     "dumpAbove": 40,
     "spellId": 25286,
     "tooltip": "Heroic Strike\n15 Rage\nMelee Range\nNext Melee\nRequires Warrior\nRequires level 60\nRequires Melee Weapon\nA strong attack that increases melee damage by 157 and causes a high amount of threat."
+  },
+  {
+    "id": "cleave",
+    "name": "Cleave",
+    "icon": "ability_warrior_cleave",
+    "class": 1,
+    "rank": 5,
+    "kind": "queue",
+    "gcd": false,
+    "cooldown": 0,
+    "damageFlat": 50,
+    "priority": 390,
+    "resource": "rage",
+    "cost": 20,
+    "dumpAbove": 40,
+    "minTargets": 2,
+    "spellId": 20569,
+    "tooltip": "Cleave\n20 Rage\nMelee Range\nNext Melee\nRequires Warrior\nRequires level 60\nRequires Melee Weapon\nA sweeping attack that does your weapon damage plus 50 to the target and his closest ally."
   },
   {
     "id": "seal-of-command",

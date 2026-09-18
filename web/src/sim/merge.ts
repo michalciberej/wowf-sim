@@ -1,18 +1,29 @@
 import { create } from '@bufbuild/protobuf'
 import { ActionMetricSchema, SimResultSchema, type SimResult } from '../gen/wowfsim/sim_pb.ts'
 
-export const CHUNK_IDLE_MS = 28
+export const CHUNK_IDLE_MS = 0
 
 export function iterationChunkSize(durationSeconds: number, iterations: number) {
   const seconds = Math.max(1, durationSeconds)
-  const perChunk = Math.max(6, Math.round(900 / seconds))
+  const perChunk = Math.max(32, Math.round(4800 / seconds))
   return Math.min(iterations, perChunk)
 }
 
 export function idleBetweenChunks(): Promise<void> {
   return new Promise((resolve) => {
-    setTimeout(resolve, CHUNK_IDLE_MS)
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => resolve())
+      return
+    }
+    setTimeout(resolve, 0)
   })
+}
+
+export function progressView(result: SimResult): SimResult {
+  if (!result.timeline.length) {
+    return result
+  }
+  return { ...result, timeline: [] }
 }
 
 export function mergeSimResults(parts: SimResult[]): SimResult {

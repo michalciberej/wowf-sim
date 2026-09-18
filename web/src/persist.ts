@@ -1,29 +1,46 @@
-import { Class, ItemSlot, Race, WarriorStance } from './gen/wowfsim/sim_pb.ts'
+import { Class, ItemSlot, Race, WarriorStance, type SimResult } from './gen/wowfsim/sim_pb.ts'
 import { ITEMS, TALENTS, canEquipItem } from './catalog/era.ts'
 import { enchantById, enchantFitsSlot } from './catalog/enchants.ts'
 import { BUFFS, defaultRaidBuffs, isMhOnlyWeaponTemp, isWeaponTemp, WEAPON_TEMPS } from './catalog/buffs.ts'
-import { defaultPriorities } from './catalog/abilities.ts'
+import { defaultPriorities, defaultExecutePriorities } from './catalog/abilities.ts'
 import { defaultCombatPotionId, POTIONS, potionUsableByClass } from './catalog/potions.ts'
 import { defaultWeightsFor } from './catalog/weights.ts'
 import type { TalentRanks } from './sim/engine.ts'
 
 export const STORAGE_KEY = 'wowf-sim.setup.v1'
-const VERSION = 1
+const VERSION = 2
 
 export type SettingsTab = 'gear' | 'talents' | 'rotation' | 'settings' | 'weights'
+
+export type SavedGearSet = {
+  id: string
+  name: string
+  gearIds: Record<number, number>
+  enchantIds: Record<number, number>
+}
+
+export type DpsBaseline = {
+  dpsMean: number
+  dpsStdev: number
+  actions: Record<string, number>
+}
 
 export type ClassSetup = {
   race: Race
   stance: WarriorStance
   gearIds: Record<number, number>
   enchantIds: Record<number, number>
+  gearSets: SavedGearSet[]
+  activeGearSetId: string
   talentRanks: TalentRanks
   raidBuffs: Record<string, boolean>
   mhWeaponTemp: string
   ohWeaponTemp: string
   abilityPriorities: Record<string, number>
+  executePriorities: Record<string, number>
   combatPotion: number
   customEP: Record<string, number>
+  dpsBaseline: DpsBaseline | null
 }
 
 export type SavedRoot = {
@@ -135,7 +152,116 @@ export function sanitizeEnchants(
   return next
 }
 
+export function cloneSlotMap(ids: Record<number, number>): Record<number, number> {
+  return { ...ids }
+}
+
+export function newGearSetId() {
+  return `gs-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+export function nextGearSetName(sets: SavedGearSet[]) {
+  const used = new Set(sets.map((set) => set.name))
+  let n = 1
+  while (used.has(`Gear set ${n}`)) {
+    n += 1
+  }
+  return `Gear set ${n}`
+}
+
+function slotMapsEqual(a: Record<number, number>, b: Record<number, number>) {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+  for (const key of keys) {
+    if ((a[Number(key)] ?? 0) !== (b[Number(key)] ?? 0)) {
+      return false
+    }
+  }
+  return true
+}
+
+export function gearSnapshotEquals(
+  a: { gearIds: Record<number, number>; enchantIds: Record<number, number> },
+  b: { gearIds: Record<number, number>; enchantIds: Record<number, number> },
+) {
+  return slotMapsEqual(a.gearIds, b.gearIds) && slotMapsEqual(a.enchantIds, b.enchantIds)
+}
+
+export function snapshotGearSet(
+  name: string,
+  gearIds: Record<number, number>,
+  enchantIds: Record<number, number>,
+  id = newGearSetId(),
+): SavedGearSet {
+  return {
+    id,
+    name: name.trim().slice(0, 40) || 'Gear set',
+    gearIds: cloneSlotMap(gearIds),
+    enchantIds: cloneSlotMap(enchantIds),
+  }
+}
+
+function sanitizeGearSets(raw: unknown, playerClass: Class): SavedGearSet[] {
+  if (!Array.isArray(raw)) {
+    return []
+  }
+  const out: SavedGearSet[] = []
+  const seen = new Set<string>()
+  for (const row of raw) {
+    if (!row || typeof row !== 'object') {
+      continue
+    }
+    const src = row as Record<string, unknown>
+    const id = String(src.id ?? '').trim()
+    const name = String(src.name ?? '').trim().slice(0, 40)
+    if (!id || !name || seen.has(id)) {
+      continue
+    }
+    seen.add(id)
+    const gearIds = sanitizeGear(numberMap(src.gearIds), playerClass)
+    out.push({
+      id,
+      name,
+      gearIds,
+      enchantIds: sanitizeEnchants(numberMap(src.enchantIds), gearIds),
+    })
+  }
+  return out
+}
+
+export function baselineFromResult(result: SimResult): DpsBaseline {
+  const actions: Record<string, number> = {}
+  for (const action of result.actions) {
+    if (action.name) {
+      actions[action.name] = action.dps
+    }
+  }
+  return {
+    dpsMean: result.dpsMean,
+    dpsStdev: result.dpsStdev,
+    actions,
+  }
+}
+
+function sanitizeDpsBaseline(raw: unknown): DpsBaseline | null {
+  if (!raw || typeof raw !== 'object') {
+    return null
+  }
+  const src = raw as Record<string, unknown>
+  const dpsMean = Number(src.dpsMean)
+  if (!Number.isFinite(dpsMean) || dpsMean < 0) {
+    return null
+  }
+  return {
+    dpsMean,
+    dpsStdev: Number.isFinite(Number(src.dpsStdev)) ? Math.max(0, Number(src.dpsStdev)) : 0,
+    actions: stringNumberMap(src.actions),
+  }
+}
+
 export function sanitizeGear(gearIds: Record<number, number>, playerClass: Class): Record<number, number> {
+  if (ITEMS.length === 0) {
+    return { ...gearIds }
+  }
   const next: Record<number, number> = {}
   for (const [slotKey, id] of Object.entries(gearIds)) {
     if (!id) {
@@ -159,13 +285,17 @@ export function defaultClassSetup(playerClass: Class, race: Race): ClassSetup {
     stance: WarriorStance.BERSERKER,
     gearIds,
     enchantIds: {},
+    gearSets: [],
+    activeGearSetId: '',
     talentRanks: {},
     raidBuffs: defaultRaidBuffs(),
     mhWeaponTemp: '',
     ohWeaponTemp: '',
     combatPotion,
     abilityPriorities: defaultPriorities(playerClass, safeRace, gearIds, combatPotion),
+    executePriorities: defaultExecutePriorities(playerClass, safeRace, gearIds, combatPotion),
     customEP: defaultWeightsFor(playerClass),
+    dpsBaseline: null,
   }
 }
 
@@ -195,6 +325,12 @@ export function sanitizeClassSetup(raw: unknown, playerClass: Class, fallbackRac
   const talentRanks: TalentRanks = {}
   for (const [idKey, rank] of Object.entries(numberMap(src.talentRanks))) {
     const id = Number(idKey)
+    if (TALENTS.length === 0) {
+      if (rank > 0) {
+        talentRanks[id] = Math.floor(rank)
+      }
+      continue
+    }
     const talent = TALENTS.find((entry) => entry.id === id && entry.class === playerClass)
     if (!talent || rank <= 0) {
       continue
@@ -214,11 +350,17 @@ export function sanitizeClassSetup(raw: unknown, playerClass: Class, fallbackRac
     src.stance === WarriorStance.DEFENSIVE
       ? src.stance
       : WarriorStance.BERSERKER
+  const gearSets = sanitizeGearSets(src.gearSets, playerClass)
+  const activeGearSetId = gearSets.some((set) => set.id === src.activeGearSetId)
+    ? String(src.activeGearSetId)
+    : ''
   return {
     race,
     stance,
     gearIds,
     enchantIds,
+    gearSets,
+    activeGearSetId,
     talentRanks,
     raidBuffs,
     mhWeaponTemp,
@@ -228,7 +370,12 @@ export function sanitizeClassSetup(raw: unknown, playerClass: Class, fallbackRac
       ...defaultPriorities(playerClass, race, gearIds, combatPotion),
       ...stringNumberMap(src.abilityPriorities),
     },
+    executePriorities: {
+      ...defaultExecutePriorities(playerClass, race, gearIds, combatPotion),
+      ...stringNumberMap(src.executePriorities),
+    },
     customEP: { ...defaultWeightsFor(playerClass), ...stringNumberMap(src.customEP) },
+    dpsBaseline: sanitizeDpsBaseline(src.dpsBaseline),
   }
 }
 
@@ -271,7 +418,15 @@ export function loadSavedRoot(): SavedRoot {
     if (!byClass[playerClass]) {
       byClass[playerClass] = defaultClassSetup(playerClass, Race.ORC)
     }
-    const tab = TABS.includes(parsed.tab as SettingsTab) ? (parsed.tab as SettingsTab) : 'gear'
+    const storedVersion = Number(parsed.v) || 0
+    if (storedVersion < 2 && Object.keys(byClass[playerClass].gearIds).length === 0) {
+      byClass[playerClass] = {
+        ...byClass[playerClass],
+        gearIds: sanitizeGear(DEFAULT_GEAR, playerClass),
+      }
+    }
+    const rawTab = parsed.tab === 'execute' ? 'rotation' : parsed.tab
+    const tab = TABS.includes(rawTab as SettingsTab) ? (rawTab as SettingsTab) : 'gear'
     return {
       v: VERSION,
       playerClass,

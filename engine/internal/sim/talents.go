@@ -36,7 +36,17 @@ func talentAny(ranks map[int32]int32, names ...string) bool {
 }
 
 func (f *fight) named(name string) int32 {
-	return talentRank(f.ranks, name)
+	if f.namedMemo != nil {
+		if rank, ok := f.namedMemo[name]; ok {
+			return rank
+		}
+	}
+	rank := talentRank(f.ranks, name)
+	if f.namedMemo == nil {
+		f.namedMemo = make(map[string]int32, 8)
+	}
+	f.namedMemo[name] = rank
+	return rank
 }
 
 type genericTalents struct {
@@ -81,12 +91,12 @@ func newGenericTalents() genericTalents {
 }
 
 var (
-	pctRe            = regexp.MustCompile(`(?i)(\d+(?:\.\d+)?)%`)
-	abilityDamageRe  = regexp.MustCompile(`(?i)increases the damage(?: and critical strike chance)?(?: done| dealt| caused)?(?: by| of)? your (.+?) (abilities|ability|spells|spell)\b`)
-	schoolDamageRe   = regexp.MustCompile(`(?i)increases the damage done by your (.+?) spells\b`)
-	allSpellsDmgRe   = regexp.MustCompile(`(?i)damage done by all your spells by (\d+(?:\.\d+)?)%`)
-	statPctRe        = regexp.MustCompile(`(?i)(strength|agility|intellect) by (\d+(?:\.\d+)?)%`)
-	attackSpeedRe    = regexp.MustCompile(`(?i)(?:attack speed|melee haste|ranged haste) by (\d+(?:\.\d+)?)%`)
+	pctRe           = regexp.MustCompile(`(?i)(\d+(?:\.\d+)?)%`)
+	abilityDamageRe = regexp.MustCompile(`(?i)increases the damage(?: and critical strike chance)?(?: done| dealt| caused)?(?: by| of)? your (.+?) (abilities|ability|spells|spell)\b`)
+	schoolDamageRe  = regexp.MustCompile(`(?i)increases the damage done by your (.+?) spells\b`)
+	allSpellsDmgRe  = regexp.MustCompile(`(?i)damage done by all your spells by (\d+(?:\.\d+)?)%`)
+	statPctRe       = regexp.MustCompile(`(?i)(strength|agility|intellect) by (\d+(?:\.\d+)?)%`)
+	attackSpeedRe   = regexp.MustCompile(`(?i)(?:attack speed|melee haste|ranged haste) by (\d+(?:\.\d+)?)%`)
 )
 
 func talentRankText(t clientdata.Talent, rank int32) string {

@@ -5,11 +5,14 @@ import {
   applyInventoryType,
   applySpellToAbility,
   catalogItemFromParsed,
+  catalogRacialFromParsed,
+  racialRotationAbility,
   catalogEnchantFromParsed,
   extractGearPlannerItems,
   extractListviewItems,
   extractSpellRanks,
   extractTalentCalcDump,
+  itemSetsFromItems,
   keepEnchantment,
   parseEnchantment,
   parseItemTooltip,
@@ -36,12 +39,17 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const catalogFile = join(root, 'engine', 'internal', 'clientdata', 'catalog.json')
 const webCatalog = join(root, 'web', 'src', 'catalog', 'catalog.json')
 const abilitiesFile = join(root, 'engine', 'internal', 'clientdata', 'abilities.json')
+const webAbilities = join(root, 'web', 'src', 'catalog', 'abilities.json')
 const seedsFile = join(root, 'scripts', 'wowhead', 'spell-seeds.json')
 const potionsFile = join(root, 'engine', 'internal', 'clientdata', 'potions.json')
 const webPotions = join(root, 'web', 'src', 'catalog', 'potions.json')
 const enchantsFile = join(root, 'engine', 'internal', 'clientdata', 'enchants.json')
 const webEnchants = join(root, 'web', 'src', 'catalog', 'enchants.json')
+const racialsFile = join(root, 'engine', 'internal', 'clientdata', 'racials.json')
+const webRacials = join(root, 'web', 'src', 'catalog', 'racials.json')
 const treesDir = join(root, 'engine', 'internal', 'clientdata', 'talent-trees')
+const setsFile = join(root, 'engine', 'internal', 'clientdata', 'sets.json')
+const webSets = join(root, 'web', 'src', 'catalog', 'sets.json')
 
 function args() {
   const out = {
@@ -51,6 +59,7 @@ function args() {
     skipTalents: false,
     skipPotions: false,
     skipEnchants: false,
+    skipRacials: false,
     limit: 0,
   }
   for (const a of process.argv.slice(2)) {
@@ -66,6 +75,8 @@ function args() {
       out.skipPotions = true
     } else if (a === '--skip-enchants') {
       out.skipEnchants = true
+    } else if (a === '--skip-racials') {
+      out.skipRacials = true
     } else if (a.startsWith('--limit=')) {
       out.limit = Number(a.slice(8))
     }
@@ -118,6 +129,20 @@ async function collectListRows(endpoints, flags, listPaths) {
   return byId
 }
 
+function writeAbilities(abilities) {
+  const payload = JSON.stringify(abilities, null, 2) + '\n'
+  writeFileSync(abilitiesFile, payload)
+  mkdirSync(dirname(webAbilities), { recursive: true })
+  writeFileSync(webAbilities, payload)
+}
+
+function writeRacials(racials) {
+  const payload = JSON.stringify(racials, null, 2) + '\n'
+  writeFileSync(racialsFile, payload)
+  mkdirSync(dirname(webRacials), { recursive: true })
+  writeFileSync(webRacials, payload)
+}
+
 function writeEnchants(enchants) {
   const payload = JSON.stringify(enchants, null, 2) + '\n'
   writeFileSync(enchantsFile, payload)
@@ -144,7 +169,7 @@ async function ingestEnchants(endpoints, flags) {
         continue
       }
       try {
-        const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints)
+        const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints, flags.force)
         const parsed = parseEnchantment({ ...tip, id }, kind)
         if (!keepEnchantment(parsed)) {
           continue
@@ -174,7 +199,7 @@ async function ingestPotions(endpoints, flags) {
       break
     }
     try {
-      const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints)
+      const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints, flags.force)
       const parsed = parseItemTooltip({ ...tip, id })
       if (!keepPotion(parsed)) {
         continue
@@ -203,6 +228,14 @@ function writeCatalog(catalog) {
   writeFileSync(catalogFile, payload)
   mkdirSync(dirname(webCatalog), { recursive: true })
   writeFileSync(webCatalog, payload)
+  writeSets(itemSetsFromItems(catalog.items || []))
+}
+
+function writeSets(sets) {
+  const payload = JSON.stringify(sets, null, 2) + '\n'
+  writeFileSync(setsFile, payload)
+  mkdirSync(dirname(webSets), { recursive: true })
+  writeFileSync(webSets, payload)
 }
 
 async function ingestSpells(endpoints, abilities, flags) {
@@ -228,7 +261,7 @@ async function ingestSpells(endpoints, abilities, flags) {
     }
     const max = pickMaxRank(ranks, seed)
     try {
-      const tip = await cachedJson('spell', max.id, spellTooltipUrl(endpoints, max.id), endpoints)
+      const tip = await cachedJson('spell', max.id, spellTooltipUrl(endpoints, max.id), endpoints, flags.force)
       const parsed = parseSpellTooltip({ ...tip, id: max.id })
       if (!parsed.rank && max.rank) {
         parsed.rank = max.rank
@@ -243,6 +276,53 @@ async function ingestSpells(endpoints, abilities, flags) {
     }
   }
   return updated
+}
+
+async function ingestRacials(endpoints, abilities, flags) {
+  const listPath = endpoints.racialTraitList || 'spells/racial-traits'
+  const html = await cachedText(
+    cacheRel(endpoints, join('lists', 'spells-racial-traits.html')),
+    itemListUrl(endpoints, listPath),
+    endpoints,
+    flags.force,
+  )
+  const rows = extractListviewItems(html)
+  console.log('racial traits', rows.length)
+  const racials = []
+  const bySpell = new Map(abilities.map((ability, index) => [Number(ability.spellId) || 0, index]))
+  let fetched = 0
+  let updated = 0
+  for (const row of rows) {
+    const id = Number(row.id)
+    if (!id) {
+      continue
+    }
+    if (flags.limit && fetched >= flags.limit) {
+      break
+    }
+    try {
+      const tip = await cachedJson('spell', id, spellTooltipUrl(endpoints, id), endpoints, flags.force)
+      const parsed = parseSpellTooltip({ ...tip, id })
+      racials.push(catalogRacialFromParsed(parsed, row))
+      fetched++
+      const index = bySpell.get(id)
+      if (index != null) {
+        abilities[index] = applySpellToAbility(abilities[index], parsed)
+        updated++
+      } else {
+        const ability = racialRotationAbility(parsed, row)
+        if (ability) {
+          bySpell.set(id, abilities.length)
+          abilities.push(ability)
+          updated++
+        }
+      }
+    } catch (err) {
+      console.warn('racial', id, err.message)
+    }
+  }
+  racials.sort((a, b) => (a.race || 0) - (b.race || 0) || a.id - b.id)
+  return { racials, updated }
 }
 
 function passesItemFilter(parsed, filter) {
@@ -397,7 +477,7 @@ async function ingestItems(endpoints, catalog, flags) {
       break
     }
     try {
-      const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints)
+      const tip = await cachedJson('item', id, itemTooltipUrl(endpoints, id), endpoints, flags.force)
       const parsed = parseItemTooltip({ ...tip, id })
       const row = planner[String(id)] || planner[id] || listRows[String(id)] || listRows[id]
       if (row) {
@@ -440,8 +520,19 @@ async function main() {
 
   if (!flags.skipSpells) {
     const n = await ingestSpells(endpoints, abilities, flags)
-    writeFileSync(abilitiesFile, JSON.stringify(abilities, null, 2) + '\n')
+    writeAbilities(abilities)
     console.log('abilities updated', n)
+  }
+
+  if (!flags.skipRacials) {
+    const { racials, updated } = await ingestRacials(endpoints, abilities, flags)
+    if (racials.length) {
+      writeRacials(racials)
+      writeAbilities(abilities)
+      console.log('racials', racials.length, 'abilities patched', updated)
+    } else {
+      console.warn('no racial traits parsed; racials.json unchanged')
+    }
   }
 
   if (!flags.skipTalents) {
@@ -459,8 +550,6 @@ async function main() {
     } else {
       console.warn('no items parsed; catalog unchanged')
     }
-  } else {
-    writeCatalog(catalog)
   }
 
   if (!flags.skipPotions) {

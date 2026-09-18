@@ -2,14 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { Class, ItemSlot, type SimResult, type StatWeightsResult } from './gen/wowfsim/sim_pb.ts'
 import { initEngine, runSim, runStatWeights, randomSimSeed } from './sim/engine'
-import { ITEMS } from './catalog/era.ts'
+import { ITEMS, loadCatalog } from './catalog/era.ts'
 import { defaultWeightsFor, emptyWeights, weightsFromMeasured } from './catalog/weights.ts'
-import { defaultPriorities, useTrinketAbilities } from './catalog/abilities.ts'
+import { defaultPriorities, defaultExecutePriorities, useTrinketAbilities } from './catalog/abilities.ts'
 import { potionUseAbility, POTIONS } from './catalog/potions.ts'
 import {
   defaultClassSetup,
   loadSavedRoot,
   writeSavedRoot,
+  snapshotGearSet,
+  cloneSlotMap,
+  nextGearSetName,
+  baselineFromResult,
   type ClassSetup,
   type SettingsTab,
 } from './persist.ts'
@@ -21,7 +25,7 @@ import { TalentTrees } from './components/TalentTrees.tsx'
 import { SettingsPanel } from './components/SettingsPanel.tsx'
 import { StatWeightsPanel } from './components/StatWeightsPanel.tsx'
 import { SimTimeline } from './components/SimTimeline.tsx'
-import { SimResultPanel } from './components/SimResultPanel.tsx'
+import { SimResultPanel, DeltaText } from './components/SimResultPanel.tsx'
 import { CharacterStats } from './components/CharacterStats.tsx'
 import { enabledBuffIds } from './catalog/buffs.ts'
 import { computeSheetStats } from './catalog/character.ts'
@@ -62,15 +66,22 @@ function App() {
   const [running, setRunning] = useState(false)
   const [runProgress, setRunProgress] = useState('')
   const [result, setResult] = useState<SimResult | null>(null)
+  const [liveDps, setLiveDps] = useState<{ mean: number; stdev: number; iterations: number } | null>(null)
   const [fightLength, setFightLength] = useState(initial.duration)
   const [gearIds, setGearIds] = useState<Record<number, number>>(initialClass.gearIds)
   const [enchantIds, setEnchantIds] = useState<Record<number, number>>(initialClass.enchantIds ?? {})
+  const [gearSets, setGearSets] = useState(initialClass.gearSets ?? [])
+  const [activeGearSetId, setActiveGearSetId] = useState(initialClass.activeGearSetId ?? '')
   const [talentRanks, setTalentRanks] = useState(initialClass.talentRanks)
   const [raidBuffs, setRaidBuffs] = useState<Record<string, boolean>>(initialClass.raidBuffs)
   const [statWeights, setStatWeights] = useState<StatWeightsResult | null>(null)
   const [customEP, setCustomEP] = useState<Record<string, number>>(initialClass.customEP)
+  const [dpsBaseline, setDpsBaseline] = useState(initialClass.dpsBaseline ?? null)
   const [abilityPriorities, setAbilityPriorities] = useState<Record<string, number>>(
     initialClass.abilityPriorities,
+  )
+  const [executePriorities, setExecutePriorities] = useState<Record<string, number>>(
+    initialClass.executePriorities ?? {},
   )
   const [combatPotion, setCombatPotion] = useState(initialClass.combatPotion)
   const [mhWeaponTemp, setMhWeaponTemp] = useState(initialClass.mhWeaponTemp ?? '')
@@ -79,6 +90,7 @@ function App() {
   const [openSlot, setOpenSlot] = useState<ItemSlot | null>(null)
   const [lowerPanel, setLowerPanel] = useState<LowerPanel>(initial.tab)
   const byClassRef = useRef(initial.byClass)
+  const [catalogReady, setCatalogReady] = useState(false)
   const lastSettingsTab = useRef<SettingsTab>(initial.tab)
   const [hover, setHover] = useState<{ id: number; x: number; y: number } | null>(
     null,
@@ -86,7 +98,9 @@ function App() {
   const snapshotRef = useRef<ClassSetup>(initialClass)
 
   const hoveredItem = hover ? ITEMS.find((item) => item.id === hover.id) : null
+  const equippedIds = Object.values(gearIds).filter(Boolean)
   const classLabel = CLASSES.find((entry) => entry.value === playerClass)?.label ?? 'Player'
+  const shownDps = liveDps ?? (result ? { mean: result.dpsMean, stdev: result.dpsStdev, iterations: result.iterations } : null)
   const busy = running || engineState !== 'ready'
   const sheet = useMemo(
     () =>
@@ -106,12 +120,46 @@ function App() {
   )
 
   useEffect(() => {
+    let cancelled = false
     initEngine()
-      .then(() => setEngineState('ready'))
+      .then(() => {
+        if (!cancelled) {
+          setEngineState('ready')
+        }
+      })
       .catch((err: unknown) => {
+        if (cancelled) {
+          return
+        }
         setEngineState('error')
         setError(err instanceof Error ? err.message : String(err))
       })
+    loadCatalog()
+      .then(() => {
+        if (cancelled) {
+          return
+        }
+        const saved = loadSavedRoot()
+        setPlayerClass(saved.playerClass)
+        setDuration(saved.duration)
+        setIterations(saved.iterations)
+        setRngSeed(saved.rngSeed)
+        setFightLength(saved.duration)
+        lastSettingsTab.current = saved.tab
+        byClassRef.current = saved.byClass
+        applyClassSetup(saved.byClass[saved.playerClass])
+        setCatalogReady(true)
+      })
+      .catch((err: unknown) => {
+        if (cancelled) {
+          return
+        }
+        setEngineState('error')
+        setError(err instanceof Error ? err.message : String(err))
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const currentClassSetup: ClassSetup = {
@@ -119,13 +167,17 @@ function App() {
     stance,
     gearIds,
     enchantIds,
+    gearSets,
+    activeGearSetId,
     talentRanks,
     raidBuffs,
     mhWeaponTemp,
     ohWeaponTemp,
     abilityPriorities,
+    executePriorities,
     combatPotion,
     customEP,
+    dpsBaseline,
   }
   snapshotRef.current = currentClassSetup
 
@@ -134,13 +186,17 @@ function App() {
     setStance(setup.stance)
     setGearIds(setup.gearIds)
     setEnchantIds(setup.enchantIds ?? {})
+    setGearSets(setup.gearSets ?? [])
+    setActiveGearSetId(setup.activeGearSetId ?? '')
     setTalentRanks(setup.talentRanks)
     setRaidBuffs(setup.raidBuffs)
     setMhWeaponTemp(setup.mhWeaponTemp ?? '')
     setOhWeaponTemp(setup.ohWeaponTemp ?? '')
     setAbilityPriorities(setup.abilityPriorities)
+    setExecutePriorities(setup.executePriorities ?? {})
     setCombatPotion(setup.combatPotion)
     setCustomEP(setup.customEP)
+    setDpsBaseline(setup.dpsBaseline ?? null)
   }
 
   function changeClass(next: Class) {
@@ -156,13 +212,16 @@ function App() {
   }
 
   useEffect(() => {
+    if (!catalogReady) {
+      return
+    }
     if (isSettingsTab(lowerPanel)) {
       lastSettingsTab.current = lowerPanel
     }
     const timer = window.setTimeout(() => {
       byClassRef.current = { ...byClassRef.current, [playerClass]: snapshotRef.current }
       writeSavedRoot({
-        v: 1,
+        v: 2,
         playerClass,
         duration,
         iterations,
@@ -181,24 +240,30 @@ function App() {
     lowerPanel,
     gearIds,
     enchantIds,
+    gearSets,
+    activeGearSetId,
     talentRanks,
     raidBuffs,
     mhWeaponTemp,
     ohWeaponTemp,
     abilityPriorities,
+    executePriorities,
     combatPotion,
     customEP,
     stance,
+    dpsBaseline,
+    catalogReady,
   ])
 
   useEffect(() => {
-    setAbilityPriorities((current) => {
+    const extras = [
+      ...useTrinketAbilities(gearIds),
+      potionUseAbility(POTIONS.find((item) => item.id === combatPotion) ?? undefined),
+    ]
+    function seed(current: Record<string, number>) {
       let changed = false
       const next = { ...current }
-      for (const ability of [
-        ...useTrinketAbilities(gearIds),
-        potionUseAbility(POTIONS.find((item) => item.id === combatPotion) ?? undefined),
-      ]) {
+      for (const ability of extras) {
         if (!ability) {
           continue
         }
@@ -208,7 +273,9 @@ function App() {
         }
       }
       return changed ? next : current
-    })
+    }
+    setAbilityPriorities(seed)
+    setExecutePriorities(seed)
   }, [gearIds, combatPotion])
 
   function selectedItems() {
@@ -254,11 +321,57 @@ function App() {
     setHover({ id: itemId, x: event.clientX, y: event.clientY })
   }
 
+  function loadGearSet(id: string) {
+    if (!id) {
+      setActiveGearSetId('')
+      return
+    }
+    const set = gearSets.find((entry) => entry.id === id)
+    if (!set) {
+      return
+    }
+    setGearIds(cloneSlotMap(set.gearIds))
+    setEnchantIds(cloneSlotMap(set.enchantIds))
+    setActiveGearSetId(set.id)
+  }
+
+  function saveGearSet(name: string) {
+    if (activeGearSetId) {
+      setGearSets((sets) =>
+        sets.map((entry) =>
+          entry.id === activeGearSetId ? snapshotGearSet(name, gearIds, enchantIds, entry.id) : entry,
+        ),
+      )
+      return
+    }
+    const next = snapshotGearSet(name || nextGearSetName(gearSets), gearIds, enchantIds)
+    setGearSets((sets) => [...sets, next])
+    setActiveGearSetId(next.id)
+  }
+
+  function saveGearSetAs(name: string) {
+    const label = name.trim() && gearSets.some((entry) => entry.name === name.trim())
+      ? `${name.trim()} copy`
+      : name
+    const next = snapshotGearSet(label || nextGearSetName(gearSets), gearIds, enchantIds)
+    setGearSets((sets) => [...sets, next])
+    setActiveGearSetId(next.id)
+  }
+
+  function deleteGearSet() {
+    if (!activeGearSetId) {
+      return
+    }
+    setGearSets((sets) => sets.filter((entry) => entry.id !== activeGearSetId))
+    setActiveGearSetId('')
+  }
+
   async function onRun() {
     setRunning(true)
     setRunProgress(`0 / ${iterations}`)
     setError(null)
-    setResult(null)
+    setLiveDps(null)
+    setLowerPanel('result')
     try {
       const runSeed = rngSeed > 0 ? BigInt(rngSeed) : randomSimSeed()
       setUsedSeed(runSeed)
@@ -273,20 +386,28 @@ function App() {
           talents: talentRanks,
           raidBuffs: enabledBuffIds(raidBuffs),
           abilityPriorities: { ...defaultPriorities(playerClass, race, gearIds, combatPotion), ...abilityPriorities },
+          executeAbilityPriorities: {
+            ...defaultExecutePriorities(playerClass, race, gearIds, combatPotion),
+            ...executePriorities,
+          },
           stance,
           combatPotion,
           mhWeaponTemp,
           ohWeaponTemp,
         },
-        (partial, done, total) => {
-          setResult(partial)
-          setFightLength(duration)
-          setRunProgress(`${done} / ${total}`)
-          setLowerPanel('result')
+        (update) => {
+          setLiveDps({ mean: update.dpsMean, stdev: update.dpsStdev, iterations: update.done })
+          setRunProgress(`${update.done} / ${update.total}`)
+          if (update.result) {
+            setResult(update.result)
+            setFightLength(duration)
+          }
         },
       )
       setResult(next)
+      setLiveDps(null)
       setFightLength(duration)
+      setLowerPanel('result')
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -310,6 +431,10 @@ function App() {
         talents: talentRanks,
         raidBuffs: enabledBuffIds(raidBuffs),
         abilityPriorities: { ...defaultPriorities(playerClass, race, gearIds, combatPotion), ...abilityPriorities },
+        executeAbilityPriorities: {
+          ...defaultExecutePriorities(playerClass, race, gearIds, combatPotion),
+          ...executePriorities,
+        },
         stance,
         combatPotion,
         mhWeaponTemp,
@@ -349,13 +474,16 @@ function App() {
                   ? 'Loading engine…'
                   : 'Simulate'}
             </button>
-            <div className={`rail-dps ${running && result ? 'running' : ''} ${result ? '' : 'empty'}`}>
-              <strong>{result ? result.dpsMean.toFixed(1) : '0.0'}</strong>
+            <div className={`rail-dps ${running && shownDps ? 'running' : ''} ${shownDps ? '' : 'empty'}`}>
+              <strong>{shownDps ? shownDps.mean.toFixed(1) : '0.0'}</strong>
               <span>
-                {result
-                  ? `DPS ± ${result.dpsStdev.toFixed(1)}${running ? ` · ${result.iterations}/${iterations}` : ''}`
+                {shownDps
+                  ? `DPS ± ${shownDps.stdev.toFixed(1)}${running ? ` · ${shownDps.iterations}/${iterations}` : ''}`
                   : 'DPS ± 0.0'}
               </span>
+              {shownDps && dpsBaseline ? (
+                <DeltaText value={shownDps.mean - dpsBaseline.dpsMean} base={dpsBaseline.dpsMean} />
+              ) : null}
             </div>
           </section>
           <section className="rail-card rail-character">
@@ -403,26 +531,42 @@ function App() {
             <button
               type="button"
               className={lowerPanel === 'result' ? 'active' : ''}
-              disabled={!result}
-              onClick={() => result && setLowerPanel('result')}
+              disabled={!result && !running}
+              onClick={() => setLowerPanel('result')}
             >
               Results
             </button>
             <button
               type="button"
               className={lowerPanel === 'timeline' ? 'active' : ''}
-              disabled={!result}
-              onClick={() => result && setLowerPanel('timeline')}
+              disabled={!result && !running}
+              onClick={() => setLowerPanel('timeline')}
             >
               Timeline
             </button>
           </nav>
 
           <div className="main-body">
-            {lowerPanel === 'timeline' && result ? (
-              <SimTimeline result={result} durationSeconds={fightLength} />
-            ) : lowerPanel === 'result' && result ? (
-              <SimResultPanel result={result} seed={usedSeed} />
+            {lowerPanel === 'timeline' ? (
+              result ? <SimTimeline result={result} durationSeconds={fightLength} /> : null
+            ) : lowerPanel === 'result' ? (
+              result ? (
+                <SimResultPanel
+                  result={result}
+                  seed={usedSeed}
+                  live={running}
+                  baseline={dpsBaseline}
+                  onSaveBaseline={() => setDpsBaseline(baselineFromResult(result))}
+                  onClearBaseline={() => setDpsBaseline(null)}
+                />
+              ) : (
+                <section className="timeline-frame result-panel">
+                  <header className="talent-frame-head">
+                    <h2>Result</h2>
+                  </header>
+                  <p className="dps-meta">{running ? 'Simulating…' : 'Run a sim to see a breakdown.'}</p>
+                </section>
+              )
             ) : lowerPanel === 'settings' ? (
               <SettingsPanel
                 playerClass={playerClass}
@@ -469,16 +613,46 @@ function App() {
                 race={race}
                 gearIds={gearIds}
                 combatPotion={combatPotion}
-                priorities={{ ...defaultPriorities(playerClass, race, gearIds, combatPotion), ...abilityPriorities }}
-                onChange={(id, value) =>
-                  setAbilityPriorities((current) => ({ ...current, [id]: value }))
-                }
-                onReset={() => setAbilityPriorities(defaultPriorities(playerClass, race, gearIds, combatPotion))}
+                talentRanks={talentRanks}
+                rotation={{
+                  priorities: {
+                    ...defaultPriorities(playerClass, race, gearIds, combatPotion),
+                    ...abilityPriorities,
+                  },
+                  onChange: (id, value) =>
+                    setAbilityPriorities((current) => {
+                      if (current[id] === value) {
+                        return current
+                      }
+                      return { ...current, [id]: value }
+                    }),
+                  onReorder: (next) => setAbilityPriorities((current) => ({ ...current, ...next })),
+                  onReset: () =>
+                    setAbilityPriorities(defaultPriorities(playerClass, race, gearIds, combatPotion)),
+                }}
+                execute={{
+                  priorities: {
+                    ...defaultExecutePriorities(playerClass, race, gearIds, combatPotion),
+                    ...executePriorities,
+                  },
+                  onChange: (id, value) =>
+                    setExecutePriorities((current) => {
+                      if (current[id] === value) {
+                        return current
+                      }
+                      return { ...current, [id]: value }
+                    }),
+                  onReorder: (next) => setExecutePriorities((current) => ({ ...current, ...next })),
+                  onReset: () =>
+                    setExecutePriorities(defaultExecutePriorities(playerClass, race, gearIds, combatPotion)),
+                }}
               />
             ) : lowerPanel === 'gear' ? (
               <GearPanel
                 gearIds={gearIds}
                 enchantIds={enchantIds}
+                gearSets={gearSets}
+                activeGearSetId={activeGearSetId}
                 onOpenSlot={(slot) => {
                   setHover(null)
                   setOpenSlot(slot)
@@ -489,6 +663,10 @@ function App() {
                 }}
                 onHoverItem={onHoverItem}
                 onLeaveItem={() => setHover(null)}
+                onLoadSet={loadGearSet}
+                onSaveSet={saveGearSet}
+                onSaveSetAs={saveGearSetAs}
+                onDeleteSet={deleteGearSet}
               />
             ) : (
               <TalentTrees
@@ -506,6 +684,7 @@ function App() {
           slot={openSlot}
           itemId={gearIds[openSlot] ?? 0}
           enchantId={enchantIds[openSlot] ?? 0}
+          gearIds={gearIds}
           playerClass={playerClass}
           statEP={customEP}
           onSelect={(id) => {
@@ -522,7 +701,7 @@ function App() {
       ) : null}
 
       {hoveredItem && openSlot == null ? (
-        <ItemTooltip item={hoveredItem} x={hover?.x ?? 0} y={hover?.y ?? 0} />
+        <ItemTooltip item={hoveredItem} x={hover?.x ?? 0} y={hover?.y ?? 0} equippedIds={equippedIds} />
       ) : null}
     </div>
   )

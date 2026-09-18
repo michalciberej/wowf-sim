@@ -4,14 +4,13 @@ import (
 	"math"
 	"math/rand"
 	"sort"
+	"strings"
 
 	pb "wowf-sim/engine/gen/wowfsim"
 	"wowf-sim/engine/internal/clientdata"
 )
 
 // Run executes iterations of an APL-style combat model.
-// Weapon, talent, and racial numbers are still stubs; they exist so the UI
-// choices change DPS. Real Forever tables will replace these multipliers.
 func Run(req *pb.SimRequest) *pb.SimResult {
 	if req == nil {
 		req = &pb.SimRequest{}
@@ -39,7 +38,7 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 	samples := make([]float64, 0, iterations)
 
 	for i := 0; i < iterations; i++ {
-		dmg, events, stats := simulateFight(duration, kit, player.GetClass(), ranks, rng, i == 0)
+		dmg, events, stats := simulateFight(duration, kit, player.GetClass(), ranks, rng, i == 0 && player.GetName() != "-")
 		if i == 0 {
 			timeline = events
 		}
@@ -136,11 +135,10 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 		intel += float64(item.GetIntellect())
 		gearAP += float64(item.GetAttackPower())
 		sp := float64(item.GetSpellPower())
-		if cat, ok := clientdata.ItemByID(item.GetId()); ok {
-			for _, effect := range cat.Effects {
-				if effect.Kind == "use" && effect.SpellPower > 0 && effect.SpellPower == sp {
-					sp = 0
-				}
+		for _, effect := range resolvedItemEffects(item) {
+			if effect.Kind == "use" && effect.SpellPower > 0 && effect.SpellPower == sp {
+				sp = 0
+				break
 			}
 		}
 		spellPower += sp
@@ -178,13 +176,40 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 				mhTwoHand = true
 			}
 		case pb.ItemSlot_ITEM_SLOT_OFF_HAND:
-			if item.GetWeaponDps() > 0 && item.GetHand() != "oh" {
+			if item.GetWeaponDps() > 0 && item.GetItemSubclass() != "Shield" && item.GetHand() != "2h" {
 				ohWeapon = item.GetWeaponDps()
 				if item.GetAttackSpeedMs() > 0 {
 					ohSpeed = float64(item.GetAttackSpeedMs()) / 1000
 				}
 			}
 		}
+	}
+
+	var equippedIDs []int32
+	namesByID := make(map[int32]string)
+	for _, item := range player.GetGear().GetItems() {
+		if item.GetId() == 0 {
+			continue
+		}
+		equippedIDs = append(equippedIDs, item.GetId())
+		if item.GetName() != "" {
+			namesByID[item.GetId()] = item.GetName()
+		}
+	}
+	for _, bonus := range clientdata.ActiveSetBonusesFor(equippedIDs, namesByID) {
+		str += float64(bonus.Strength)
+		agi += float64(bonus.Agility)
+		intel += float64(bonus.Intellect)
+		gearAP += float64(bonus.AttackPower)
+		if player.GetClass() == pb.Class_CLASS_HUNTER {
+			gearAP += float64(bonus.RangedAttackPower)
+		}
+		spellPower += float64(bonus.SpellPower)
+		gearCrit += bonus.CritChance
+		gearSpellCrit += bonus.SpellCritChance
+		hitChance += bonus.HitChance
+		spellHit += bonus.SpellHitChance
+		gearHaste += bonus.Haste
 	}
 
 	mhTemp := weaponTempBuff(player.GetMhWeaponTemp())
@@ -254,10 +279,12 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 	meleeCrit := meleeCritChance(player.GetClass(), agi, gearCrit)
 	spellCrit := baseSpellCrit(player.GetClass()) + spellCritFromInt(player.GetClass(), intel) + gearSpellCrit
 
-	raceMul, raceHaste, raceCrit := racials(player.GetRace(), mainHandSubclass(player))
+	raceMul, raceHaste, raceCrit, raceHit := racials(player.GetRace(), equippedWeaponSubclasses(player))
 	baseDPS *= raceMul
 	swingTimer *= raceHaste
 	meleeCrit += raceCrit
+	spellCrit += raceCrit
+	hitChance += raceHit
 	spellMul := 1.0
 	if !meleeAutos {
 		spellMul = raceMul
@@ -354,18 +381,7 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 
 	var itemEffects []clientdata.ItemEffect
 	for _, item := range player.GetGear().GetItems() {
-		name := item.GetName()
-		var existing []clientdata.ItemEffect
-		if cat, ok := clientdata.ItemByID(item.GetId()); ok {
-			existing = cat.Effects
-			if name == "" {
-				name = cat.Name
-			}
-		}
-		for _, effect := range clientdata.ItemEffectsFor(name, existing) {
-			if effect.Name == "" {
-				effect.Name = name
-			}
+		for _, effect := range resolvedItemEffects(item) {
 			itemEffects = append(itemEffects, effect)
 		}
 	}
@@ -402,6 +418,7 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 		abilities:   clientdata.AbilitiesFor(int32(player.GetClass()), int32(player.GetRace()), talents),
 		itemEffects: itemEffects,
 		abilityPrio: abilityPriorityMap(player.GetAbilityPriorities()),
+		executePrio: abilityPriorityMap(player.GetExecuteAbilityPriorities()),
 		armorLost:   raid.armorLost,
 		damageMul:   raid.damageMul,
 		maxRage:     w.maxRage,
@@ -423,36 +440,102 @@ func mainHandSubclass(player *pb.Player) string {
 	return ""
 }
 
-func racials(race pb.Race, subclass string) (damageMul, hasteMul, crit float64) {
-	damageMul, hasteMul = 1, 1
-	switch race {
-	case pb.Race_RACE_ORC:
-		if subclass == "Axe" {
-			damageMul = 1.02
+func equippedWeaponSubclasses(player *pb.Player) []string {
+	var out []string
+	for _, item := range player.GetGear().GetItems() {
+		switch item.GetSlot() {
+		case pb.ItemSlot_ITEM_SLOT_MAIN_HAND, pb.ItemSlot_ITEM_SLOT_OFF_HAND, pb.ItemSlot_ITEM_SLOT_RANGED:
+			sub := item.GetItemSubclass()
+			if sub != "" && sub != "Shield" {
+				out = append(out, sub)
+			}
 		}
-	case pb.Race_RACE_HUMAN:
-		if subclass == "Sword" || subclass == "Mace" {
-			damageMul = 1.01
-		}
-	case pb.Race_RACE_DWARF:
-		if subclass == "Mace" || subclass == "Gun" {
-			damageMul = 1.01
-		}
-	case pb.Race_RACE_NIGHT_ELF:
-		damageMul = 0.99
-	case pb.Race_RACE_UNDEAD:
-		damageMul = 1.01
-	case pb.Race_RACE_GNOME:
-		damageMul = 1.02
-	case pb.Race_RACE_SKYBORNE:
-		damageMul = 1.02
 	}
-	return damageMul, hasteMul, crit
+	return out
+}
+
+func racials(race pb.Race, subclasses []string) (damageMul, hasteMul, crit, hit float64) {
+	damageMul, hasteMul = 1, 1
+	for _, racial := range clientdata.RacialsFor(int32(race)) {
+		if !racial.Passive {
+			continue
+		}
+		if racial.CritWhile > 0 {
+			for _, sub := range subclasses {
+				if weaponMatches(sub, racial.CritWhileWeapon) {
+					crit += racial.CritWhile
+					break
+				}
+			}
+		}
+		hit += racial.HitChance
+		if racial.Haste > 0 {
+			hasteMul *= 1 - racial.Haste
+		}
+	}
+	return damageMul, hasteMul, crit, hit
+}
+
+func weaponMatches(subclass, kind string) bool {
+	if subclass == "" || kind == "" {
+		return false
+	}
+	return strings.Contains(strings.ToLower(subclass), strings.ToLower(kind))
 }
 
 func applyTalents(class pb.Class, picks []*pb.TalentPick) (damageMul, hasteMul, crit float64) {
 	g := collectGenericTalents(class, picks)
 	return g.damageMul, g.hasteMul, g.meleeCrit
+}
+
+func protoItemEffects(item *pb.EquippedItem) []clientdata.ItemEffect {
+	if item == nil {
+		return nil
+	}
+	out := make([]clientdata.ItemEffect, 0, len(item.GetEffects()))
+	for _, effect := range item.GetEffects() {
+		out = append(out, clientdata.ItemEffect{
+			Kind:        effect.GetKind(),
+			Name:        effect.GetName(),
+			Text:        effect.GetText(),
+			AttackPower: effect.GetAttackPower(),
+			SpellPower:  effect.GetSpellPower(),
+			Haste:       effect.GetHaste(),
+			Crit:        effect.GetCrit(),
+			Strength:    effect.GetStrength(),
+			Agility:     effect.GetAgility(),
+			ArmorIgnore: effect.GetArmorIgnore(),
+			Rage:        effect.GetRage(),
+			Duration:    effect.GetDuration(),
+			Cooldown:    effect.GetCooldown(),
+			Chance:      effect.GetChance(),
+			ExtraAttack: effect.GetExtraAttack(),
+			StackAP:     effect.GetStackAp(),
+			Interval:    effect.GetInterval(),
+			Icon:        effect.GetIcon(),
+		})
+	}
+	return out
+}
+
+func resolvedItemEffects(item *pb.EquippedItem) []clientdata.ItemEffect {
+	name := item.GetName()
+	existing := protoItemEffects(item)
+	if cat, ok := clientdata.ItemByID(item.GetId()); ok {
+		if name == "" {
+			name = cat.Name
+		}
+		if len(existing) == 0 {
+			existing = cat.Effects
+		}
+	}
+	effects := clientdata.ItemEffectsFor(name, existing)
+	for i := range effects {
+		if effects[i].Name == "" {
+			effects[i].Name = name
+		}
+	}
+	return effects
 }
 
 func talentRankMap(picks []*pb.TalentPick) map[int32]int32 {

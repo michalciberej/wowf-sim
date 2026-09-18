@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	gcdDuration         = 1.5
-	missChance          = 0.09
-	iconAuto            = "inv_sword_04"
-	iconOffHand         = "inv_weapon_shortblade_05"
-	maxResource         = 100.0
-	energyTickAmt       = 20.0
-	energyTickBase      = 2.0
-	playerLevel         = 60.0
-	comboSpendAt        = 5
+	gcdDuration    = 1.5
+	missChance     = 0.09
+	iconAuto       = "inv_sword_04"
+	iconOffHand    = "inv_weapon_shortblade_05"
+	maxResource    = 100.0
+	energyTickAmt  = 20.0
+	energyTickBase = 2.0
+	playerLevel    = 60.0
+	comboSpendAt   = 5
 )
 
 type actionAccum struct {
@@ -32,8 +32,17 @@ type combatBuff struct {
 	dmg, haste, ap, crit, sp, str, agi, armorIgnore float64
 }
 
+type pendingCast struct {
+	ab        clientdata.Ability
+	extraRage float64
+	combo     int
+	landAt    float64
+}
+
 type fight struct {
 	t, end, gcdReady, swingAt              float64
+	swingLockUntil                         float64
+	pending                                pendingCast
 	swingTimer, baseDPS, crit, attackPower float64
 	rng                                    *rand.Rand
 	ohDPS, ohTimer, ohAt                   float64
@@ -52,6 +61,7 @@ type fight struct {
 	stats                                  map[string]*actionAccum
 	class                                  pb.Class
 	ranks                                  map[int32]int32
+	namedMemo                              map[string]int32
 	resourceKind                           string
 	resource                               float64
 	energyTickAt                           float64
@@ -68,6 +78,8 @@ type fight struct {
 	itemEffects                            []clientdata.ItemEffect
 	itemReady                              map[string]float64
 	abilityPrio                            map[string]int
+	executePrio                            map[string]int
+	executeAbs                             []clientdata.Ability
 	armorLost, damageMul                   float64
 	maxRage, missOH, ohRageMul, swordProc  float64
 	mhTwoHand                              bool
@@ -90,6 +102,7 @@ type combatKit struct {
 	abilities                                                            []clientdata.Ability
 	itemEffects                                                          []clientdata.ItemEffect
 	abilityPrio                                                          map[string]int
+	executePrio                                                          map[string]int
 	armorLost, damageMul                                                 float64
 	maxRage, missOH, ohRageMul, swordProc                                float64
 	mhTwoHand                                                            bool
@@ -131,6 +144,11 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 	if kit.abilityMul == nil {
 		kit.abilityMul = map[string]float64{}
 	}
+	baseAbs := applyResourceTalents(kit.abilities, ranks)
+	var executeAbs []clientdata.Ability
+	if len(kit.executePrio) > 0 {
+		executeAbs = applyAbilityPriorities(baseAbs, kit.executePrio)
+	}
 	f := &fight{
 		end:          duration,
 		swingTimer:   kit.swingTimer,
@@ -159,6 +177,7 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		itemEffects:  kit.itemEffects,
 		itemReady:    map[string]float64{},
 		abilityPrio:  kit.abilityPrio,
+		executePrio:  kit.executePrio,
 		armorLost:    kit.armorLost,
 		damageMul:    kit.damageMul,
 		missWhite:    kit.missWhite,
@@ -169,13 +188,15 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		swordProc:    kit.swordProc,
 		mhTwoHand:    kit.mhTwoHand,
 		rng:          rng,
-		abilities:    applyAbilityPriorities(applyResourceTalents(kit.abilities, ranks), kit.abilityPrio),
+		abilities:    applyAbilityPriorities(baseAbs, kit.abilityPrio),
+		executeAbs:   executeAbs,
 		cds:          make(map[string]float64, len(kit.abilities)),
 		record:       record,
 		eventCap:     timelineLimit(duration),
 		stats:        make(map[string]*actionAccum),
 		class:        class,
 		ranks:        ranks,
+		namedMemo:    map[string]int32{},
 		resourceKind: resourceKindFor(class, ranks),
 		mainStance:   kit.mainStance,
 		stance:       kit.mainStance,
@@ -224,21 +245,34 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		f.tickResources()
 		f.tickWarrior()
 		f.tickDots()
-		f.useOffGCD()
+		f.finishPendingCast()
+		casting := f.isCasting()
+		if !casting {
+			f.useOffGCD()
+		}
+		meleeLocked := f.meleeLocked()
 		atSwing := math.Abs(f.t-f.swingAt) < 1e-9 || f.t >= f.swingAt-1e-12
 		atOH := f.hasOH && (math.Abs(f.t-f.ohAt) < 1e-9 || f.t >= f.ohAt-1e-12)
 		atGCD := math.Abs(f.t-f.gcdReady) < 1e-9 || f.t >= f.gcdReady-1e-12
 		if f.meleeAutos && atSwing && !f.stealthed {
-			f.autoAttack()
-			f.swingAt = f.t + f.swingTimer*f.hasteMul()
-			f.consumeFlurry()
+			if meleeLocked {
+				f.swingAt = f.t + f.swingTimer*f.hasteMul()
+			} else {
+				f.autoAttack()
+				f.swingAt = f.t + f.swingTimer*f.hasteMul()
+				f.consumeFlurry()
+			}
 		}
 		if atOH && !f.stealthed {
-			f.offHandAttack()
-			f.ohAt = f.t + f.ohTimer*f.hasteMul()
-			f.consumeFlurry()
+			if meleeLocked {
+				f.ohAt = f.t + f.ohTimer*f.hasteMul()
+			} else {
+				f.offHandAttack()
+				f.ohAt = f.t + f.ohTimer*f.hasteMul()
+				f.consumeFlurry()
+			}
 		}
-		if atGCD {
+		if atGCD && !casting {
 			if ab := f.pickGCD(); ab != nil {
 				if ab.RequiresStance == "" || ab.RequiresStance == f.mainStance {
 					f.restoreMainStanceKeeping(ab.Cost)
@@ -254,17 +288,7 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 					}
 				}
 				if ab.GCD {
-					wait := gcdDuration
-					if ab.ID == "slam" {
-						wait -= 0.25 * float64(f.named("Improved Slam"))
-					}
-					if ct := defaultCastTime(*ab); ct > wait {
-						wait = ct
-					}
-					if wait < 1 {
-						wait = 1
-					}
-					f.gcdReady = f.t + wait
+					f.gcdReady = f.t + f.gcdAfter(*ab)
 				}
 			} else {
 				f.restoreMainStance()
@@ -272,13 +296,16 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 			}
 		}
 		next := f.end
+		if f.pending.landAt > 0 && f.pending.landAt < next {
+			next = f.pending.landAt
+		}
 		if f.meleeAutos && !f.stealthed && f.swingAt < next {
 			next = f.swingAt
 		}
 		if f.hasOH && !f.stealthed && f.ohAt < next {
 			next = f.ohAt
 		}
-		if f.gcdReady < next {
+		if !f.isCasting() && f.gcdReady < next {
 			next = f.gcdReady
 		}
 		if t := f.nextResourceEvent(); t < next {
@@ -289,6 +316,9 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		}
 		if t := f.nextDotEvent(); t < next {
 			next = t
+		}
+		if rem := f.remainingBuff("recklessness"); rem > 0 && f.t+rem < next {
+			next = f.t + rem
 		}
 		if next <= f.t {
 			next = f.t + 0.01
@@ -565,6 +595,9 @@ func (f *fight) addResource(amount float64) {
 	if f.resource < 0 {
 		f.resource = 0
 	}
+	if f.record {
+		f.emitTimeline("resource", f.resourceKind, "", 0, false, false, 0)
+	}
 }
 
 func requiresStealth(ab clientdata.Ability) bool {
@@ -578,8 +611,26 @@ func requiresStealth(ab clientdata.Ability) bool {
 	return false
 }
 
+func (f *fight) inExecute() bool {
+	return f.targetHealth() <= 0.2
+}
+
+func (f *fight) rotation() []clientdata.Ability {
+	if f.inExecute() && len(f.executeAbs) > 0 {
+		return f.executeAbs
+	}
+	return f.abilities
+}
+
+func (f *fight) prioMap() map[string]int {
+	if f.inExecute() && len(f.executePrio) > 0 {
+		return f.executePrio
+	}
+	return f.abilityPrio
+}
+
 func (f *fight) stealthOpenerInRotation() bool {
-	for _, ab := range f.abilities {
+	for _, ab := range f.rotation() {
 		if requiresStealth(ab) && inRotation(ab) {
 			return true
 		}
@@ -591,8 +642,7 @@ func (f *fight) stealthOpenerWouldUse() bool {
 	saved := f.stealthed
 	f.stealthed = true
 	defer func() { f.stealthed = saved }()
-	for i := range f.abilities {
-		ab := f.abilities[i]
+	for _, ab := range f.rotation() {
 		if !requiresStealth(ab) || !inRotation(ab) || !ab.GCD {
 			continue
 		}
@@ -763,6 +813,18 @@ func (f *fight) usable(ab clientdata.Ability) bool {
 	if !f.phaseOK(ab) {
 		return false
 	}
+	if ab.ID == "bloodrage" && f.resource > f.rageCap()-10 {
+		return false
+	}
+	if f.waitForBlocks(ab) {
+		return false
+	}
+	if f.clipsHigherMelee(ab) {
+		return false
+	}
+	if ab.MinTargets > 1 && f.targetCount() < ab.MinTargets {
+		return false
+	}
 	if ab.Kind == "opener" && ab.ID == "pyroblast" && f.t > 0.05 {
 		return false
 	}
@@ -793,6 +855,9 @@ func (f *fight) usable(ab clientdata.Ability) bool {
 			return false
 		}
 	}
+	if critOnlyBuff(ab) && f.holdCritBuff(ab) {
+		return false
+	}
 	if ab.ComboMin > 0 && f.combo < ab.ComboMin {
 		return false
 	}
@@ -816,6 +881,32 @@ func (f *fight) comboFinisherReady(ab clientdata.Ability) bool {
 	}
 }
 
+func critOnlyBuff(ab clientdata.Ability) bool {
+	if ab.BuffCrit <= 0 {
+		return false
+	}
+	return ab.BuffDamage == 0 && ab.BuffHaste == 0 && ab.BuffAP == 0 && ab.BuffStr == 0 && ab.BuffAgi == 0
+}
+
+func (f *fight) critSaturated() bool {
+	return f.critChance() >= 0.95-1e-9
+}
+
+func (f *fight) holdCritBuff(ab clientdata.Ability) bool {
+	if ab.ID == "recklessness" {
+		return false
+	}
+	if f.critSaturated() || f.buffActive("recklessness") {
+		return true
+	}
+	for _, other := range f.rotation() {
+		if other.ID == "recklessness" && inRotation(other) && f.ready(other) && f.canPay(other) {
+			return true
+		}
+	}
+	return false
+}
+
 func (f *fight) remainingBuff(id string) float64 {
 	for _, b := range f.buffs {
 		if b.id == id && b.expire > f.t {
@@ -823,6 +914,53 @@ func (f *fight) remainingBuff(id string) float64 {
 		}
 	}
 	return 0
+}
+
+func (f *fight) waitForBlocks(ab clientdata.Ability) bool {
+	window := f.readyWaitWindow(ab)
+	if window <= 0 {
+		return false
+	}
+	rem, ok := f.soonestHigherPriorityReady(ab)
+	if !ok {
+		return false
+	}
+	return rem <= window
+}
+
+func (f *fight) readyWaitWindow(ab clientdata.Ability) float64 {
+	if ab.WaitForReadyAbove > 0 {
+		return ab.WaitForReadyAbove
+	}
+	if ab.GCD && ab.Kind == "strike" {
+		return gcdDuration
+	}
+	return 0
+}
+
+func (f *fight) soonestHigherPriorityReady(ab clientdata.Ability) (float64, bool) {
+	soonest := math.Inf(1)
+	found := false
+	for _, other := range f.rotation() {
+		if other.ID == ab.ID || !inRotation(other) || !other.GCD || other.Kind != "strike" {
+			continue
+		}
+		if other.Priority <= ab.Priority {
+			continue
+		}
+		if !f.phaseOK(other) {
+			continue
+		}
+		found = true
+		rem := f.cds[other.ID] - f.t
+		if rem < 0 {
+			rem = 0
+		}
+		if rem < soonest {
+			soonest = rem
+		}
+	}
+	return soonest, found
 }
 
 func (f *fight) remainingDot(id string) float64 {
@@ -845,8 +983,7 @@ func (f *fight) addCombo(n int) {
 }
 
 func (f *fight) useOffGCD() {
-	for i := range f.abilities {
-		ab := f.abilities[i]
+	for _, ab := range f.rotation() {
 		if !inRotation(ab) || ab.GCD || !f.ready(ab) || !f.canPay(ab) {
 			continue
 		}
@@ -903,7 +1040,7 @@ func (f *fight) useItems() {
 		if name == "" {
 			name = effect.Text
 		}
-		if p, ok := f.abilityPrio[itemUseAbilityID(name)]; ok && p <= 0 {
+		if p, ok := f.prioMap()[itemUseAbilityID(name)]; ok && p <= 0 {
 			continue
 		}
 		if f.t < f.itemReady[name] {
@@ -956,8 +1093,9 @@ func (f *fight) pickGCD() *clientdata.Ability {
 	if f.combo >= comboSpendAt {
 		return nil
 	}
-	for i := range f.abilities {
-		ab := &f.abilities[i]
+	rot := f.rotation()
+	for i := range rot {
+		ab := &rot[i]
 		if !inRotation(*ab) || !ab.GCD || ab.Kind == "queue" || ab.ConsumeCombo || !f.ready(*ab) || !f.canPay(*ab) {
 			continue
 		}
@@ -973,25 +1111,24 @@ func (f *fight) pickGCD() *clientdata.Ability {
 }
 
 func (f *fight) pickComboFinisher() *clientdata.Ability {
-	for _, id := range []string{"slice-and-dice", "rupture", "eviscerate", "ferocious-bite"} {
-		for i := range f.abilities {
-			ab := &f.abilities[i]
-			if ab.ID != id || !inRotation(*ab) || !ab.GCD || !f.ready(*ab) || !f.canPay(*ab) || !f.usable(*ab) {
-				continue
-			}
-			return ab
+	rot := f.rotation()
+	for i := range rot {
+		ab := &rot[i]
+		if !ab.ConsumeCombo || !inRotation(*ab) || !ab.GCD || !f.ready(*ab) || !f.canPay(*ab) || !f.usable(*ab) {
+			continue
 		}
+		return ab
 	}
 	return nil
 }
 
 func (f *fight) nextGCDReady() float64 {
 	next := f.end
-	for _, ab := range f.abilities {
+	for _, ab := range f.rotation() {
 		if !inRotation(ab) || !ab.GCD || ab.Kind == "queue" || ab.SkipRotation {
 			continue
 		}
-		if !f.phaseOK(ab) {
+		if !f.phaseOK(ab) || f.waitForBlocks(ab) {
 			continue
 		}
 		if requiresStealth(ab) && !f.stealthed {
@@ -1068,39 +1205,58 @@ func (f *fight) waitForResource(need float64) float64 {
 }
 
 func (f *fight) queueAbility() *clientdata.Ability {
-	for i := range f.abilities {
-		ab := &f.abilities[i]
+	rot := f.rotation()
+	for i := range rot {
+		ab := &rot[i]
 		if ab.Kind != "queue" || !inRotation(*ab) {
 			continue
 		}
 		if !f.phaseOK(*ab) || !f.canPay(*ab) {
 			continue
 		}
-		if ab.DumpAbove > 0 && f.resource < ab.DumpAbove {
-			return nil
+		if ab.MinTargets > 1 && f.targetCount() < ab.MinTargets {
+			continue
 		}
-		if f.resource-ab.Cost+1e-9 < f.rageReserve() {
-			return nil
+		if ab.DumpAbove > 0 && f.resource < ab.DumpAbove && f.targetHealth() > 0.2 {
+			if f.rageNeedAbove(*ab) > 0 {
+				continue
+			}
+		}
+		if f.resource-ab.Cost+1e-9 < f.rageNeedAbove(*ab) {
+			continue
 		}
 		return ab
 	}
 	return nil
 }
 
-func (f *fight) rageReserve() float64 {
+func (f *fight) targetCount() int {
+	return 1
+}
+
+func (f *fight) rageNeedAbove(ab clientdata.Ability) float64 {
 	if f.resourceKind != "rage" {
 		return 0
 	}
 	var need float64
-	for _, ab := range f.abilities {
-		if !inRotation(ab) || ab.Kind != "strike" || ab.Resource != "rage" || ab.Cost <= 0 {
+	for _, other := range f.rotation() {
+		if !inRotation(other) || other.Priority <= ab.Priority || other.Cost <= 0 {
 			continue
 		}
-		if !f.phaseOK(ab) {
+		if other.Resource != "rage" && other.Resource != f.resourceKind {
 			continue
 		}
-		if ab.Cost > need {
-			need = ab.Cost
+		if other.Kind != "strike" && other.Kind != "buff" && other.Kind != "queue" {
+			continue
+		}
+		if !f.phaseOK(other) {
+			continue
+		}
+		if f.cds[other.ID] > f.t+gcdDuration {
+			continue
+		}
+		if other.Cost > need {
+			need = other.Cost
 		}
 	}
 	return need
@@ -1110,14 +1266,14 @@ func (f *fight) starvesHigher(ab clientdata.Ability) bool {
 	if ab.Cost <= 0 || ab.Resource == "" || ab.Resource != f.resourceKind {
 		return false
 	}
-	for _, other := range f.abilities {
+	for _, other := range f.rotation() {
 		if !inRotation(other) || other.Priority <= ab.Priority || other.Cost <= 0 {
 			continue
 		}
 		if other.Resource != ab.Resource {
 			continue
 		}
-		if other.Kind != "strike" && other.Kind != "buff" {
+		if other.Kind != "strike" && other.Kind != "buff" && other.Kind != "queue" {
 			continue
 		}
 		if other.ConsumeCombo && !f.comboFinisherReady(other) {
@@ -1129,12 +1285,39 @@ func (f *fight) starvesHigher(ab clientdata.Ability) bool {
 		if !f.phaseOK(other) {
 			continue
 		}
+		need := other.Cost
 		left := f.payableRage(ab) - ab.Cost
-		if left+1e-9 < other.Cost {
+		if left+1e-9 < need {
 			return true
 		}
 	}
 	return false
+}
+
+func (f *fight) clipsHigherMelee(ab clientdata.Ability) bool {
+	cast := defaultCastTime(ab)
+	if cast <= 0 || !f.meleeAutos {
+		return false
+	}
+	higherQueue := false
+	for _, other := range f.rotation() {
+		if other.Kind != "queue" || !inRotation(other) || other.Priority <= ab.Priority {
+			continue
+		}
+		if !f.phaseOK(other) {
+			continue
+		}
+		higherQueue = true
+		break
+	}
+	if !higherQueue {
+		return false
+	}
+	if ab.ID == "slam" && f.named("Improved Slam") <= 0 {
+		return true
+	}
+	land := f.t + cast
+	return f.swingAt > f.t+1e-12 && f.swingAt < land-1e-12
 }
 
 func (f *fight) autoAttack() {
@@ -1210,6 +1393,57 @@ func rageFromWhite(damage, speed float64, crit bool) float64 {
 	return rage
 }
 
+func (f *fight) isCasting() bool {
+	return f.pending.landAt > 0
+}
+
+func (f *fight) meleeLocked() bool {
+	return f.swingLockUntil > f.t+1e-12
+}
+
+func (f *fight) gcdAfter(ab clientdata.Ability) float64 {
+	wait := gcdDuration
+	if ab.ID == "slam" {
+		wait -= 0.25 * float64(f.named("Improved Slam"))
+	}
+	if wait < 1 {
+		wait = 1
+	}
+	return wait
+}
+
+func (f *fight) delayMeleeForCast(ab clientdata.Ability, cast float64) {
+	if cast <= 0 {
+		return
+	}
+	land := f.t + cast
+	f.swingLockUntil = land
+	if ab.ID != "slam" || f.named("Improved Slam") > 0 {
+		return
+	}
+	if f.meleeAutos && f.swingTimer > 0 {
+		f.swingAt = land + f.swingTimer*f.hasteMul()
+	}
+	if f.hasOH && f.ohTimer > 0 {
+		f.ohAt = land + f.ohTimer*f.hasteMul()
+	}
+}
+
+func (f *fight) finishPendingCast() {
+	if f.pending.landAt <= 0 || f.t < f.pending.landAt-1e-12 {
+		return
+	}
+	p := f.pending
+	f.pending = pendingCast{}
+	if f.t > f.swingLockUntil {
+		f.swingLockUntil = 0
+	}
+	if f.t >= f.end-1e-9 {
+		return
+	}
+	f.resolveAbility(p.ab, p.extraRage, p.combo)
+}
+
 func (f *fight) cast(ab clientdata.Ability) {
 	if f.record {
 		logRotation(f.t, ab.Name, f.resourceKind, f.resource)
@@ -1226,15 +1460,6 @@ func (f *fight) cast(ab clientdata.Ability) {
 	} else if requiresStealth(ab) || ab.Kind == "strike" || ab.Kind == "queue" {
 		f.breakStealth()
 	}
-	if ab.ID == "slam" && f.named("Improved Slam") <= 0 {
-		cast := defaultCastTime(ab)
-		if cast <= 0 {
-			cast = 1.5
-		}
-		if f.swingAt < f.t+cast {
-			f.swingAt = f.t + cast
-		}
-	}
 	extraRage := 0.0
 	if ab.DumpRage {
 		extraRage = f.resource
@@ -1245,6 +1470,16 @@ func (f *fight) cast(ab clientdata.Ability) {
 		f.bloodrageTickAt = f.t + 1
 	}
 	combo := f.combo
+	if ct := defaultCastTime(ab); ct > 1e-9 {
+		f.delayMeleeForCast(ab, ct)
+		f.pending = pendingCast{ab: ab, extraRage: extraRage, combo: combo, landAt: f.t + ct}
+		f.emitTimeline("cast", ab.Name, ab.Icon, 0, false, false, ct)
+		return
+	}
+	f.resolveAbility(ab, extraRage, combo)
+}
+
+func (f *fight) resolveAbility(ab clientdata.Ability, extraRage float64, combo int) {
 	dur := ab.Duration
 	if ab.ComboDurationPer > 0 {
 		dur = ab.ComboDurationBase + ab.ComboDurationPer*float64(combo)

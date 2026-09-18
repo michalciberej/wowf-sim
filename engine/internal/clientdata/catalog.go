@@ -6,9 +6,6 @@ import (
 	"sync"
 )
 
-//go:embed catalog.json
-var catalogJSON []byte
-
 //go:embed item-effects.json
 var itemEffectsJSON []byte
 

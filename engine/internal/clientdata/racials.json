@@ -1,0 +1,454 @@
+[
+  {
+    "id": 20597,
+    "name": "Sword Specialization",
+    "icon": "ability_meleedamage",
+    "race": 1,
+    "rank": "Racial Passive",
+    "passive": true,
+    "critWhileWeapon": "sword",
+    "critWhile": 0.02,
+    "tooltip": "Sword Specialization\nIncreases your critical strike chance with all spells and attacks by 2% while you have a sword or two-handed sword equipped."
+  },
+  {
+    "id": 20598,
+    "name": "The Human Spirit",
+    "icon": "inv_enchant_shardbrilliantsmall",
+    "race": 1,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "The Human Spirit\nSpirit increased by 5%."
+  },
+  {
+    "id": 20600,
+    "name": "Perception",
+    "icon": "spell_nature_sleep",
+    "race": 1,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 20,
+    "tooltip": "Perception\nInstant\n3 min cooldown\nDramatically increases stealth detection for 20 sec."
+  },
+  {
+    "id": 1259718,
+    "name": "Will to Survive",
+    "icon": "spell_shadow_charm",
+    "race": 1,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "tooltip": "Will to Survive\nInstant\n3 min cooldown\nInstantly removes all Stun effects."
+  },
+  {
+    "id": 20572,
+    "name": "Blood Fury",
+    "icon": "racial_orc_berserkerstrength",
+    "race": 2,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 15,
+    "buffDamage": 0.1,
+    "tooltip": "Blood Fury\nInstant\n2 min cooldown\nIncreases Attack Power and Spell Power by 10% for 15 sec."
+  },
+  {
+    "id": 20573,
+    "name": "Hardiness",
+    "icon": "inv_helmet_23",
+    "race": 2,
+    "rank": "Racial Passive",
+    "passive": true,
+    "stunReduce": 0.2,
+    "tooltip": "Hardiness\nDuration of Stun effects on you reduced by 20%."
+  },
+  {
+    "id": 20574,
+    "name": "Axe Specialization",
+    "icon": "inv_axe_02",
+    "race": 2,
+    "rank": "Racial Passive",
+    "passive": true,
+    "critWhileWeapon": "axe",
+    "critWhile": 0.01,
+    "tooltip": "Axe Specialization\nIncreases your critical strike chance with all spells and abilities by 1% while you have an axe or a two-handed axe equipped."
+  },
+  {
+    "id": 1299026,
+    "name": "Shatter Curse",
+    "icon": "spell_nature_removecurse",
+    "race": 2,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 8,
+    "tooltip": "Shatter Curse\nInstant\n3 min cooldown\nRequires level 1\nInstantly removes and grants immunity to all Curses and Banes, and reduces all Magical damage taken by 15% for 8 sec."
+  },
+  {
+    "id": 2481,
+    "name": "Find Treasure",
+    "icon": "racial_dwarf_findtreasure",
+    "race": 3,
+    "rank": "Racial",
+    "passive": false,
+    "tooltip": "Find Treasure\nInstant\nRequires level 1\nAllows the dwarf to sense nearby treasure, making it appear on the minimap. Lasts until canceled."
+  },
+  {
+    "id": 20594,
+    "name": "Stoneform",
+    "icon": "spell_shadow_unholystrength",
+    "race": 3,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 8,
+    "tooltip": "Stoneform\nInstant\n3 min cooldown\nRequires level 1\nInstantly removes and grants immunity to all Bleed, Poison, and Disease effects, and reduces all Physical damage taken by 10% for 8 sec."
+  },
+  {
+    "id": 1259719,
+    "name": "Mace Specialization",
+    "icon": "inv_hammer_05",
+    "race": 3,
+    "rank": "Racial Passive",
+    "passive": true,
+    "critWhileWeapon": "mace",
+    "critWhile": 0.01,
+    "tooltip": "Mace Specialization\nIncreases your critical strike chance with all spells and attacks by 1% while you have a mace or two-handed mace equipped."
+  },
+  {
+    "id": 1259721,
+    "name": "Big Game Hunter",
+    "icon": "inv_weapon_rifle_05",
+    "race": 3,
+    "rank": "Racial Passive",
+    "passive": true,
+    "damageVs": "Beast",
+    "damageVsMul": 0.05,
+    "tooltip": "Big Game Hunter\nDamage dealt versus Beasts increased by 5%."
+  },
+  {
+    "id": 20580,
+    "name": "Shadowmeld",
+    "icon": "ability_ambush",
+    "race": 4,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 10,
+    "tooltip": "Shadowmeld\nInstant\n10 sec cooldown\nRequires Rogue\nRequires level 1\nActivate to slip into the shadows, reducing the chance for enemies to detect your presence. Lasts until cancelled or upon moving. Using this ability in combat discourages enemies from attacking you, but increases the cooldown to 2 min."
+  },
+  {
+    "id": 20582,
+    "name": "Quickness",
+    "icon": "ability_racial_shadowmeld",
+    "race": 4,
+    "rank": "Racial Passive",
+    "passive": true,
+    "dodgeChance": 0.01,
+    "tooltip": "Quickness\nDodge chance increased by 1% and movement speed increased by 2%. Night Elf Rogues and Druids are harder to detect in Stealth as if they were 1 level higher."
+  },
+  {
+    "id": 20585,
+    "name": "Wisp Spirit",
+    "icon": "spell_nature_wispsplode",
+    "race": 4,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Wisp Spirit\nTransform into a wisp upon death, increasing movement speed by 75%."
+  },
+  {
+    "id": 1259799,
+    "name": "Elune's Light",
+    "icon": "spell_nature_moonglow",
+    "race": 4,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 15,
+    "buffCrit": 0.1,
+    "tooltip": "Elune's Light\nInstant\n3 min cooldown\nIncreases your critical strike chance with all spells and attacks by 10% for 15 sec."
+  },
+  {
+    "id": 5227,
+    "name": "Underwater Breathing",
+    "icon": "spell_shadow_demonbreath",
+    "race": 5,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Underwater Breathing\nUnderwater breath lasts 300% longer than normal."
+  },
+  {
+    "id": 7744,
+    "name": "Will of the Forsaken",
+    "icon": "spell_shadow_raisedead",
+    "race": 5,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Will of the Forsaken\nInstant\n2 min cooldown\nInstantly removes all Charm, Fear and Sleep effects."
+  },
+  {
+    "id": 20577,
+    "name": "Cannibalize",
+    "icon": "ability_racial_cannibalize",
+    "race": 5,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 10,
+    "tooltip": "Cannibalize\n5 yd range\nInstant\n2 min cooldown\nWhen activated, regenerates 7% of total Health and 7% of total Mana every 2 sec for 10 sec. Only works on Humanoid or Undead corpses within 5 yds. Any movement, action, or damage taken while Cannibalizing will cancel the effect."
+  },
+  {
+    "id": 1260189,
+    "name": "Touch of the Grave",
+    "icon": "spell_shadow_fingerofdeath",
+    "race": 5,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Touch of the Grave\nYour spells and attacks have a 5% chance to drain Health from the target, up to 5% of your maximum Health.\n(Proc chance: 5%, 1s cooldown)"
+  },
+  {
+    "id": 1260201,
+    "name": "Touch of the Grave",
+    "icon": "spell_shadow_fingerofdeath",
+    "race": 5,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Touch of the Grave\nYour spells and attacks have a 10% chance to drain Health from the target, up to 5% of your maximum Health.\n(Proc chance: 10%, 1s cooldown)"
+  },
+  {
+    "id": 20549,
+    "name": "War Stomp",
+    "icon": "ability_warstomp",
+    "race": 6,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 2,
+    "tooltip": "War Stomp\n0.5 sec cast\n2 min cooldown\nStuns up to 5 enemies within 8 yds for 2 sec."
+  },
+  {
+    "id": 20550,
+    "name": "Endurance",
+    "icon": "spell_nature_unyeildingstamina",
+    "race": 6,
+    "rank": "Racial Passive",
+    "passive": true,
+    "healthMul": 0.05,
+    "hitChance": 0.01,
+    "tooltip": "Endurance\nTotal Health increased by 5% and chance to hit increased by 1%."
+  },
+  {
+    "id": 20552,
+    "name": "Cultivation",
+    "icon": "inv_misc_flower_01",
+    "race": 6,
+    "rank": "Racial",
+    "passive": false,
+    "tooltip": "Cultivation\nInstant\nCultivate a nearby herb, growing a duplicate you can harvest without requiring Herbalism skill. Each herb may only be cultivated once."
+  },
+  {
+    "id": 1259918,
+    "name": "Plainsrunning",
+    "icon": "achievement_zone_barrens_01",
+    "race": 6,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Plainsrunning\nRequires level 1\nGain 1% increased movement speed every 5 sec spent moving, up to a maximum of 30% increase. Taking damage or standing still will reduce this effect."
+  },
+  {
+    "id": 20589,
+    "name": "Escape Artist",
+    "icon": "ability_rogue_trip",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 3,
+    "tooltip": "Escape Artist\nInstant\n2 min cooldown\nInstantly escape the effects of any movement impairing effect and gain immunity to those effects for 3 sec."
+  },
+  {
+    "id": 20591,
+    "name": "Expansive Mind",
+    "icon": "inv_enchant_essenceeternallarge",
+    "race": 7,
+    "rank": "Racial Passive",
+    "passive": true,
+    "manaMul": 0.05,
+    "tooltip": "Expansive Mind\nMaximum Mana increased by 5%."
+  },
+  {
+    "id": 20593,
+    "name": "Engineering Specialization",
+    "icon": "inv_misc_gear_01",
+    "race": 7,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Engineering Specialization\nYour gnomish ingenuity reduces the rate of engineering devices failing or backfiring when you use them by 20%."
+  },
+  {
+    "id": 1259802,
+    "name": "Expansive Mind",
+    "icon": "inv_enchant_essenceeternallarge",
+    "race": 7,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Expansive Mind\nRequires Warrior\nMaximum Rage increased by 5%."
+  },
+  {
+    "id": 1259803,
+    "name": "Expansive Mind",
+    "icon": "inv_enchant_essenceeternallarge",
+    "race": 7,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Expansive Mind\nRequires Rogue\nMaximum Energy increased by 5%."
+  },
+  {
+    "id": 1259812,
+    "name": "Eureka!",
+    "icon": "inv_gnometoy",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Eureka!\nInstant\n2 min cooldown\nRequires Rogue\nRequires level 1\nYour next 3 damaging abilities have their Energy cost reduced by 20% and deal 10% more damage."
+  },
+  {
+    "id": 1259813,
+    "name": "Eureka!",
+    "icon": "inv_gnometoy",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Eureka!\nInstant\n2 min cooldown\nRequires Warrior\nRequires level 1\nYour next 3 damaging abilities have their Rage cost reduced by 40% and deal 10% more damage."
+  },
+  {
+    "id": 1259817,
+    "name": "Eureka!",
+    "icon": "inv_gnometoy",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Eureka!\nInstant\n2 min cooldown\nRequires Mage\nRequires level 1\nYour next 3 damaging abilities have their Mana cost reduced by 50% and deal 10% more damage."
+  },
+  {
+    "id": 1259821,
+    "name": "Eureka!",
+    "icon": "inv_gnometoy",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Eureka!\nInstant\n2 min cooldown\nRequires Warlock\nRequires level 1\nYour next 3 damaging abilities have their Mana cost reduced by 50% and deal 10% more damage."
+  },
+  {
+    "id": 1259823,
+    "name": "Eureka!",
+    "icon": "inv_gnometoy",
+    "race": 7,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "tooltip": "Eureka!\nInstant\n2 min cooldown\nRequires Priest\nRequires level 1\nYour next 3 damaging or healing abilities have their Mana cost reduced by 15% and deal 10% more damage or healing."
+  },
+  {
+    "id": 20554,
+    "name": "Berserking",
+    "icon": "racial_troll_berserk",
+    "race": 8,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 10,
+    "buffHaste": 0.1,
+    "tooltip": "Berserking\nInstant\n3 min cooldown\nRequires level 1\nIncreases your spellcasting and attack speed by 10% for 10 sec."
+  },
+  {
+    "id": 20555,
+    "name": "Regeneration",
+    "icon": "spell_nature_regenerate",
+    "race": 8,
+    "rank": "Racial Passive",
+    "passive": true,
+    "tooltip": "Regeneration\nHealth regeneration rate increased by 10%. In addition, 10% of total Health regeneration will continue during combat."
+  },
+  {
+    "id": 20557,
+    "name": "Beast Slaying",
+    "icon": "inv_misc_pelt_bear_ruin_02",
+    "race": 8,
+    "rank": "Racial Passive",
+    "passive": true,
+    "damageVs": "Beast",
+    "damageVsMul": 0.05,
+    "tooltip": "Beast Slaying\nDamage dealt versus Beasts increased by 5%."
+  },
+  {
+    "id": 1260270,
+    "name": "Rapid Regeneration",
+    "icon": "ability_racial_regeneratin",
+    "race": 8,
+    "rank": "",
+    "passive": false,
+    "cooldown": 180,
+    "duration": 6,
+    "tooltip": "Rapid Regeneration\nChanneled (6 sec cast)\n3 min cooldown\nRegenerate 50% of your maximum Health over 6 sec. Any movement, action, or damage taken will cancel the effect."
+  },
+  {
+    "id": 1259416,
+    "name": "Walk on Air",
+    "icon": "inv_elemental_primal_air",
+    "race": 9,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 10,
+    "tooltip": "Walk on Air\nInstant\n2 min cooldown\nRequires level 1\nGlide downward through the air for 10 sec while controlling your direction of travel."
+  },
+  {
+    "id": 1259686,
+    "name": "Skysight",
+    "icon": "ability_skyreach_lens_flare",
+    "race": 9,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 30,
+    "tooltip": "Skysight\n0.5 sec cast\n2 min cooldown\nRequires level 1\nAttempt to draw power from a convergence of elements and receive its blessing, increasing your movement and mounted movement speeds by 10%. Lasts 30 sec if no elemental convergence is nearby, and 15 min if one is found."
+  },
+  {
+    "id": 1259705,
+    "name": "Read Ley Line",
+    "icon": "ability_mage_incantersabsorbtion",
+    "race": 9,
+    "rank": "Racial",
+    "passive": false,
+    "cooldown": 120,
+    "duration": 15,
+    "tooltip": "Read Ley Line\n2 sec cast\n2 min cooldown\nRequires level 1\nAttempt to tap into the power of a nearby ley line, increasing your Health and Mana regeneration by 100%. Lasts 15 sec if no ley line is nearby, and 15 min if one is found."
+  },
+  {
+    "id": 1259707,
+    "name": "Elemental Insight",
+    "icon": "achievement_raidprimalist_windelemental",
+    "race": 9,
+    "rank": "Racial Passive",
+    "passive": true,
+    "damageVs": "Elemental",
+    "damageVsMul": 0.05,
+    "tooltip": "Elemental Insight\nDamage dealt versus Elementals increased by 5%."
+  },
+  {
+    "id": 1259710,
+    "name": "Wind Blessed",
+    "icon": "inv_misc_volatileair",
+    "race": 9,
+    "rank": "Racial Passive",
+    "passive": true,
+    "buffHaste": 0.01,
+    "haste": 0.01,
+    "tooltip": "Wind Blessed\nIncreases your spellcasting, melee, and ranged Haste by 1%."
+  }
+]

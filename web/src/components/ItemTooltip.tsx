@@ -6,10 +6,11 @@ type Props = {
   x?: number
   y?: number
   embedded?: boolean
+  equippedIds?: number[]
 }
 
-export function ItemTooltip({ item, x = 0, y = 0, embedded = false }: Props) {
-  const lines = itemTooltipLines(item)
+export function ItemTooltip({ item, x = 0, y = 0, embedded = false, equippedIds = [] }: Props) {
+  const lines = itemTooltipLines(item, equippedIds)
   const left = Math.min(x + 16, window.innerWidth - 280)
   const top = Math.min(y + 12, window.innerHeight - 220)
 
@@ -22,7 +23,7 @@ export function ItemTooltip({ item, x = 0, y = 0, embedded = false }: Props) {
       {lines.map((line, index) => (
         <p
           key={`${line.kind}-${index}`}
-          className={`wow-tooltip-${line.kind}`}
+          className={`wow-tooltip-${line.kind}${line.active ? ' on' : ''}`}
           style={line.kind === 'name' ? { color: itemQualityColor(item) } : undefined}
         >
           {line.text}

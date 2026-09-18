@@ -1,7 +1,8 @@
 import { Class, ItemSlot } from '../gen/wowfsim/sim_pb.ts'
-import catalog from './catalog.json' with { type: 'json' }
+import catalogUrl from './catalog.json?url'
 import overlayEffects from './item-effects.json' with { type: 'json' }
 import extraItems from './extra-items.json' with { type: 'json' }
+import { equippedSetCount, setForItem } from './sets.ts'
 
 export const TALENT_POINTS = 51
 export const TALENT_ROWS = 7
@@ -48,7 +49,7 @@ export type CatalogItem = {
   itemLevel?: number
   itemSubclass?: string
   armorType?: string
-  hand?: '1h' | '2h' | 'oh' | 'ranged'
+  hand?: '1h' | '2h' | 'oh' | 'mh' | 'ranged'
   classMask?: number
   icon?: string
   quality?: number
@@ -144,16 +145,33 @@ function withEffects(item: CatalogItem): CatalogItem {
   return extra ? { ...item, effects: extra } : item
 }
 
-export const ITEMS: CatalogItem[] = (() => {
-  const byId = new Map<number, CatalogItem>()
-  for (const item of [...(catalog.items as CatalogItem[]), ...(extraItems as CatalogItem[])]) {
-    if (!byId.has(item.id)) {
-      byId.set(item.id, withEffects(item))
-    }
+export const ITEMS: CatalogItem[] = []
+export const TALENTS: CatalogTalent[] = []
+
+let catalogLoading: Promise<void> | null = null
+
+export function loadCatalog(): Promise<void> {
+  if (!catalogLoading) {
+    catalogLoading = fetch(catalogUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load item catalog (${response.status})`)
+        }
+        return response.json() as Promise<{ items: CatalogItem[]; talents: CatalogTalent[] }>
+      })
+      .then((catalog) => {
+        const byId = new Map<number, CatalogItem>()
+        for (const item of [...catalog.items, ...(extraItems as CatalogItem[])]) {
+          if (!byId.has(item.id)) {
+            byId.set(item.id, withEffects(item))
+          }
+        }
+        ITEMS.splice(0, ITEMS.length, ...byId.values())
+        TALENTS.splice(0, TALENTS.length, ...catalog.talents)
+      })
   }
-  return [...byId.values()]
-})()
-export const TALENTS: CatalogTalent[] = catalog.talents as CatalogTalent[]
+  return catalogLoading
+}
 
 const CLASS_MASK: Record<number, number> = {
   [Class.WARRIOR]: 1,
@@ -218,6 +236,7 @@ export function canEquipItem(item: CatalogItem, playerClass: Class, slot: ItemSl
   const armed =
     item.hand === '1h' ||
     item.hand === '2h' ||
+    item.hand === 'mh' ||
     item.hand === 'oh' ||
     item.hand === 'ranged' ||
     item.slot === ItemSlot.MAIN_HAND ||
@@ -230,19 +249,33 @@ export function canEquipItem(item: CatalogItem, playerClass: Class, slot: ItemSl
     }
   }
   if (slot === ItemSlot.MAIN_HAND) {
-    if (item.hand === '2h' || item.hand === '1h') {
-      return true
-    }
-    return item.slot === ItemSlot.MAIN_HAND && item.hand !== 'oh'
-  }
-  if (slot === ItemSlot.OFF_HAND) {
-    if (item.hand === '2h') {
+    if (item.itemSubclass === 'Shield' || item.hand === 'oh') {
       return false
     }
-    if (item.hand === '1h' || (item.slot === ItemSlot.MAIN_HAND && item.hand !== 'oh' && item.weaponDps)) {
+    if (item.hand === '2h' || item.hand === '1h' || item.hand === 'mh') {
+      return true
+    }
+    return item.slot === ItemSlot.MAIN_HAND
+  }
+  if (slot === ItemSlot.OFF_HAND) {
+    if (item.hand === '2h' || item.hand === 'mh') {
+      return false
+    }
+    const bodySlot =
+      item.slot !== ItemSlot.MAIN_HAND &&
+      item.slot !== ItemSlot.OFF_HAND &&
+      item.slot !== ItemSlot.RANGED &&
+      item.slot !== ItemSlot.UNSPECIFIED
+    if (bodySlot && !item.weaponDps) {
+      return false
+    }
+    if (item.itemSubclass === 'Shield' || item.hand === 'oh' || item.slot === ItemSlot.OFF_HAND) {
+      return true
+    }
+    if (item.hand === '1h') {
       return canDualWield(playerClass)
     }
-    return item.hand === 'oh' || item.slot === ItemSlot.OFF_HAND
+    return false
   }
   if (slot === ItemSlot.RANGED) {
     return item.hand === 'ranged' || item.slot === ItemSlot.RANGED
@@ -316,12 +349,62 @@ export const SLOT_LABELS: Record<number, string> = {
   [ItemSlot.RANGED]: 'Ranged',
 }
 
-export type TooltipLine = { text: string; kind: 'name' | 'slot' | 'stat' | 'weapon' | 'bind' | 'use' | 'equip' }
+export type TooltipLine = {
+  text: string
+  kind: 'name' | 'slot' | 'stat' | 'weapon' | 'bind' | 'use' | 'equip' | 'set' | 'set-piece' | 'set-bonus'
+  active?: boolean
+}
 
-export function itemTooltipLines(item: CatalogItem): TooltipLine[] {
+function annotateSetTooltip(item: CatalogItem, lines: TooltipLine[], equippedIds: number[]): TooltipLine[] {
+  const set = setForItem(item.id)
+  if (!set) {
+    return lines
+  }
+  const worn = equippedSetCount(
+    set,
+    equippedIds.map((id) => {
+      const piece = ITEMS.find((entry) => entry.id === id)
+      return { id, name: piece?.name }
+    }),
+  )
+  const equippedNames = new Set(
+    equippedIds.flatMap((id) => {
+      const piece = ITEMS.find((entry) => entry.id === id)
+      return piece ? [piece.name.toLowerCase()] : []
+    }),
+  )
+  const pieceNames = new Set(
+    (set.pieceNames ?? []).map((name) => name.toLowerCase()),
+  )
+  for (const id of [...set.pieces, ...(set.aliases ?? [])]) {
+    const piece = ITEMS.find((entry) => entry.id === id)
+    if (piece) {
+      pieceNames.add(piece.name.toLowerCase())
+    }
+  }
+  return lines.map((line) => {
+    const header = line.text.match(/^(.+?)\s*\((\d+)\/(\d+)\)\s*$/)
+    if (header && header[1].trim().toLowerCase() === set.name.toLowerCase()) {
+      return { text: `${set.name} (${worn}/${set.total || set.pieces.length})`, kind: 'set' as const, active: worn > 0 }
+    }
+    const bonus = line.text.match(/^\((\d+)\)\s*Set\s*:/i)
+    if (bonus) {
+      return { ...line, kind: 'set-bonus' as const, active: worn >= Number(bonus[1]) }
+    }
+    if (pieceNames.has(line.text.toLowerCase())) {
+      return { ...line, kind: 'set-piece' as const, active: equippedNames.has(line.text.toLowerCase()) }
+    }
+    return line
+  })
+}
+
+export function itemTooltipLines(item: CatalogItem, equippedIds: number[] = []): TooltipLine[] {
   if (item.tooltip) {
-    const parts = item.tooltip.split(/\n+/).map((line) => line.trim()).filter(Boolean)
-    return parts.map((text, index) => {
+    const parts = item.tooltip
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter((text) => text && !/^Sell Price/i.test(text) && !/^Durability\b/i.test(text))
+    const lines = parts.map((text, index) => {
       let kind: TooltipLine['kind'] = 'slot'
       if (index === 0) {
         kind = 'name'
@@ -336,6 +419,7 @@ export function itemTooltipLines(item: CatalogItem): TooltipLine[] {
       }
       return { text, kind }
     })
+    return annotateSetTooltip(item, lines, equippedIds)
   }
   const lines: TooltipLine[] = [{ text: item.name, kind: 'name' }]
   if (item.itemLevel) {
@@ -348,7 +432,11 @@ export function itemTooltipLines(item: CatalogItem): TooltipLine[] {
     lines.push({ text: 'Unique', kind: 'bind' })
   }
   const slot = SLOT_LABELS[item.slot] ?? 'Item'
-  const typeBits = [item.hand === '2h' ? 'Two-Hand' : item.hand === '1h' ? 'One-Hand' : '', item.armorType, item.itemSubclass].filter(Boolean)
+  const typeBits = [
+    item.hand === '2h' ? 'Two-Hand' : item.hand === '1h' ? 'One-Hand' : item.hand === 'mh' ? 'Main Hand' : '',
+    item.armorType,
+    item.itemSubclass,
+  ].filter(Boolean)
   lines.push({ text: typeBits.length ? `${slot}    ${typeBits.join(' ')}` : slot, kind: 'slot' })
   if (item.minDamage && item.maxDamage && item.attackSpeedMs) {
     const speed = (item.attackSpeedMs / 1000).toFixed(2)
@@ -436,6 +524,35 @@ export function itemTooltipLines(item: CatalogItem): TooltipLine[] {
       if (effect.text) {
         lines.push({ text: effect.text, kind: effect.kind === 'use' ? 'use' : 'equip' })
       }
+    }
+  }
+  const set = setForItem(item.id)
+  if (set) {
+    const worn = equippedSetCount(
+      set,
+      equippedIds.map((id) => {
+        const piece = ITEMS.find((entry) => entry.id === id)
+        return { id, name: piece?.name }
+      }),
+    )
+    lines.push({ text: `${set.name} (${worn}/${set.total || set.pieces.length})`, kind: 'set', active: worn > 0 })
+    for (const id of set.pieces) {
+      const piece = ITEMS.find((entry) => entry.id === id)
+      lines.push({
+        text: piece?.name ?? `Item ${id}`,
+        kind: 'set-piece',
+        active: equippedIds.some((equippedId) => {
+          const equipped = ITEMS.find((entry) => entry.id === equippedId)
+          return equipped?.name === piece?.name || equippedId === id
+        }),
+      })
+    }
+    for (const bonus of set.bonuses) {
+      lines.push({
+        text: `(${bonus.count}) Set : ${bonus.text}`,
+        kind: 'set-bonus',
+        active: worn >= bonus.count,
+      })
     }
   }
   return lines

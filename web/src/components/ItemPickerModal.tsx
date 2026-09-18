@@ -27,6 +27,7 @@ const QUALITY_CHIPS: Array<{ id: QualityId; label: string }> = [
 const HAND_LABEL: Record<string, string> = {
   '2h': 'Two-hand',
   '1h': 'One-hand',
+  mh: 'Main-hand',
   oh: 'Off-hand',
 }
 
@@ -34,6 +35,7 @@ type Props = {
   slot: ItemSlot
   itemId: number
   enchantId: number
+  gearIds: Record<number, number>
   playerClass: import('../gen/wowfsim/sim_pb.ts').Class
   statEP?: StatEP | null
   onSelect: (id: number) => void
@@ -84,6 +86,7 @@ export function ItemPickerModal({
   slot,
   itemId,
   enchantId,
+  gearIds,
   playerClass,
   statEP,
   onSelect,
@@ -127,7 +130,7 @@ export function ItemPickerModal({
       return []
     }
     const present = new Set(all.map((item) => item.hand).filter(Boolean) as string[])
-    return ['2h', '1h', 'oh'].filter((key) => present.has(key))
+    return ['2h', '1h', 'mh', 'oh'].filter((key) => present.has(key))
   }, [all, weaponSlot])
 
   const subclassOptions = useMemo(() => {
@@ -225,6 +228,12 @@ export function ItemPickerModal({
   const previewScore = preview ? itemEP(preview, statEP) : null
   const delta =
     previewScore != null && equippedScore != null ? previewScore - equippedScore : null
+  const previewEquippedIds = Object.entries(gearIds).map(([slotKey, id]) => {
+    if (Number(slotKey) === slot) {
+      return preview?.id ?? id
+    }
+    return id
+  }).filter(Boolean)
 
   function applyEnchant(id: number) {
     if (!canEnchant) {
@@ -477,7 +486,7 @@ export function ItemPickerModal({
                       </span>
                       <span className="item-row-meta">
                         {item.itemLevel ? `iLvl ${item.itemLevel}` : '—'}
-                        {item.hand === '2h' ? ' · 2H' : item.hand === '1h' ? ' · 1H' : ''}
+                        {item.hand === '2h' ? ' · 2H' : item.hand === '1h' ? ' · 1H' : item.hand === 'mh' ? ' · MH' : ''}
                         {item.itemSubclass ? ` · ${item.itemSubclass}` : ''}
                       </span>
                     </span>
@@ -494,7 +503,7 @@ export function ItemPickerModal({
           <aside className="item-preview">
             {preview ? (
               <>
-                <ItemTooltip item={preview} embedded />
+                <ItemTooltip item={preview} embedded equippedIds={previewEquippedIds} />
                 <a
                   className="item-wowhead-link"
                   href={wowheadItemUrl(preview.id)}

@@ -12,6 +12,12 @@ import {
   keepEnchantment,
   parseEnchantment,
   parseItemTooltip,
+  parseItemSet,
+  parseRacialCombat,
+  catalogRacialFromParsed,
+  racialRotationAbility,
+  parseSetBonusStats,
+  itemSetsFromItems,
   parseSpellTooltip,
   pickMaxRank,
   stripHtml,
@@ -20,6 +26,104 @@ import {
 
 test('stripHtml flattens wowhead markup', () => {
   assert.equal(stripHtml('<b>Heroic Strike</b><br>15 Rage'), 'Heroic Strike\n15 Rage')
+})
+
+test('parseItemSet reads PvP set header, pieces, and generic stat bonuses', () => {
+  const parsed = parseItemSet(
+    `Field Marshal's Plate Helm Item Level 74
+Field Marshal's Battlegear (0/6)
+Field Marshal's Plate Armor
+Field Marshal's Plate Helm
+Field Marshal's Plate Shoulderguards
+Marshal's Plate Boots
+Marshal's Plate Gauntlets
+Marshal's Plate Legguards
+(2) Set : +20 Stamina.
+(3) Set : Reduces the cooldown of your Intercept ability by 5 sec.
+(6) Set : +40 Attack Power.
+Sell Price: 1 89 3`,
+  )
+  assert.equal(parsed.name, "Field Marshal's Battlegear")
+  assert.equal(parsed.total, 6)
+  assert.equal(parsed.pieces.length, 6)
+  assert.equal(parsed.bonuses[0].stamina, 20)
+  assert.equal(parsed.bonuses[1].attackPower, undefined)
+  assert.equal(parsed.bonuses[1].text.includes('Intercept'), true)
+  assert.equal(parsed.bonuses[2].attackPower, 40)
+})
+
+test('parseSetBonusStats reads hit, crit, spell power, and skips ability-specific hit', () => {
+  assert.equal(parseSetBonusStats('Improves your chance to hit by 1.0%.').hitChance, 0.01)
+  assert.equal(parseSetBonusStats('Improves your chance to get a critical strike by 1.0%.').critChance, 0.01)
+  assert.equal(
+    parseSetBonusStats('Increases damage and healing done by magical spells and effects by up to 23.').spellPower,
+    23,
+  )
+  assert.equal(
+    parseSetBonusStats('Improves your chance to hit with Taunt and Challenging Shout by 5%.').hitChance,
+    undefined,
+  )
+  const sets = itemSetsFromItems([
+    {
+      id: 16478,
+      name: "Field Marshal's Plate Helm",
+      tooltip: `Field Marshal's Battlegear (0/6)
+Field Marshal's Plate Helm
+(6) Set : +40 Attack Power.`,
+    },
+  ])
+  assert.equal(sets[0].id, 'field-marshals-battlegear')
+  assert.deepEqual(sets[0].pieces, [16478])
+})
+
+test('parseItemTooltip does not treat Shield Slam or Shield Block as a shield item', () => {
+  const helm = parseItemTooltip({
+    id: 22418,
+    name: 'Dreadnaught Helmet',
+    quality: 4,
+    tooltip: `Dreadnaught Helmet
+Item Level 88
+Head
+Plate
+800 Armor
+(6) Set : Improves your chance to hit with Sunder Armor, Heroic Strike, Revenge, and Shield Slam by 5%.`,
+  })
+  assert.equal(helm.slot, 1)
+  assert.equal(helm.hand, '')
+  assert.notEqual(helm.itemSubclass, 'Shield')
+
+  const chest = parseItemTooltip({
+    id: 7963,
+    name: 'Steel Breastplate',
+    quality: 2,
+    tooltip: `Steel Breastplate
+Item Level 40
+Chest
+Mail
+231 Armor
++12 Stamina
++ 10 Shield Block`,
+  })
+  assert.equal(chest.slot, 5)
+  assert.equal(chest.hand, '')
+  assert.notEqual(chest.itemSubclass, 'Shield')
+})
+
+test('parseItemTooltip still reads a real shield', () => {
+  const item = parseItemTooltip({
+    id: 23043,
+    name: 'The Face of Death',
+    quality: 4,
+    tooltip: `The Face of Death
+Item Level 90
+Binds when picked up
+Off Hand
+Shield
+3493 Armor`,
+  })
+  assert.equal(item.slot, 16)
+  assert.equal(item.hand, 'oh')
+  assert.equal(item.itemSubclass, 'Shield')
 })
 
 test('parseItemTooltip reads Lionheart Helm hit and plate', () => {
@@ -53,6 +157,40 @@ test('parseItemTooltip reads Thunderfury weapon and stats', () => {
   assert.equal(item.agility, 5)
   assert.equal(item.attackSpeedMs, 1900)
   assert.ok(item.weaponDps > 40 && item.weaponDps < 43)
+})
+
+test('parseItemTooltip reads newline weapon damage blocks', () => {
+  const item = parseItemTooltip({
+    id: 19019,
+    name: 'Thunderfury, Blessed Blade of the Windseeker',
+    tooltip: `Thunderfury, Blessed Blade of the Windseeker
+Item Level 80
+One-Hand
+Sword
+44 - 115 Damage
+Speed 1.90
+(53.95 damage per second)`,
+  })
+  assert.equal(item.hand, '1h')
+  assert.equal(item.attackSpeedMs, 1900)
+  assert.equal(item.minDamage, 44)
+  assert.equal(item.maxDamage, 115)
+  assert.ok(item.weaponDps > 40)
+})
+
+test('parseItemTooltip keeps Main Hand weapons out of the off-hand bucket', () => {
+  const item = parseItemTooltip({
+    id: 1,
+    name: 'Persuader',
+    tooltip: `Persuader
+Item Level 63
+Main Hand
+Mace
+86 - 161 Damage
+Speed 2.70`,
+  })
+  assert.equal(item.hand, 'mh')
+  assert.equal(item.slot, 15)
 })
 
 test('parseSpellTooltip reads max-rank Heroic Strike', () => {
@@ -116,14 +254,117 @@ test('extractGearPlannerDumpUrls reads nether script src from planner HTML', () 
   ])
 })
 
-test('extractListviewItems reads unquoted Wowhead listview rows', () => {
-  const html = `var listviewitems = [{"id":12640,"quality":4,"level":61,"name":"Lionheart Helm",firstseenpatch: 0,popularity:12}];
-new Listview({template: 'item', data: listviewitems});`
+test('extractListviewItems reads racial trait spell rows', () => {
+  const html = `var listviewspells = [{"id":20572,"name":"Blood Fury","races":[2],"rank":"Racial",reqrace: 2,popularity:12}];
+new Listview({template: 'spell', data: listviewspells});`
   const rows = extractListviewItems(html)
   assert.equal(rows.length, 1)
-  assert.equal(rows[0].id, 12640)
-  assert.equal(rows[0].quality, 4)
-  assert.equal(rows[0].firstseenpatch, 0)
+  assert.equal(rows[0].id, 20572)
+  assert.equal(rows[0].races[0], 2)
+})
+
+test('parseSpellTooltip reads Forever Blood Fury, Berserking, and Elunes Light', () => {
+  const fury = parseSpellTooltip({
+    id: 20572,
+    name: 'Blood Fury',
+    tooltip: 'Blood Fury Instant 2 min cooldown Increases Attack Power and Spell Power by 10% for 15 sec.',
+  })
+  assert.equal(fury.cooldown, 120)
+  assert.equal(fury.duration, 15)
+  assert.equal(fury.buffDamage, 0.1)
+  const zerk = parseSpellTooltip({
+    id: 20554,
+    name: 'Berserking',
+    tooltip:
+      'Berserking Instant 3 min cooldown Increases your spellcasting and attack speed by 10% for 10 sec.',
+  })
+  assert.equal(zerk.cooldown, 180)
+  assert.equal(zerk.duration, 10)
+  assert.equal(zerk.buffHaste, 0.1)
+  const elune = parseSpellTooltip({
+    id: 1259799,
+    name: "Elune's Light",
+    tooltip:
+      "Elune's Light Instant 3 min cooldown Increases your critical strike chance with all spells and attacks by 10% for 15 sec.",
+  })
+  assert.equal(elune.cooldown, 180)
+  assert.equal(elune.duration, 15)
+  assert.equal(elune.buffCrit, 0.1)
+})
+
+test('parseRacialCombat reads Forever weapon crit, endurance, and haste', () => {
+  const axe = parseRacialCombat(
+    'Increases your critical strike chance with all spells and abilities by 1% while you have an axe or a two-handed axe equipped.',
+  )
+  assert.equal(axe.critWhile, 0.01)
+  assert.equal(axe.critWhileWeapon, 'axe')
+  const end = parseRacialCombat('Total Health increased by 5% and chance to hit increased by 1%.')
+  assert.equal(end.healthMul, 0.05)
+  assert.equal(end.hitChance, 0.01)
+  const wind = parseRacialCombat('Increases your spellcasting, melee, and ranged Haste by 1%.')
+  assert.equal(wind.haste, 0.01)
+  const beast = parseRacialCombat('Damage dealt versus Beasts increased by 5%.')
+  assert.equal(beast.damageVs, 'Beast')
+  assert.equal(beast.damageVsMul, 0.05)
+})
+
+test('catalogRacialFromParsed maps Wowhead race bits including Skyborne', () => {
+  const orc = catalogRacialFromParsed(
+    parseSpellTooltip({
+      spellId: 20572,
+      id: 20572,
+      name: 'Blood Fury',
+      icon: 'x',
+      tooltip: 'Blood Fury Instant 2 min cooldown Increases Attack Power and Spell Power by 10% for 15 sec.',
+    }),
+    { races: [2], rank: 'Racial', reqrace: 2 },
+  )
+  assert.equal(orc.race, 2)
+  assert.equal(orc.passive, false)
+  assert.equal(orc.cooldown, 120)
+  assert.equal(orc.buffDamage, 0.1)
+  const sky = catalogRacialFromParsed(
+    parseSpellTooltip({
+      id: 1259710,
+      name: 'Wind Blessed',
+      icon: 'x',
+      tooltip: 'Increases your spellcasting, melee, and ranged Haste by 1%.',
+    }),
+    { rank: 'Racial Passive', reqrace: 12884901888 },
+  )
+  assert.equal(sky.race, 9)
+  assert.equal(sky.passive, true)
+  assert.equal(sky.haste, 0.01)
+})
+
+test('racialRotationAbility adds Elunes Light as an off-GCD crit buff', () => {
+  const ability = racialRotationAbility(
+    parseSpellTooltip({
+      id: 1259799,
+      name: "Elune's Light",
+      icon: 'spell_nature_moonglow',
+      tooltip:
+        "Elune's Light Instant 3 min cooldown Increases your critical strike chance with all spells and attacks by 10% for 15 sec.",
+    }),
+    { races: [4], rank: 'Racial', reqrace: 8 },
+  )
+  assert.equal(ability.id, 'elunes-light')
+  assert.equal(ability.race, 4)
+  assert.equal(ability.gcd, false)
+  assert.equal(ability.buffCrit, 0.1)
+  assert.equal(ability.duration, 15)
+  assert.equal(
+    racialRotationAbility(
+      parseSpellTooltip({
+        id: 20574,
+        name: 'Axe Specialization',
+        tooltip:
+          'Increases your critical strike chance with all spells and abilities by 1% while you have an axe or a two-handed axe equipped.',
+      }),
+      { races: [2], rank: 'Racial Passive' },
+    ),
+    null,
+  )
 })
 
 test('extractTalentCalcDump maps Forever trees', () => {

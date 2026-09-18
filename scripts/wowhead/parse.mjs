@@ -132,8 +132,274 @@ export function isForeverTooltipPayload(data) {
   return Boolean(data.name || data.tooltip)
 }
 
-export function extractListviewItems(html) {
-  const marker = html.indexOf('var listviewitems')
+export function slugifyName(name) {
+  return String(name)
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+const GENERIC_STAT_KEYS = [
+  'strength',
+  'agility',
+  'stamina',
+  'intellect',
+  'spirit',
+  'attackPower',
+  'rangedAttackPower',
+  'spellPower',
+  'hitChance',
+  'spellHitChance',
+  'critChance',
+  'spellCritChance',
+  'haste',
+  'armor',
+  'defense',
+  'dodgeChance',
+  'parryChance',
+  'mp5',
+]
+
+function compactStats(stats) {
+  const out = {}
+  for (const key of GENERIC_STAT_KEYS) {
+    if (stats[key]) {
+      out[key] = stats[key]
+    }
+  }
+  return out
+}
+
+export function parseSetBonusStats(text) {
+  const body = String(text || '').replace(/\s+/g, ' ').trim()
+  const stats = {}
+  const plus = (label, key) => {
+    const n = intStat(body, new RegExp(`\\+\\s*(\\d+)\\s+${label}\\b`, 'i'))
+    if (n) {
+      stats[key] = (stats[key] || 0) + n
+    }
+  }
+  plus('ranged Attack Power', 'rangedAttackPower')
+  plus('Attack Power', 'attackPower')
+  plus('Strength', 'strength')
+  plus('Agility', 'agility')
+  plus('Stamina', 'stamina')
+  plus('Intellect', 'intellect')
+  plus('Spirit', 'spirit')
+  plus('Armor', 'armor')
+  plus('Defense', 'defense')
+
+  const apBy = intStat(body, /(?:increases? )?(?:your )?(?:melee and ranged )?attack power by (\d+)/i)
+  if (apBy && !/every \d+ sec/i.test(body)) {
+    stats.attackPower = (stats.attackPower || 0) + apBy
+  }
+  const sp =
+    intStat(body, /damage and healing done by magical spells and effects by up to (\d+)/i) ||
+    intStat(body, /damage done by magical spells and effects by up to (\d+)/i)
+  if (sp && !/cooldown|duration of your|casting time/i.test(body)) {
+    stats.spellPower = (stats.spellPower || 0) + sp
+  }
+
+  const defense = intStat(body, /Increased Defense \+(\d+)/i)
+  if (defense) {
+    stats.defense = (stats.defense || 0) + defense
+  }
+  const mp5 = intStat(body, /Restores (\d+) mana per 5/i)
+  if (mp5) {
+    stats.mp5 = (stats.mp5 || 0) + mp5
+  }
+
+  const pct = (re) => {
+    const m = body.match(re)
+    return m ? Number(m[1]) / 100 : 0
+  }
+  if (!/hit with [A-Z]|Taunt|Challenging Shout|Sunder Armor/i.test(body)) {
+    const hit = pct(/chance to hit by (\d+(?:\.\d+)?)%/i)
+    if (hit && !/with spells/i.test(body)) {
+      stats.hitChance = hit
+    }
+  }
+  const spellHit = pct(/chance to hit with spells by (\d+(?:\.\d+)?)%/i)
+  if (spellHit) {
+    stats.spellHitChance = spellHit
+  }
+  if (!/with spells|Shock spells|Fire spells|your \w+ ability/i.test(body)) {
+    const crit = pct(/critical strike(?: chance)? by (\d+(?:\.\d+)?)%/i) ||
+      pct(/chance to get a critical strike by (\d+(?:\.\d+)?)%/i)
+    if (crit) {
+      stats.critChance = crit
+    }
+  }
+  const spellCrit = pct(/critical strike with spells by (\d+(?:\.\d+)?)%/i)
+  if (spellCrit) {
+    stats.spellCritChance = spellCrit
+  }
+  if (!/while in |form|outdoors|cast/i.test(body)) {
+    const haste = pct(/(?:attack speed|haste) by (\d+(?:\.\d+)?)%/i)
+    if (haste) {
+      stats.haste = haste
+    }
+  }
+  const dodge = pct(/chance to dodge(?: an attack)? by (\d+(?:\.\d+)?)%/i)
+  if (dodge) {
+    stats.dodgeChance = dodge
+  }
+  const parry = pct(/chance to parry(?: an attack)? by (\d+(?:\.\d+)?)%/i)
+  if (parry) {
+    stats.parryChance = parry
+  }
+  return compactStats(stats)
+}
+
+export function parseItemSet(tooltip) {
+  const text = stripHtml(tooltip || '')
+  const lines = text.split(/\n/).map((line) => line.trim()).filter(Boolean)
+  let header = -1
+  let name = ''
+  let total = 0
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(/^(.+?)\s*\((\d+)\/(\d+)\)\s*$/)
+    if (!match) {
+      continue
+    }
+    const label = match[1].trim()
+    const size = Number(match[3])
+    if (size < 2 || size > 12) {
+      continue
+    }
+    if (/Item Level|Requires Level|Sell Price|Durability|Binds /i.test(label)) {
+      continue
+    }
+    header = i
+    name = label
+    total = size
+    break
+  }
+  if (header < 0) {
+    return null
+  }
+  const pieces = []
+  const bonuses = []
+  for (let i = header + 1; i < lines.length; i++) {
+    const line = lines[i]
+    const bonus = line.match(/^\((\d+)\)\s*Set\s*:\s*(.+)$/i)
+    if (bonus) {
+      const count = Number(bonus[1])
+      const bonusText = bonus[2].trim()
+      bonuses.push({
+        count,
+        text: bonusText,
+        ...parseSetBonusStats(bonusText),
+      })
+      continue
+    }
+    if (/^Sell Price|^Classes:|^Requires Level|^Equip:|^Use:/i.test(line)) {
+      break
+    }
+    if (bonuses.length) {
+      break
+    }
+    pieces.push(line)
+  }
+  if (!name || (!pieces.length && !bonuses.length)) {
+    return null
+  }
+  return {
+    id: slugifyName(name),
+    name,
+    total,
+    pieces,
+    bonuses,
+  }
+}
+
+function itemNameKey(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function itemSetsFromItems(items) {
+  const byId = new Map()
+  const byName = new Map()
+  const nameById = new Map()
+  for (const item of items || []) {
+    byName.set(itemNameKey(item.name), item.id)
+    nameById.set(item.id, itemNameKey(item.name))
+  }
+  for (const item of items || []) {
+    const parsed = parseItemSet(item.tooltip)
+    if (!parsed) {
+      continue
+    }
+    let set = byId.get(parsed.id)
+    if (!set) {
+      set = {
+        id: parsed.id,
+        name: parsed.name,
+        pieceNames: new Set(),
+        pieceIds: new Set(),
+        bonusByCount: new Map(),
+        total: parsed.total,
+      }
+      byId.set(parsed.id, set)
+    }
+    if (parsed.total > set.total) {
+      set.total = parsed.total
+    }
+    set.pieceIds.add(item.id)
+    for (const piece of parsed.pieces) {
+      set.pieceNames.add(piece)
+      const id = byName.get(itemNameKey(piece))
+      if (id) {
+        set.pieceIds.add(id)
+      }
+    }
+    for (const bonus of parsed.bonuses) {
+      if (!set.bonusByCount.has(bonus.count)) {
+        set.bonusByCount.set(bonus.count, bonus)
+      }
+    }
+  }
+  const sets = []
+  for (const set of byId.values()) {
+    const ids = [...set.pieceIds].filter(Boolean).sort((a, b) => a - b)
+    const pieces = []
+    const seenNames = new Set()
+    for (const id of ids) {
+      const name = nameById.get(id)
+      if (name) {
+        if (seenNames.has(name)) {
+          continue
+        }
+        seenNames.add(name)
+      }
+      pieces.push(id)
+    }
+    const aliases = ids
+    const bonuses = [...set.bonusByCount.values()].sort((a, b) => a.count - b.count)
+    sets.push({
+      id: set.id,
+      name: set.name,
+      total: set.total || pieces.length,
+      pieces,
+      aliases,
+      pieceNames: [...set.pieceNames].sort((a, b) => a.localeCompare(b)),
+      bonuses: bonuses.map((bonus) => {
+        const row = { count: bonus.count, text: bonus.text, ...compactStats(bonus) }
+        return row
+      }),
+    })
+  }
+  sets.sort((a, b) => a.name.localeCompare(b.name))
+  return sets
+}
+
+function extractNamedListview(html, markerName) {
+  const marker = html.indexOf(markerName)
   if (marker < 0) {
     return []
   }
@@ -156,6 +422,14 @@ export function extractListviewItems(html) {
     }
   }
   return []
+}
+
+export function extractListviewItems(html) {
+  const items = extractNamedListview(html, 'var listviewitems')
+  if (items.length) {
+    return items
+  }
+  return extractNamedListview(html, 'var listviewspells')
 }
 
 export const FOREVER_TALENT_CLASSES = [
@@ -313,8 +587,29 @@ const SLOT_PATTERNS = [
   [/ Finger /, 11],
   [/ Trinket /, 13],
   [/ ((Main Hand)|(Two-Hand)|(One-Hand)) /, 15],
-  [/ ((Off Hand)|(Held In Off-hand)|(Held In Off-Hand)|(Shield)) /, 16],
-  [/ (Ranged|Thrown|Relic|Gun|Bow|Crossbow|Wand) /, 17],
+  [/ ((Off Hand)|(Held In Off-hand)|(Held In Off-Hand)) /, 16],
+  [/ (Ranged|Thrown|Relic) /, 17],
+]
+
+const SLOT_LINES = [
+  [/^Head$/i, { slot: 1 }],
+  [/^Neck$/i, { slot: 2 }],
+  [/^Shoulder$/i, { slot: 3 }],
+  [/^Back$/i, { slot: 4 }],
+  [/^Chest$/i, { slot: 5 }],
+  [/^Wrist$/i, { slot: 6 }],
+  [/^Hands$/i, { slot: 7 }],
+  [/^Waist$/i, { slot: 8 }],
+  [/^Legs$/i, { slot: 9 }],
+  [/^Feet$/i, { slot: 10 }],
+  [/^Finger$/i, { slot: 11 }],
+  [/^Trinket$/i, { slot: 13 }],
+  [/^(Main Hand)$/i, { slot: 15, hand: 'mh' }],
+  [/^(One-Hand)$/i, { slot: 15, hand: '1h' }],
+  [/^Two-Hand$/i, { slot: 15, hand: '2h' }],
+  [/^(Off Hand|Held In Off-hand|Held In Off-Hand)$/i, { slot: 16, hand: 'oh' }],
+  [/^Shield$/i, { slot: 16, hand: 'oh', itemSubclass: 'Shield' }],
+  [/^(Ranged|Thrown|Relic)$/i, { slot: 17, hand: 'ranged' }],
 ]
 
 const WEAPON_SUBCLASS = [
@@ -330,8 +625,123 @@ const WEAPON_SUBCLASS = [
   [/ Crossbow /, 'Crossbow'],
   [/ Wand /, 'Wand'],
   [/ Thrown /, 'Thrown'],
-  [/ Shield /, 'Shield'],
 ]
+
+const WEAPON_LINES = [
+  'Fist Weapon',
+  'Axe',
+  'Sword',
+  'Mace',
+  'Dagger',
+  'Polearm',
+  'Staff',
+  'Bow',
+  'Gun',
+  'Crossbow',
+  'Wand',
+  'Thrown',
+  'Shield',
+]
+
+function tooltipHeader(tooltip) {
+  const text = String(tooltip || '')
+  const fromLine = text.split(/\n(?:Equip:|Use:|\(\d+\)\s*Set\s*:)/i)[0]
+  return fromLine.replace(/\s+Equip:[\s\S]*$/i, '').replace(/\s+Use:[\s\S]*$/i, '')
+}
+
+function parseEquipLayout(tooltip) {
+  const header = tooltipHeader(tooltip)
+  const lines = header.split(/\n/).map((line) => line.trim()).filter(Boolean)
+  let slot = 0
+  let hand = ''
+  let itemSubclass = ''
+  let armorType = ''
+  for (const line of lines) {
+    for (const [re, mapped] of SLOT_LINES) {
+      if (!re.test(line)) {
+        continue
+      }
+      slot = mapped.slot
+      if (mapped.hand) {
+        hand = mapped.hand
+      }
+      if (mapped.itemSubclass) {
+        itemSubclass = mapped.itemSubclass
+      }
+    }
+    const weapon = WEAPON_LINES.find((name) => line.toLowerCase() === name.toLowerCase())
+    if (weapon) {
+      itemSubclass = weapon
+      if (weapon === 'Shield') {
+        slot = 16
+        hand = 'oh'
+      }
+      if (['Bow', 'Gun', 'Crossbow', 'Wand', 'Thrown'].includes(weapon) && !slot) {
+        slot = 17
+        hand = 'ranged'
+      }
+    }
+    if (/^Plate$/i.test(line)) {
+      armorType = 'Plate'
+    } else if (/^Mail$/i.test(line)) {
+      armorType = 'Mail'
+    } else if (/^Leather$/i.test(line)) {
+      armorType = 'Leather'
+    } else if (/^Cloth$/i.test(line)) {
+      armorType = 'Cloth'
+    }
+  }
+  const padded = ` ${header.replace(/\s+/g, ' ')} `
+  if (!slot) {
+    for (const [re, id] of SLOT_PATTERNS) {
+      if (re.test(padded)) {
+        slot = id
+        break
+      }
+    }
+  }
+  if (!hand) {
+    if (/ Two-Hand /.test(padded)) {
+      hand = '2h'
+      slot = 15
+    } else if (/ One-Hand /.test(padded)) {
+      hand = '1h'
+      slot = 15
+    } else if (/ Main Hand /.test(padded)) {
+      hand = 'mh'
+      slot = 15
+    } else if (/ Off Hand | Held In Off-hand | Held In Off-Hand /.test(padded)) {
+      hand = 'oh'
+      slot = 16
+    } else if (slot === 17) {
+      hand = 'ranged'
+    }
+  }
+  if (!itemSubclass) {
+    for (const [re, name] of WEAPON_SUBCLASS) {
+      if (re.test(padded)) {
+        itemSubclass = name
+        break
+      }
+    }
+  }
+  if (!armorType) {
+    if (/ Plate /.test(padded)) {
+      armorType = 'Plate'
+    } else if (/ Mail /.test(padded)) {
+      armorType = 'Mail'
+    } else if (/ Leather /.test(padded)) {
+      armorType = 'Leather'
+    } else if (/ Cloth /.test(padded)) {
+      armorType = 'Cloth'
+    }
+  }
+  if (itemSubclass === 'Shield') {
+    slot = 16
+    hand = 'oh'
+  }
+  return { slot, hand, itemSubclass, armorType }
+}
 
 const INV_TYPE = {
   1: { slot: 1 },
@@ -350,7 +760,7 @@ const INV_TYPE = {
   15: { slot: 17, hand: 'ranged' },
   16: { slot: 4 },
   17: { slot: 15, hand: '2h' },
-  21: { slot: 15, hand: '1h' },
+  21: { slot: 15, hand: 'mh' },
   22: { slot: 16, hand: 'oh' },
   23: { slot: 16, hand: 'oh' },
   25: { slot: 17, hand: 'ranged' },
@@ -551,48 +961,11 @@ export function parseItemTooltip(raw) {
   const padded = ` ${tooltip} `
   const staticText = withoutUseClauses(tooltip)
   const effects = parseItemEffects(tooltip)
+  const layout = parseEquipLayout(tooltip)
+  let { slot, hand, itemSubclass, armorType } = layout
 
-  let slot = 0
-  for (const [re, id] of SLOT_PATTERNS) {
-    if (re.test(padded)) {
-      slot = id
-      break
-    }
-  }
-  let itemSubclass = ''
-  for (const [re, name] of WEAPON_SUBCLASS) {
-    if (re.test(padded)) {
-      itemSubclass = name
-      break
-    }
-  }
-  let hand = ''
-  if (/ Two-Hand /.test(padded)) {
-    hand = '2h'
-    slot = 15
-  } else if (/ One-Hand | Main Hand /.test(padded)) {
-    hand = '1h'
-    slot = 15
-  } else if (/ Off Hand | Held In Off-hand | Held In Off-Hand | Shield /.test(padded)) {
-    hand = 'oh'
-    slot = 16
-  } else if (slot === 17) {
-    hand = 'ranged'
-  }
-
-  let armorType = ''
-  if (/ Plate /.test(padded)) {
-    armorType = 'Plate'
-  } else if (/ Mail /.test(padded)) {
-    armorType = 'Mail'
-  } else if (/ Leather /.test(padded)) {
-    armorType = 'Leather'
-  } else if (/ Cloth /.test(padded)) {
-    armorType = 'Cloth'
-  }
-
-  const range = padded.match(/ (\d+)\s*-\s*(\d+)\s+Damage /)
-  const speedM = padded.match(/ Speed (\d+\.\d+) /)
+  const range = padded.match(/(\d+)\s*-\s*(\d+)\s+Damage/)
+  const speedM = padded.match(/Speed\s+(\d+\.\d+)/)
   let weaponDps = 0
   let attackSpeedMs = 0
   if (range && speedM) {
@@ -600,7 +973,7 @@ export function parseItemTooltip(raw) {
     attackSpeedMs = Math.round(speed * 1000)
     weaponDps = (Number(range[1]) + Number(range[2])) / 2 / speed
   } else {
-    const dpsM = padded.match(/ (\d+\.\d+) damage per second /i)
+    const dpsM = padded.match(/(\d+\.\d+)\s+damage per second/i)
     if (dpsM) {
       weaponDps = Number(dpsM[1])
     }
@@ -782,12 +1155,16 @@ export function parseSpellTooltip(raw) {
     intStat(padded, /(\d+) damage for each point of rage/i)
 
   const buffAP = intStat(padded, /(?:by |Grants you )(\d+) (?:melee )?attack power/i)
-  const buffDamagePct = intStat(padded, /increases (?:physical |all )?damage(?: done)? by (\d+)%/i)
+  const apSpPct = intStat(padded, /increases attack power and spell power by (\d+(?:\.\d+)?)%/i)
+  const buffDamagePct =
+    apSpPct || intStat(padded, /increases (?:physical |all )?damage(?: done)? by (\d+)%/i)
   const buffHastePct =
-    intStat(padded, /attack speed by (\d+)%/i) || intStat(padded, /haste by (\d+)%/i)
+    intStat(padded, /spellcasting and attack speed by (\d+(?:\.\d+)?)%/i) ||
+    intStat(padded, /attack speed by (\d+)%/i) ||
+    intStat(padded, /haste by (\d+)%/i)
   const buffCritPct = /next (?:\d+ )?attacks? will be critical|causing critical hits/i.test(padded)
     ? 100
-    : intStat(padded, /critical strike chance by (\d+)%/i)
+    : intStat(padded, /critical strike chance(?: with all spells and (?:attacks|abilities))? by (\d+(?:\.\d+)?)%/i)
 
   const gain = intStat(padded, /generates (\d+) rage/i) || intStat(padded, /gain (\d+) rage/i)
 
@@ -886,6 +1263,155 @@ export function extractSpellRanks(html, path, spellName = '') {
   }
   ranks.sort((a, b) => a.rank - b.rank)
   return ranks
+}
+
+export function protoRaceFromListview(row) {
+  const id = Number(row?.races?.[0] || 0)
+  if (id >= 1 && id <= 8) {
+    return id
+  }
+  if (Number(row?.reqrace) > 255) {
+    return 9
+  }
+  return 0
+}
+
+function pctStat(text, re) {
+  const n = intStat(text, re)
+  return n ? n / 100 : 0
+}
+
+export function parseRacialCombat(tooltip) {
+  const padded = ` ${tooltip} `
+  const healthMul =
+    pctStat(padded, /total health increased by (\d+(?:\.\d+)?)%/i) ||
+    pctStat(padded, /maximum health(?: increased)? by (\d+(?:\.\d+)?)%/i)
+  const hitChance = pctStat(padded, /chance to hit increased by (\d+(?:\.\d+)?)%/i)
+  const dodgeChance = pctStat(padded, /dodge chance increased by (\d+(?:\.\d+)?)%/i)
+  const haste =
+    pctStat(padded, /melee, and ranged haste by (\d+(?:\.\d+)?)%/i) ||
+    pctStat(padded, /ranged haste by (\d+(?:\.\d+)?)%/i) ||
+    pctStat(padded, /haste by (\d+(?:\.\d+)?)%/i)
+  const stunReduce = pctStat(padded, /stun effects on you reduced by (\d+(?:\.\d+)?)%/i)
+  const manaMul = pctStat(padded, /maximum mana increased by (\d+(?:\.\d+)?)%/i)
+  let damageVs = ''
+  let damageVsMul = 0
+  const vs = padded.match(/damage dealt versus (\w+)s? increased by (\d+(?:\.\d+)?)%/i)
+  if (vs) {
+    damageVs = vs[1].replace(/s$/i, '')
+    damageVsMul = Number(vs[2]) / 100
+  }
+  let critWhileWeapon = ''
+  let critWhile = 0
+  const cw = padded.match(
+    /critical strike chance with all spells and (?:abilities|attacks) by (\d+(?:\.\d+)?)%\s+while you have an? ([a-z]+)/i,
+  )
+  if (cw) {
+    critWhile = Number(cw[1]) / 100
+    critWhileWeapon = cw[2]
+  }
+  return {
+    healthMul,
+    hitChance,
+    dodgeChance,
+    haste,
+    stunReduce,
+    manaMul,
+    damageVs,
+    damageVsMul,
+    critWhileWeapon,
+    critWhile,
+  }
+}
+
+export function abilitySlug(name) {
+  return String(name)
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export function racialRotationAbility(spell, row = {}) {
+  if (/passive/i.test(String(row.rank || ''))) {
+    return null
+  }
+  if (!spell.cooldown) {
+    return null
+  }
+  if (!(spell.buffCrit || spell.buffHaste || spell.buffDamage || spell.buffAP)) {
+    return null
+  }
+  const out = {
+    id: abilitySlug(spell.name),
+    name: spell.name,
+    icon: spell.icon,
+    race: protoRaceFromListview(row),
+    rank: 1,
+    kind: 'buff',
+    gcd: false,
+    cooldown: spell.cooldown,
+    priority: 942,
+    spellId: spell.spellId,
+  }
+  if (spell.duration) {
+    out.duration = spell.duration
+  }
+  if (spell.buffCrit) {
+    out.buffCrit = spell.buffCrit
+  }
+  if (spell.buffHaste) {
+    out.buffHaste = spell.buffHaste
+  }
+  if (spell.buffDamage) {
+    out.buffDamage = spell.buffDamage
+  }
+  if (spell.buffAP) {
+    out.buffAP = spell.buffAP
+  }
+  if (spell.tooltip) {
+    out.tooltip = spell.tooltip
+  }
+  return out
+}
+
+export function catalogRacialFromParsed(spell, row = {}) {
+  const combat = parseRacialCombat(spell.tooltip || '')
+  const out = {
+    id: spell.spellId,
+    name: spell.name,
+    icon: spell.icon,
+    race: protoRaceFromListview(row),
+    rank: row.rank || '',
+    passive: /passive/i.test(String(row.rank || '')),
+  }
+  if (spell.cooldown) {
+    out.cooldown = spell.cooldown
+  }
+  if (spell.duration) {
+    out.duration = spell.duration
+  }
+  if (spell.buffDamage) {
+    out.buffDamage = spell.buffDamage
+  }
+  if (spell.buffHaste) {
+    out.buffHaste = spell.buffHaste
+  }
+  if (spell.buffAP) {
+    out.buffAP = spell.buffAP
+  }
+  if (spell.buffCrit) {
+    out.buffCrit = spell.buffCrit
+  }
+  for (const [key, value] of Object.entries(combat)) {
+    if (value) {
+      out[key] = value
+    }
+  }
+  if (spell.tooltip) {
+    out.tooltip = spell.tooltip
+  }
+  return out
 }
 
 export function pickMaxRank(ranks, fallbackId) {

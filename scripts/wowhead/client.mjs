@@ -44,9 +44,9 @@ function tooltipFromJson(raw, url) {
   return data
 }
 
-export async function cachedJson(kind, id, url, endpoints) {
+export async function cachedJson(kind, id, url, endpoints, force = false) {
   const dest = tooltipPath(kind, id)
-  if (existsSync(dest)) {
+  if (!force && existsSync(dest)) {
     try {
       return tooltipFromJson(readFileSync(dest, 'utf8'), url)
     } catch {

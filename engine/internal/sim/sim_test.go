@@ -277,6 +277,40 @@ func TestHandOfJusticeProcs(t *testing.T) {
 	}
 }
 
+func TestRequestEffectsWorkWithoutCatalogItem(t *testing.T) {
+	base := baseReq()
+	base.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
+	plain := Run(base)
+	with := baseReq()
+	with.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		base.Player.Gear.Items[0],
+		{
+			Id:   1999999,
+			Name: "Synthetic Earthstrike",
+			Slot: pb.ItemSlot_ITEM_SLOT_TRINKET_1,
+			Effects: []*pb.ItemEffect{{
+				Kind:        "use",
+				Name:        "Synthetic Earthstrike",
+				AttackPower: 280,
+				Duration:    20,
+				Cooldown:    120,
+			}},
+		},
+	}}
+	buffed := Run(with)
+	if buffed.DpsMean <= plain.DpsMean {
+		t.Fatalf("proto item effects should increase dps: plain=%f with=%f", plain.DpsMean, buffed.DpsMean)
+	}
+}
+
 func TestWeaponChangesDps(t *testing.T) {
 	plain := Run(baseReq())
 
@@ -516,6 +550,144 @@ func TestBloodthirstIncreasesDps(t *testing.T) {
 	}
 }
 
+func slamOnlyReq() *pb.SimRequest {
+	req := baseReq()
+	req.Options.Iterations = 1
+	req.Options.RngSeed = 1
+	req.Encounter.DurationSeconds = 20
+	prios := make([]*pb.AbilityPriority, 0, 16)
+	for _, ab := range clientdata.Abilities() {
+		if ab.Class != 1 {
+			continue
+		}
+		p := 0
+		switch ab.ID {
+		case "charge":
+			p = 1000
+		case "bloodrage":
+			p = 900
+		case "slam":
+			p = 800
+		}
+		prios = append(prios, &pb.AbilityPriority{Id: ab.ID, Priority: int32(p)})
+	}
+	req.Player.AbilityPriorities = prios
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            1,
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     40,
+		AttackSpeedMs: 800,
+		Hand:          "1h",
+		ItemSubclass:  "Sword",
+	}}}
+	return req
+}
+
+func TestSlamCastLocksMeleeAndShowsCastBar(t *testing.T) {
+	res := Run(slamOnlyReq())
+	var casts, hits []*pb.TimelineEvent
+	for _, ev := range res.Timeline {
+		if ev.Name != "Slam" {
+			continue
+		}
+		switch ev.Kind {
+		case "cast":
+			casts = append(casts, ev)
+		case "hit":
+			hits = append(hits, ev)
+		}
+	}
+	if len(casts) == 0 || len(hits) == 0 {
+		t.Fatalf("expected slam casts and hits, casts=%d hits=%d names=%v", len(casts), len(hits), actionNames(res))
+	}
+	if math.Abs(casts[0].DurationSeconds-1.5) > 1e-9 {
+		t.Fatalf("slam cast time=%v want 1.5", casts[0].DurationSeconds)
+	}
+	land := casts[0].TimeSeconds + casts[0].DurationSeconds
+	if math.Abs(hits[0].TimeSeconds-land) > 1e-6 {
+		t.Fatalf("slam hit at %v, want land %v", hits[0].TimeSeconds, land)
+	}
+	start, end := casts[0].TimeSeconds, land
+	for _, ev := range res.Timeline {
+		if ev.TimeSeconds <= start+1e-9 || ev.TimeSeconds >= end-1e-9 {
+			continue
+		}
+		switch ev.Name {
+		case "Auto Attack", "Off-Hand", "Whirlwind", "Bloodthirst", "Mortal Strike", "Heroic Strike":
+			t.Fatalf("melee/spell %s at %v during slam cast [%v, %v]", ev.Name, ev.TimeSeconds, start, end)
+		}
+	}
+}
+
+func slamCastWindow(t *testing.T, res *pb.SimResult) (start, land float64) {
+	t.Helper()
+	for _, ev := range res.Timeline {
+		if ev.Name == "Slam" && ev.Kind == "cast" {
+			return ev.TimeSeconds, ev.TimeSeconds + ev.DurationSeconds
+		}
+	}
+	t.Fatalf("expected a slam cast, names=%v", actionNames(res))
+	return 0, 0
+}
+
+func assertNoMeleeDuringSlam(t *testing.T, res *pb.SimResult, start, land float64) {
+	t.Helper()
+	for _, ev := range res.Timeline {
+		if ev.TimeSeconds <= start+1e-9 || ev.TimeSeconds >= land-1e-9 {
+			continue
+		}
+		switch ev.Name {
+		case "Auto Attack", "Off-Hand", "Heroic Strike":
+			t.Fatalf("%s at %v during slam cast [%v, %v]", ev.Name, ev.TimeSeconds, start, land)
+		}
+	}
+}
+
+func firstAutoAfter(res *pb.SimResult, after float64) float64 {
+	next := math.Inf(1)
+	for _, ev := range res.Timeline {
+		if ev.Name != "Auto Attack" {
+			continue
+		}
+		if ev.TimeSeconds > after+1e-9 && ev.TimeSeconds < next {
+			next = ev.TimeSeconds
+		}
+	}
+	return next
+}
+
+func TestImprovedSlamKeepsSwingTimer(t *testing.T) {
+	req := slamOnlyReq()
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Improved Slam"), Rank: 2}}
+	res := Run(req)
+	start, land := slamCastWindow(t, res)
+	if math.Abs(land-start-1.0) > 1e-9 {
+		t.Fatalf("improved slam 2 cast=%v want 1.0", land-start)
+	}
+	assertNoMeleeDuringSlam(t, res, start, land)
+	auto := firstAutoAfter(res, land-1e-9)
+	if math.IsInf(auto, 1) {
+		t.Fatal("expected an auto after improved slam")
+	}
+	resetAt := land + 0.8
+	if auto > resetAt-0.05 {
+		t.Fatalf("improved slam should not reset the swing timer, auto at %v (reset would be ~%v)", auto, resetAt)
+	}
+}
+
+func TestSlamResetsSwingTimer(t *testing.T) {
+	res := Run(slamOnlyReq())
+	start, land := slamCastWindow(t, res)
+	assertNoMeleeDuringSlam(t, res, start, land)
+	auto := firstAutoAfter(res, land-1e-9)
+	if math.IsInf(auto, 1) {
+		t.Fatal("expected an auto after slam")
+	}
+	if auto < land+0.8-0.05 {
+		t.Fatalf("unimproved slam should reset the swing timer, auto at %v want ~%v", auto, land+0.8)
+	}
+}
+
 func TestDamagingActionsKeepCastCounts(t *testing.T) {
 	req := TypicalOrcWarrior()
 	req.Options.Iterations = 40
@@ -529,7 +701,9 @@ func TestDamagingActionsKeepCastCounts(t *testing.T) {
 }
 
 func TestOverpowerUsedOnCooldown(t *testing.T) {
-	res := Run(baseReq())
+	req := baseReq()
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "overpower", Priority: 670}}
+	res := Run(req)
 	if actionByName(res, "Overpower").Casts < 1 {
 		t.Fatalf("overpower should be used on cooldown, got %v", actionNames(res))
 	}
@@ -538,6 +712,7 @@ func TestOverpowerUsedOnCooldown(t *testing.T) {
 func TestBerserkerDancesForOverpower(t *testing.T) {
 	req := baseReq()
 	req.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BERSERKER
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "overpower", Priority: 670}}
 	res := Run(req)
 	var battle, zerk, op bool
 	for _, ev := range res.Timeline {
@@ -610,7 +785,7 @@ func TestOrcOutdamagesNightElf(t *testing.T) {
 	elf := baseReq()
 	elf.Player.Race = pb.Race_RACE_NIGHT_ELF
 	if Run(orc).DpsMean <= Run(elf).DpsMean {
-		t.Fatalf("orc should outdamage night elf stub")
+		t.Fatalf("orc with Blood Fury should outdamage night elf")
 	}
 }
 
@@ -710,6 +885,65 @@ func TestWarriorUsesWhirlwindAndCharge(t *testing.T) {
 	hs := actionByName(res, "Heroic Strike").Casts
 	if hs >= autos && autos > 0 {
 		t.Fatalf("heroic strike should not replace every swing: hs=%g auto=%g", hs, autos)
+	}
+}
+
+func TestForeverRacialPassives(t *testing.T) {
+	_, _, axeCrit, _ := racials(pb.Race_RACE_ORC, []string{"Axe"})
+	if axeCrit < 0.009 {
+		t.Fatalf("orc axe specialization crit=%v", axeCrit)
+	}
+	_, _, swordCrit, _ := racials(pb.Race_RACE_HUMAN, []string{"Sword"})
+	if swordCrit < 0.019 {
+		t.Fatalf("human sword specialization crit=%v", swordCrit)
+	}
+	_, _, maceCrit, _ := racials(pb.Race_RACE_DWARF, []string{"Mace"})
+	if maceCrit < 0.009 {
+		t.Fatalf("dwarf mace specialization crit=%v", maceCrit)
+	}
+	_, _, orcSword, _ := racials(pb.Race_RACE_ORC, []string{"Sword"})
+	if orcSword != 0 {
+		t.Fatalf("orc should not get axe crit on a sword, crit=%v", orcSword)
+	}
+	_, _, orcOHAxe, _ := racials(pb.Race_RACE_ORC, []string{"Sword", "Axe"})
+	if orcOHAxe < 0.009 {
+		t.Fatalf("orc should get axe spec from off-hand, crit=%v", orcOHAxe)
+	}
+	_, haste, _, _ := racials(pb.Race_RACE_SKYBORNE, nil)
+	if haste > 0.995 {
+		t.Fatalf("skyborne wind blessed haste mul=%v", haste)
+	}
+	_, _, _, hit := racials(pb.Race_RACE_TAUREN, nil)
+	if hit < 0.009 {
+		t.Fatalf("tauren endurance hit=%v", hit)
+	}
+}
+
+func TestNightElfUsesElunesLight(t *testing.T) {
+	req := baseReq()
+	req.Player.Race = pb.Race_RACE_NIGHT_ELF
+	res := Run(req)
+	if !hasAction(res, "Elune's Light") {
+		t.Fatal("expected Elune's Light on night elf")
+	}
+	on := false
+	for _, ev := range res.Timeline {
+		if ev.Name == "Elune's Light" && ev.Kind == "buff" && ev.DurationSeconds > 10 {
+			if ev.TimeSeconds < 14 {
+				t.Fatalf("Elune's Light should wait for Recklessness, t=%.2f", ev.TimeSeconds)
+			}
+			on = true
+			break
+		}
+	}
+	if !on {
+		t.Fatal("expected Elune's Light buff on the timeline")
+	}
+	off := baseReq()
+	off.Player.Race = pb.Race_RACE_NIGHT_ELF
+	off.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "elunes-light", Priority: 0}}
+	if Run(req).DpsMean <= Run(off).DpsMean {
+		t.Fatal("Elune's Light should increase night elf dps")
 	}
 }
 
@@ -1030,6 +1264,39 @@ func TestExecuteUsedInExecutePhase(t *testing.T) {
 	}
 }
 
+func TestExecuteDamageIsBasePlusExtraRage(t *testing.T) {
+	ab := clientdata.Ability{ID: "execute", DamageFlat: 600, DumpRagePer: 15}
+	f := &fight{}
+	got := f.abilityDamage(ab, 75)
+	if got != 1725 {
+		t.Fatalf("execute raw=%v want 1725 (600 + 15*75 extra rage after cost)", got)
+	}
+}
+
+func TestTimelineRageRisesAtPull(t *testing.T) {
+	req := baseReq()
+	req.Encounter.DurationSeconds = 180
+	req.Options.Iterations = 1
+	res := Run(req)
+	var at0, last float64
+	var lastT float64
+	for _, ev := range res.Timeline {
+		if ev.TimeSeconds <= 0.05 && ev.Resource > at0 {
+			at0 = ev.Resource
+		}
+		if ev.TimeSeconds >= lastT {
+			lastT = ev.TimeSeconds
+			if ev.ResourceKind != "" {
+				last = ev.Resource
+			}
+		}
+	}
+	t.Logf("t0 max rage=%v last t=%.2f rage=%v n=%d", at0, lastT, last, len(res.Timeline))
+	if at0 < 20 {
+		t.Fatalf("expected charge+bloodrage at pull, rage=%v", at0)
+	}
+}
+
 func TestLongFightKeepsLateTimelineEvents(t *testing.T) {
 	req := baseReq()
 	req.Encounter.DurationSeconds = 180
@@ -1139,6 +1406,7 @@ func TestRogueAttackPowerUsesAgility(t *testing.T) {
 func TestWarriorKeepsRendUp(t *testing.T) {
 	req := baseReq()
 	req.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BATTLE
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "rend", Priority: 665}}
 	res := Run(req)
 	if !hasAction(res, "Rend") {
 		t.Fatalf("expected Rend ticks, got %v", actionNames(res))
@@ -1449,5 +1717,243 @@ func TestTypicalOrcWarriorHasStartingGear(t *testing.T) {
 	}
 	if len(req.Player.GetGear().GetItems()) < 10 {
 		t.Fatalf("expected starting raid gear, got %d items", len(req.Player.GetGear().GetItems()))
+	}
+}
+
+func TestFieldMarshalSixPieceAttackPowerIncreasesDps(t *testing.T) {
+	set, ok := clientdata.SetByID("field-marshals-battlegear")
+	if !ok || len(set.Pieces) < 6 {
+		t.Fatal("missing Field Marshal's Battlegear")
+	}
+	weapon := &pb.EquippedItem{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}
+	five := baseReq()
+	five.Options.Iterations = 80
+	five.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{weapon}}
+	for i, id := range set.Pieces[:5] {
+		five.Player.Gear.Items = append(five.Player.Gear.Items, &pb.EquippedItem{
+			Id:   id,
+			Slot: pb.ItemSlot(i + 1),
+		})
+	}
+	six := baseReq()
+	six.Options.Iterations = 80
+	six.Player.Gear = &pb.Gear{Items: append([]*pb.EquippedItem{}, five.Player.Gear.Items...)}
+	six.Player.Gear.Items = append(six.Player.Gear.Items, &pb.EquippedItem{
+		Id:   set.Pieces[5],
+		Slot: pb.ItemSlot_ITEM_SLOT_FEET,
+	})
+	plain := Run(five)
+	buffed := Run(six)
+	if buffed.DpsMean <= plain.DpsMean {
+		t.Fatalf("6pc +40 AP should increase dps: 5pc=%f 6pc=%f", plain.DpsMean, buffed.DpsMean)
+	}
+}
+
+func TestBloodrageSkipsNearRageCap(t *testing.T) {
+	ab := clientdata.Ability{ID: "bloodrage", Kind: "opener", Priority: 945, Duration: 10}
+	high := &fight{resourceKind: "rage", resource: 91, maxRage: 100}
+	if high.usable(ab) {
+		t.Fatal("bloodrage should skip when rage is above cap-10")
+	}
+	ok := &fight{resourceKind: "rage", resource: 90, maxRage: 100}
+	if !ok.usable(ab) {
+		t.Fatal("bloodrage should still cast at exactly cap-10")
+	}
+}
+
+func TestBoundlessRageRaisesMaxRage(t *testing.T) {
+	id := talentID(t, "Boundless Rage")
+	plain := warriorPassivesFor(&pb.Player{Class: pb.Class_CLASS_WARRIOR}, map[int32]int32{}, false, "Axe", 7700)
+	buffed := warriorPassivesFor(&pb.Player{Class: pb.Class_CLASS_WARRIOR}, map[int32]int32{id: 3}, false, "Axe", 7700)
+	if plain.maxRage != 100 {
+		t.Fatalf("base max rage=%v want 100", plain.maxRage)
+	}
+	if buffed.maxRage != 130 {
+		t.Fatalf("boundless rage 3/3 max=%v want 130", buffed.maxRage)
+	}
+	f := &fight{resourceKind: "rage", resource: 121, maxRage: buffed.maxRage}
+	if f.usable(clientdata.Ability{ID: "bloodrage", Kind: "opener", Priority: 945, Duration: 10}) {
+		t.Fatal("bloodrage skip should use the raised cap")
+	}
+}
+
+func TestWhirlwindWaitsForBloodthirst(t *testing.T) {
+	ww := clientdata.Ability{ID: "whirlwind", Kind: "strike", Priority: 680, GCD: true, WaitForReadyAbove: 1.5}
+	bt := clientdata.Ability{ID: "bloodthirst", Kind: "strike", Priority: 720, GCD: true}
+	f := &fight{
+		abilities: []clientdata.Ability{bt, ww},
+		cds:       map[string]float64{"bloodthirst": 1.0},
+	}
+	if f.usable(ww) {
+		t.Fatal("whirlwind should wait while bloodthirst is ready in 1s")
+	}
+	f.cds["bloodthirst"] = 1.6
+	if !f.usable(ww) {
+		t.Fatal("whirlwind should fill when bloodthirst is more than 1.5s away")
+	}
+}
+
+func TestWhirlwindPriorityAboveBloodthirstDoesNotWait(t *testing.T) {
+	ww := clientdata.Ability{ID: "whirlwind", Kind: "strike", Priority: 900, GCD: true, WaitForReadyAbove: 1.5}
+	bt := clientdata.Ability{ID: "bloodthirst", Kind: "strike", Priority: 720, GCD: true}
+	f := &fight{
+		abilities: []clientdata.Ability{ww, bt},
+		cds:       map[string]float64{"bloodthirst": 1.0},
+	}
+	if !f.usable(ww) {
+		t.Fatal("whirlwind should not wait for a lower-priority bloodthirst")
+	}
+}
+
+func TestWhirlwindNotBlockedByExecuteOutsidePhase(t *testing.T) {
+	ww := clientdata.Ability{ID: "whirlwind", Kind: "strike", Priority: 800, GCD: true, WaitForReadyAbove: 1.5}
+	ex := clientdata.Ability{ID: "execute", Kind: "strike", Priority: 900, GCD: true, HealthBelow: 0.2}
+	bt := clientdata.Ability{ID: "bloodthirst", Kind: "strike", Priority: 720, GCD: true}
+	f := &fight{
+		abilities: []clientdata.Ability{ex, ww, bt},
+		cds:       map[string]float64{},
+		end:       180,
+		t:         10,
+	}
+	if !f.usable(ww) {
+		t.Fatal("whirlwind should still cast when execute is higher but not in execute phase")
+	}
+}
+
+func TestExecuteRotationOverridesMain(t *testing.T) {
+	bt := clientdata.Ability{ID: "bloodthirst", Kind: "strike", Priority: 900, GCD: true}
+	ww := clientdata.Ability{ID: "whirlwind", Kind: "strike", Priority: 700, GCD: true}
+	f := &fight{
+		abilities: []clientdata.Ability{bt, ww},
+		executeAbs: []clientdata.Ability{
+			{ID: "whirlwind", Kind: "strike", Priority: 900, GCD: true},
+			{ID: "bloodthirst", Kind: "strike", Priority: 700, GCD: true},
+		},
+		cds: map[string]float64{},
+		end: 100,
+		t:   10,
+	}
+	if got := f.pickGCD(); got == nil || got.ID != "bloodthirst" {
+		t.Fatalf("before execute want bloodthirst, got %#v", got)
+	}
+	f.t = 85
+	if got := f.pickGCD(); got == nil || got.ID != "whirlwind" {
+		t.Fatalf("in execute want whirlwind, got %#v", got)
+	}
+}
+
+func TestHeroicStrikeQueuesInExecute(t *testing.T) {
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 400, Cost: 15, DumpAbove: 40, Resource: "rage"}
+	f := &fight{
+		abilities:    []clientdata.Ability{hs},
+		resourceKind: "rage",
+		resource:     20,
+		end:          100,
+		t:            85,
+	}
+	if f.queueAbility() == nil {
+		t.Fatal("heroic strike should queue in execute even below dumpAbove")
+	}
+}
+
+func TestHeroicStrikeDumpAboveProtectsHigherStrike(t *testing.T) {
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 400, Cost: 15, DumpAbove: 40, Resource: "rage"}
+	bt := clientdata.Ability{ID: "bloodthirst", Kind: "strike", Priority: 720, Cost: 30, Resource: "rage", GCD: true}
+	f := &fight{
+		abilities:    []clientdata.Ability{hs, bt},
+		resourceKind: "rage",
+		resource:     20,
+		end:          100,
+		t:            10,
+	}
+	if f.queueAbility() != nil {
+		t.Fatal("heroic strike should not dump below dumpAbove when a higher strike needs rage")
+	}
+	f.resource = 50
+	if f.queueAbility() == nil {
+		t.Fatal("heroic strike should dump when rage is above dumpAbove")
+	}
+}
+
+func TestHeroicStrikeQueuesWhenHighest(t *testing.T) {
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 900, Cost: 15, DumpAbove: 40, Resource: "rage"}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", Priority: 400, Cost: 15, Resource: "rage", GCD: true, CastTime: 1.5}
+	f := &fight{
+		abilities:    []clientdata.Ability{hs, slam},
+		resourceKind: "rage",
+		resource:     20,
+		end:          100,
+		t:            10,
+	}
+	if f.queueAbility() == nil {
+		t.Fatal("heroic strike above slam should queue whenever it is payable")
+	}
+}
+
+func TestSlamWaitsForMortalStrike(t *testing.T) {
+	ms := clientdata.Ability{ID: "mortal-strike", Kind: "strike", Priority: 800, GCD: true, Cooldown: 6, Cost: 30, Resource: "rage"}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", Priority: 400, GCD: true, Cost: 15, Resource: "rage", CastTime: 1.5}
+	f := &fight{
+		abilities: []clientdata.Ability{ms, slam},
+		cds:       map[string]float64{"mortal-strike": 1.0},
+		t:         0,
+	}
+	if f.usable(slam) {
+		t.Fatal("slam should wait while mortal strike is ready in 1s, like whirlwind waits for bloodthirst")
+	}
+	f.cds["mortal-strike"] = 1.6
+	if !f.usable(slam) {
+		t.Fatal("slam should fill when mortal strike is more than a GCD away")
+	}
+}
+
+func TestSlamStarvesHigherHeroicStrike(t *testing.T) {
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 900, Cost: 15, DumpAbove: 40, Resource: "rage"}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", Priority: 400, Cost: 15, Resource: "rage", GCD: true, CastTime: 1.5}
+	f := &fight{
+		abilities:    []clientdata.Ability{hs, slam},
+		resourceKind: "rage",
+		resource:     20,
+	}
+	if !f.starvesHigher(slam) {
+		t.Fatal("slam should not spend the rage heroic strike needs when HS is higher")
+	}
+	f.resource = 40
+	if f.starvesHigher(slam) {
+		t.Fatal("slam may spend when both slam and heroic strike still fit")
+	}
+}
+
+func TestSlamDoesNotClipHigherHeroicStrike(t *testing.T) {
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 900, Cost: 15, Resource: "rage"}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", Priority: 400, GCD: true, Cost: 15, Resource: "rage", CastTime: 1.5}
+	f := &fight{
+		abilities:    []clientdata.Ability{hs, slam},
+		resourceKind: "rage",
+		resource:     50,
+		meleeAutos:   true,
+		swingTimer:   3.8,
+		swingAt:      2,
+	}
+	if f.usable(slam) {
+		t.Fatal("unimproved slam should not reset the swing while heroic strike is higher")
+	}
+	f.ranks = map[int32]int32{1: 1}
+	f.namedMemo = map[string]int32{"Improved Slam": 2}
+	f.swingAt = 1.0
+	if f.usable(slam) {
+		t.Fatal("slam should not lock a higher-priority heroic strike swing that is due during the cast")
+	}
+	f.swingAt = 4
+	if !f.usable(slam) {
+		t.Fatal("improved slam may fill when the next heroic strike swing is after the cast")
 	}
 }

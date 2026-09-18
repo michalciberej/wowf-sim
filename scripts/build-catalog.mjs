@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { expand } from './wowhead/parse.mjs'
+import { expand, itemSetsFromItems } from './wowhead/parse.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const endpoints = JSON.parse(readFileSync(join(root, 'scripts', 'wowhead', 'endpoints.json'), 'utf8'))
@@ -119,6 +119,10 @@ function writeCatalog(catalog) {
   writeFileSync(outFile, payload)
   mkdirSync(dirname(webOut), { recursive: true })
   writeFileSync(webOut, payload)
+  const sets = itemSetsFromItems(catalog.items || [])
+  const setsPayload = JSON.stringify(sets, null, 2) + '\n'
+  writeFileSync(join(root, 'engine', 'internal', 'clientdata', 'sets.json'), setsPayload)
+  writeFileSync(join(root, 'web', 'src', 'catalog', 'sets.json'), setsPayload)
 }
 
 const existing = existsSync(outFile) ? JSON.parse(readFileSync(outFile, 'utf8')) : { items: [], talents: [] }

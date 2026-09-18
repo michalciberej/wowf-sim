@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import type { MouseEvent } from 'react'
+import { useRef, useState } from 'react'
+import type { MouseEvent, PointerEvent } from 'react'
 import type { SimResult, TimelineEvent } from '../gen/wowfsim/sim_pb.ts'
 import { iconUrl } from '../catalog/era.ts'
 import type { CatalogAbility } from '../catalog/abilities.ts'
 import { SpellHover, SpellTooltip } from './SpellTooltip.tsx'
 
 const PX_PER_SEC = 28
-const LANE_INSET = 28
+const LANE_INSET = 10
 const MIN_TRACK = 720
 const RESOURCE_H = 44
 const RESOURCE_PAD = 3
@@ -47,9 +47,57 @@ export function SimTimeline({ result, durationSeconds }: Props) {
   const kind = events.find((event) => event.resourceKind)?.resourceKind ?? ''
   const ticks = axisTicks(end)
   const [hover, setHover] = useState<{ ability: CatalogAbility; x: number; y: number } | null>(null)
+  const [panning, setPanning] = useState(false)
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{ pointerId: number; startX: number; startLeft: number; moved: boolean } | null>(
+    null,
+  )
 
   function onSpellHover(ability: CatalogAbility, event: MouseEvent) {
     setHover({ ability, x: event.clientX, y: event.clientY })
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) {
+      return
+    }
+    const node = scrollerRef.current
+    if (!node) {
+      return
+    }
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startLeft: node.scrollLeft,
+      moved: false,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current
+    const node = scrollerRef.current
+    if (!drag || drag.pointerId !== event.pointerId || !node) {
+      return
+    }
+    const dx = event.clientX - drag.startX
+    if (!drag.moved && Math.abs(dx) < 4) {
+      return
+    }
+    drag.moved = true
+    if (!panning) {
+      setPanning(true)
+    }
+    node.scrollLeft = drag.startLeft - dx
+    event.preventDefault()
+  }
+
+  function onPointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (dragRef.current?.pointerId !== event.pointerId) {
+      return
+    }
+    dragRef.current = null
+    setPanning(false)
   }
 
   return (
@@ -57,104 +105,104 @@ export function SimTimeline({ result, durationSeconds }: Props) {
       <header className="talent-frame-head">
         <h2>Timeline</h2>
         <p>
-          First iteration · {events.length} events · {end.toFixed(0)}s · scroll
-          horizontally
+          First iteration · {events.length} events · {end.toFixed(0)}s · drag
+          to pan
         </p>
       </header>
-      <p className="hint">
-        Combat log from the first fight in this run. Damage rows show hits and DoT ticks;
-        buff rows show how long each aura lasted.
-      </p>
-      <div className="wcl">
-        <div className="wcl-axis">
-          <span className="wcl-spell wcl-spacer" />
-          <span className="wcl-gap" />
-          <div className="wcl-axis-track" style={{ width: trackPx }}>
-            {ticks.map((tick) => (
-              <span
-                key={tick}
-                className="wcl-tick"
-                style={{ left: `${laneX(tick, end, trackPx)}px` }}
-              >
-                {tick}s
-              </span>
-            ))}
-          </div>
+      <div
+        className={`wcl${panning ? ' panning' : ''}`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
+        <div className="wcl-gutter">
+          <div className="wcl-axis" />
+          {kind ? (
+            <div className="wcl-row wcl-resource">
+              <img
+                className="wcl-spell"
+                src={iconUrl(RESOURCE_ICON[kind] ?? 'inv_misc_questionmark')}
+                alt={kind}
+                title={kindLabel(kind)}
+                draggable={false}
+              />
+              <span className="wcl-resource-caption">{kindLabel(kind)}</span>
+            </div>
+          ) : null}
+          <LaneGutter
+            title="Damage"
+            lanes={damage}
+            onSpellHover={onSpellHover}
+            onSpellLeave={() => setHover(null)}
+          />
+          <LaneGutter
+            title="Buffs"
+            lanes={buffs}
+            onSpellHover={onSpellHover}
+            onSpellLeave={() => setHover(null)}
+          />
         </div>
-        {kind ? (
-          <div className="wcl-row wcl-resource">
-            <img
-              className="wcl-spell"
-              src={iconUrl(RESOURCE_ICON[kind] ?? 'inv_misc_questionmark')}
-              alt={kind}
-              title={kindLabel(kind)}
-              draggable={false}
-            />
-            <span className="wcl-gap wcl-resource-caption">{kindLabel(kind)}</span>
-            <svg
-              className="wcl-lane wcl-resource-lane"
-              width={trackPx}
-              height={RESOURCE_H}
-              viewBox={`0 0 ${trackPx} ${RESOURCE_H}`}
-              aria-label={`${kindLabel(kind)} over the fight`}
-            >
-              <line
-                className="wcl-resource-mid"
-                x1={LANE_INSET}
-                x2={trackPx - LANE_INSET}
-                y1={resourceY(50)}
-                y2={resourceY(50)}
-              />
-              <path
-                className={`wcl-resource-fill ${kind}`}
-                d={resourceFillPath(events, end, trackPx)}
-              />
-              <path
-                className={`wcl-resource-line ${kind}`}
-                d={resourceLinePath(events, end, trackPx)}
-                fill="none"
-              />
-            </svg>
+        <div ref={scrollerRef} className="wcl-scroll">
+          <div className="wcl-axis">
+            <div className="wcl-axis-track" style={{ width: trackPx }}>
+              {ticks.map((tick) => (
+                <span
+                  key={tick}
+                  className="wcl-tick"
+                  style={{ left: `${laneX(tick, end, trackPx)}px` }}
+                >
+                  {tick}s
+                </span>
+              ))}
+            </div>
           </div>
-        ) : null}
-        <LaneSection
-          title="Damage"
-          lanes={damage}
-          end={end}
-          trackPx={trackPx}
-          showTicks
-          onSpellHover={onSpellHover}
-          onSpellLeave={() => setHover(null)}
-        />
-        <LaneSection
-          title="Buffs"
-          lanes={buffs}
-          end={end}
-          trackPx={trackPx}
-          showTicks={false}
-          onSpellHover={onSpellHover}
-          onSpellLeave={() => setHover(null)}
-        />
+          {kind ? (
+            <div className="wcl-row wcl-resource">
+              <svg
+                className="wcl-lane wcl-resource-lane"
+                width={trackPx}
+                height={RESOURCE_H}
+                viewBox={`0 0 ${trackPx} ${RESOURCE_H}`}
+                preserveAspectRatio="none"
+                aria-label={`${kindLabel(kind)} over the fight`}
+              >
+                <line
+                  className="wcl-resource-mid"
+                  x1={0}
+                  x2={trackPx}
+                  y1={resourceY(50)}
+                  y2={resourceY(50)}
+                />
+                <path
+                  className={`wcl-resource-fill ${kind}`}
+                  d={resourceFillPath(events, end, trackPx)}
+                />
+                <path
+                  className={`wcl-resource-line ${kind}`}
+                  d={resourceLinePath(events, end, trackPx)}
+                  fill="none"
+                />
+              </svg>
+            </div>
+          ) : null}
+          <LaneTracks title="Damage" lanes={damage} end={end} trackPx={trackPx} showTicks />
+          <LaneTracks title="Buffs" lanes={buffs} end={end} trackPx={trackPx} showTicks={false} />
+        </div>
       </div>
       {hover ? <SpellTooltip ability={hover.ability} x={hover.x} y={hover.y} /> : null}
     </section>
   )
 }
 
-function LaneSection({
+function LaneGutter({
   title,
   lanes,
-  end,
-  trackPx,
-  showTicks,
   onSpellHover,
   onSpellLeave,
 }: {
   title: string
   lanes: Lane[]
-  end: number
-  trackPx: number
-  showTicks: boolean
   onSpellHover: (ability: CatalogAbility, event: MouseEvent) => void
   onSpellLeave: () => void
 }) {
@@ -164,9 +212,7 @@ function LaneSection({
   return (
     <>
       <div className="wcl-section">
-        <span className="wcl-spell wcl-spacer" />
-        <span className="wcl-gap" />
-        <p className="wcl-section-title">{title}</p>
+        <span className="wcl-section-title">{title}</span>
       </div>
       {lanes.map((lane) => (
         <div key={`${title}-${lane.name}`} className="wcl-row">
@@ -178,26 +224,65 @@ function LaneSection({
           >
             <img src={iconUrl(lane.icon)} alt={lane.name} draggable={false} />
           </SpellHover>
-          <span className="wcl-gap" />
+        </div>
+      ))}
+    </>
+  )
+}
+
+function LaneTracks({
+  title,
+  lanes,
+  end,
+  trackPx,
+  showTicks,
+}: {
+  title: string
+  lanes: Lane[]
+  end: number
+  trackPx: number
+  showTicks: boolean
+}) {
+  if (!lanes.length) {
+    return null
+  }
+  return (
+    <>
+      <div className="wcl-section" />
+      {lanes.map((lane) => (
+        <div key={`${title}-${lane.name}`} className="wcl-row">
           <div className="wcl-lane" style={{ width: trackPx }}>
             {lane.events
-              .filter((event) => event.kind === 'dot' || event.kind === 'buff')
+              .filter((event) => event.kind === 'dot' || event.kind === 'buff' || event.kind === 'cast')
               .map((event, index) => {
                 const left = laneX(event.timeSeconds, end, trackPx)
                 const right = laneX(event.timeSeconds + event.durationSeconds, end, trackPx)
+                const isCast = event.kind === 'cast'
                 return (
                   <span
                     key={`aura-${event.timeSeconds}-${index}`}
                     className={`wcl-aura ${event.kind}`}
                     title={castTitle(event)}
                     style={{ left: `${left}px`, width: `${Math.max(3, right - left)}px` }}
-                  />
+                  >
+                    {isCast ? null : (
+                      <img
+                        className="wcl-aura-icon"
+                        src={iconUrl(event.icon || lane.icon)}
+                        alt=""
+                        draggable={false}
+                      />
+                    )}
+                  </span>
                 )
               })}
-            {(showTicks ? lane.events.filter(isPointEvent) : []).map((event, index) => (
+            {(showTicks ? lane.events.filter(isPointEvent) : []).map((event, index) => {
+              const landsAfterCast =
+                event.kind === 'hit' && lane.events.some((other) => other.kind === 'cast')
+              return (
               <img
                 key={`${event.timeSeconds}-${index}`}
-                className={`wcl-cast ${event.kind === 'tick' ? 'tick' : ''} ${event.crit ? 'crit' : ''} ${event.miss ? 'miss' : ''}`}
+                className={`wcl-cast ${event.kind === 'tick' ? 'tick' : ''} ${event.crit ? 'crit' : ''} ${event.miss ? 'miss' : ''} ${landsAfterCast ? 'land' : ''}`}
                 src={iconUrl(event.icon || lane.icon)}
                 alt=""
                 draggable={false}
@@ -206,7 +291,8 @@ function LaneSection({
                   left: `${laneX(event.timeSeconds, end, trackPx)}px`,
                 }}
               />
-            ))}
+              )
+            })}
           </div>
         </div>
       ))}
@@ -218,6 +304,9 @@ function groupLanes(events: TimelineEvent[], iconByName: Map<string, string>) {
   const order: string[] = []
   const byName = new Map<string, TimelineEvent[]>()
   for (const event of events) {
+    if (event.kind === 'resource') {
+      continue
+    }
     const list = byName.get(event.name)
     if (!list) {
       byName.set(event.name, [event])
@@ -243,7 +332,7 @@ function groupLanes(events: TimelineEvent[], iconByName: Map<string, string>) {
 function isBuffLane(events: TimelineEvent[]) {
   const hasBuff = events.some((event) => event.kind === 'buff')
   const hasDamage =
-    events.some((event) => event.kind === 'tick' || event.kind === 'dot' || event.kind === 'hit') ||
+    events.some((event) => event.kind === 'tick' || event.kind === 'dot' || event.kind === 'hit' || event.kind === 'cast') ||
     events.some((event) => event.damage > 0)
   return hasBuff && !hasDamage
 }
@@ -263,6 +352,7 @@ function castTitle(event: TimelineEvent) {
     event.kind === 'buff' || event.kind === 'dot'
       ? `${event.durationSeconds.toFixed(1)}s duration`
       : '',
+    event.kind === 'cast' ? `${event.durationSeconds.toFixed(2)}s cast` : '',
     event.kind === 'tick' ? 'tick' : '',
     event.crit ? 'crit' : '',
     event.miss ? 'miss' : '',
@@ -274,23 +364,55 @@ function castTitle(event: TimelineEvent) {
   return bits.filter(Boolean).join(' ')
 }
 
-function resourceY(value: number) {
+function resourceCap(events: TimelineEvent[]) {
+  let max = RESOURCE_MAX
+  for (const event of events) {
+    if (event.resource > max) {
+      max = event.resource
+    }
+  }
+  return max
+}
+
+function resourceY(value: number, cap = RESOURCE_MAX) {
   const usable = RESOURCE_H - RESOURCE_PAD * 2
-  return RESOURCE_H - RESOURCE_PAD - (Math.min(Math.max(value, 0), RESOURCE_MAX) / RESOURCE_MAX) * usable
+  const top = Math.max(cap, 1)
+  return RESOURCE_H - RESOURCE_PAD - (Math.min(Math.max(value, 0), top) / top) * usable
+}
+
+function resourceSamples(events: TimelineEvent[], end: number) {
+  const points: { t: number; r: number }[] = [{ t: 0, r: 0 }]
+  for (const event of events) {
+    if (!event.resourceKind) {
+      continue
+    }
+    const t = Math.max(0, Math.min(event.timeSeconds, end))
+    const last = points[points.length - 1]
+    if (last.t === t) {
+      last.r = event.resource
+      continue
+    }
+    points.push({ t, r: event.resource })
+  }
+  const last = points[points.length - 1]
+  if (last.t < end) {
+    points.push({ t: end, r: last.r })
+  }
+  return points
 }
 
 function resourceLinePath(events: TimelineEvent[], end: number, trackPx: number) {
-  if (!events.length) {
+  const points = resourceSamples(events, end)
+  if (!points.length) {
     return ''
   }
-  const x = (time: number) => laneX(time, end, trackPx)
-  let prev = events[0].resource
-  let d = `M ${x(0)} ${resourceY(prev)}`
-  for (const event of events) {
-    d += ` H ${x(event.timeSeconds)} V ${resourceY(event.resource)}`
-    prev = event.resource
+  const cap = resourceCap(events)
+  const x = (time: number) => (time / end) * trackPx
+  let d = `M ${x(points[0].t)} ${resourceY(points[0].r, cap)}`
+  for (let i = 1; i < points.length; i++) {
+    const next = points[i]
+    d += ` H ${x(next.t)} V ${resourceY(next.r, cap)}`
   }
-  d += ` H ${x(end)}`
   return d
 }
 
@@ -299,8 +421,7 @@ function resourceFillPath(events: TimelineEvent[], end: number, trackPx: number)
   if (!line) {
     return ''
   }
-  const x = (time: number) => laneX(time, end, trackPx)
-  return `${line} V ${RESOURCE_H} H ${x(0)} Z`
+  return `${line} V ${RESOURCE_H} H 0 Z`
 }
 
 function laneX(time: number, end: number, trackPx: number) {

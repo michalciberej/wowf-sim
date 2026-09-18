@@ -3,15 +3,20 @@ import type { MouseEvent } from 'react'
 import type { ActionMetric, SimResult } from '../gen/wowfsim/sim_pb.ts'
 import { iconUrl } from '../catalog/era.ts'
 import type { CatalogAbility } from '../catalog/abilities.ts'
+import type { DpsBaseline } from '../persist.ts'
 import { groupResultRows } from './resultGroups.ts'
 import { SpellHover, SpellTooltip } from './SpellTooltip.tsx'
 
 type Props = {
   result: SimResult
   seed?: bigint | null
+  live?: boolean
+  baseline?: DpsBaseline | null
+  onSaveBaseline?: () => void
+  onClearBaseline?: () => void
 }
 
-export function SimResultPanel({ result, seed }: Props) {
+export function SimResultPanel({ result, seed, live, baseline, onSaveBaseline, onClearBaseline }: Props) {
   const total = result.dpsMean || result.actions.reduce((sum, action) => sum + action.dps, 0)
   const rows = useMemo(() => groupResultRows(result.actions), [result.actions])
   const peakDps = useMemo(
@@ -29,20 +34,27 @@ export function SimResultPanel({ result, seed }: Props) {
     <section className="timeline-frame result-panel">
       <header className="talent-frame-head">
         <h2>Result</h2>
-        <p>
-          {result.dpsMean.toFixed(1)} DPS ± {result.dpsStdev.toFixed(1)}
-        </p>
       </header>
       <p className="dps-meta">
-        {result.iterations} iterations · min {result.dpsMin.toFixed(1)} · max {result.dpsMax.toFixed(1)}
+        {live ? `Live · ${result.iterations} iterations` : `${result.iterations} iterations`}
+        {' · '}min {result.dpsMin.toFixed(1)} · max {result.dpsMax.toFixed(1)}
         {seed != null ? ` · seed ${seed.toString()}` : ''}
       </p>
+      <div className="result-compare">
+        <button type="button" className="btn" onClick={onSaveBaseline} disabled={!onSaveBaseline}>
+          Save for compare
+        </button>
+        <button type="button" className="btn" onClick={onClearBaseline} disabled={!baseline || !onClearBaseline}>
+          Clear saved
+        </button>
+      </div>
       <table className="result-table">
         <thead>
           <tr>
             <th></th>
             <th>Action</th>
             <th>DPS</th>
+            {baseline ? <th>Δ DPS</th> : null}
             <th>Avg Cast</th>
             <th className="result-share-col">Share</th>
             <th>Casts</th>
@@ -87,6 +99,14 @@ export function SimResultPanel({ result, seed }: Props) {
                   </SpellHover>
                 </td>
                 <td>{row.action.dps.toFixed(1)}</td>
+                {baseline ? (
+                  <td>
+                    <DeltaText
+                      value={row.action.dps - baselineDps(baseline, row.sourceNames)}
+                      compact
+                    />
+                  </td>
+                ) : null}
                 <td>{row.action.avgCast > 0 ? row.action.avgCast.toFixed(1) : '—'}</td>
                 <td className="result-share-col" onClick={(event) => event.stopPropagation()}>
                   <ShareBar action={row.action} label={row.name} totalDps={total} peakDps={peakDps} />
@@ -113,6 +133,25 @@ function formatCount(value: number) {
     return Math.round(value).toString()
   }
   return value.toFixed(1)
+}
+
+function baselineDps(baseline: DpsBaseline, names: string[]) {
+  return names.reduce((sum, name) => sum + (baseline.actions[name] ?? 0), 0)
+}
+
+export function DeltaText({ value, base, compact }: { value: number; base?: number; compact?: boolean }) {
+  const tone = Math.abs(value) < 0.05 ? 'flat' : value > 0 ? 'up' : 'down'
+  const text = `${value > 0 ? '+' : value < 0 ? '' : ''}${value.toFixed(1)}`
+  let extra = ''
+  if (!compact && base && base > 0 && Math.abs(value) >= 0.05) {
+    extra = ` (${((value / base) * 100).toFixed(1)}%)`
+  }
+  return (
+    <span className={`dps-delta ${tone}`}>
+      {text}
+      {extra}
+    </span>
+  )
 }
 
 function ShareBar({
