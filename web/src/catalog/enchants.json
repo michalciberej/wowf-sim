@@ -1,0 +1,3451 @@
+[
+  {
+    "id": 11622,
+    "name": "Lesser Arcanum of Rumination",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Rumination",
+    "effectLabel": "Lesser Arcanum of Rumination",
+    "useText": "Permanently adds 150 mana to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11642,
+    "name": "Lesser Arcanum of Constitution",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Constitution",
+    "effectLabel": "Lesser Arcanum of Constitution",
+    "useText": "Permanently adds 100 hit points to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11643,
+    "name": "Lesser Arcanum of Tenacity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Tenacity",
+    "effectLabel": "Lesser Arcanum of Tenacity",
+    "useText": "Permanently adds 125 armor to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11644,
+    "name": "Lesser Arcanum of Resilience",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Resilience",
+    "effectLabel": "Lesser Arcanum of Resilience",
+    "useText": "Permanently adds 20 fire resistance to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11645,
+    "name": "Lesser Arcanum of Voracity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Voracity",
+    "effectLabel": "Lesser Arcanum of Voracity",
+    "useText": "Permanently adds 8 strength to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11646,
+    "name": "Lesser Arcanum of Voracity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Voracity",
+    "effectLabel": "Lesser Arcanum of Voracity",
+    "useText": "Permanently adds 8 stamina to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11647,
+    "name": "Lesser Arcanum of Voracity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Voracity",
+    "effectLabel": "Lesser Arcanum of Voracity",
+    "useText": "Permanently adds 8 agility to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11648,
+    "name": "Lesser Arcanum of Voracity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Voracity",
+    "effectLabel": "Lesser Arcanum of Voracity",
+    "useText": "Permanently adds 8 intellect to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 11649,
+    "name": "Lesser Arcanum of Voracity",
+    "icon": "inv_misc_gem_03",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Lesser Arcanum of Voracity",
+    "effectLabel": "Lesser Arcanum of Voracity",
+    "useText": "Permanently adds 8 spirit to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 18329,
+    "name": "Arcanum of Rapidity",
+    "icon": "inv_misc_gem_02",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Arcanum of Rapidity",
+    "effectLabel": "+1% Haste",
+    "useText": "Permanently adds 1% haste to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot.",
+    "haste": 0.01
+  },
+  {
+    "id": 18330,
+    "name": "Arcanum of Focus",
+    "icon": "inv_misc_gem_02",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Arcanum of Focus",
+    "effectLabel": "Arcanum of Focus",
+    "useText": "Permanently adds +8 to your Healing and Damage from spells to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 18331,
+    "name": "Arcanum of Protection",
+    "icon": "inv_misc_gem_02",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Arcanum of Protection",
+    "effectLabel": "Arcanum of Protection",
+    "useText": "Permanently adds 1% dodge to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19782,
+    "name": "Presence of Might",
+    "icon": "spell_holy_sealofwrath",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Presence of Might",
+    "effectLabel": "Presence of Might",
+    "useText": "Permanently adds 10 Stamina, 7 Defense, and 15 Shield Block value to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19783,
+    "name": "Syncretist's Sigil",
+    "icon": "spell_holy_prayerofhealing",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Syncretist's Sigil",
+    "effectLabel": "Syncretist's Sigil",
+    "useText": "Permanently adds 10 Stamina, 7 Defense, and increases healing by up to 24 to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19784,
+    "name": "Death's Embrace",
+    "icon": "spell_shadow_scourgebuild",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Death's Embrace",
+    "effectLabel": "+28 AP",
+    "useText": "Permanently adds 28 Attack Power and 1% Dodge to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot.",
+    "attackPower": 28
+  },
+  {
+    "id": 19785,
+    "name": "Falcon's Call",
+    "icon": "spell_nature_forceofnature",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Falcon's Call",
+    "effectLabel": "Falcon's Call",
+    "useText": "Permanently adds 24 Ranged Attack Power, 10 Stamina, and 1% Chance to Hit to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19786,
+    "name": "Vodouisant's Vigilant Embrace",
+    "icon": "spell_nature_purge",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Vodouisant's Vigilant Embrace",
+    "effectLabel": "Vodouisant's Vigilant Embrace",
+    "useText": "Permanently adds 15 Intellect and increases all healing and spell damage by up to 13 to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19787,
+    "name": "Presence of Sight",
+    "icon": "spell_shadow_detectlesserinvisibility",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Presence of Sight",
+    "effectLabel": "Presence of Sight",
+    "useText": "Permanently adds 18 to all healing and damage spells and 1% chance to hit with spells to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19788,
+    "name": "Hoodoo Hex",
+    "icon": "spell_shadow_impphaseshift",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Hoodoo Hex",
+    "effectLabel": "Hoodoo Hex",
+    "useText": "Permanently adds 10 Stamina and increases spell damage and healing by up to 18 to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 19789,
+    "name": "Prophetic Aura",
+    "icon": "spell_holy_holyprotection",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Prophetic Aura",
+    "effectLabel": "+4 Mp5",
+    "useText": "Permanently adds 10 Stamina, 4 mana per 5 sec., and increases healing by up to 24 to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot.",
+    "mp5": 4
+  },
+  {
+    "id": 19790,
+    "name": "Animist's Caress",
+    "icon": "spell_nature_reincarnation",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Animist's Caress",
+    "effectLabel": "Animist's Caress",
+    "useText": "Permanently adds 10 Stamina, 10 Intellect, and increases healing by up to 24 to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 22635,
+    "name": "Savage Guard",
+    "icon": "spell_nature_spiritarmor",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Savage Guard",
+    "effectLabel": "Savage Guard",
+    "useText": "Permanently adds 10 nature resistance to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 22636,
+    "name": "Ice Guard",
+    "icon": "spell_frost_frostshock",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Ice Guard",
+    "effectLabel": "Ice Guard",
+    "useText": "Permanently adds 10 frost resistance to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 22638,
+    "name": "Shadow Guard",
+    "icon": "spell_shadow_antishadow",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      1,
+      9
+    ],
+    "effectName": "Shadow Guard",
+    "effectLabel": "Shadow Guard",
+    "useText": "Permanently adds 10 shadow resistance to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."
+  },
+  {
+    "id": 273630,
+    "name": "Enchant Necklace - Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      2
+    ],
+    "effectName": "Strength",
+    "effectLabel": "+5 Strength",
+    "useText": "Permanently enchant a necklace to increase Strength by 5.",
+    "strength": 5
+  },
+  {
+    "id": 273631,
+    "name": "Enchant Necklace - Spell Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      2
+    ],
+    "effectName": "Spell Power",
+    "effectLabel": "Spell Power",
+    "useText": "Permanently enchant a necklace to increase spell damage and healing by up to 6."
+  },
+  {
+    "id": 273632,
+    "name": "Enchant Necklace - Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      2
+    ],
+    "effectName": "Healing Power",
+    "effectLabel": "Healing Power",
+    "useText": "Permanently enchant a necklace to increase healing by up to 11 and spell damage by up to 4."
+  },
+  {
+    "id": 273633,
+    "name": "Enchant Necklace - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      2
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+5 Agility",
+    "useText": "Permanently enchant a necklace to increase Agility by 5.",
+    "agility": 5
+  },
+  {
+    "id": 273634,
+    "name": "Enchant Necklace - Deflection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      2
+    ],
+    "effectName": "Deflection",
+    "effectLabel": "Deflection",
+    "useText": "Permanently enchant a necklace to increase defense skill by 5."
+  },
+  {
+    "id": 18169,
+    "name": "Flame Mantle of the Dawn",
+    "icon": "spell_fire_flameshock",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Flame Mantle of the Dawn",
+    "effectLabel": "Flame Mantle of the Dawn",
+    "useText": "Permanently adds 5 fire resistance to a shoulder slot item."
+  },
+  {
+    "id": 18170,
+    "name": "Frost Mantle of the Dawn",
+    "icon": "spell_frost_frostshock",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Frost Mantle of the Dawn",
+    "effectLabel": "Frost Mantle of the Dawn",
+    "useText": "Permanently adds 5 frost resistance to a shoulder slot item."
+  },
+  {
+    "id": 18171,
+    "name": "Arcane Mantle of the Dawn",
+    "icon": "spell_holy_wordfortitude",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Arcane Mantle of the Dawn",
+    "effectLabel": "Arcane Mantle of the Dawn",
+    "useText": "Permanently adds 5 arcane resistance to a shoulder slot item."
+  },
+  {
+    "id": 18172,
+    "name": "Nature Mantle of the Dawn",
+    "icon": "spell_nature_protectionformnature",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Nature Mantle of the Dawn",
+    "effectLabel": "Nature Mantle of the Dawn",
+    "useText": "Permanently adds 5 nature resistance to a shoulder slot item."
+  },
+  {
+    "id": 18173,
+    "name": "Shadow Mantle of the Dawn",
+    "icon": "spell_shadow_ragingscream",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Shadow Mantle of the Dawn",
+    "effectLabel": "Shadow Mantle of the Dawn",
+    "useText": "Permanently adds 5 shadow resistance to a shoulder slot item."
+  },
+  {
+    "id": 18182,
+    "name": "Chromatic Mantle of the Dawn",
+    "icon": "inv_misc_gem_variety_02",
+    "quality": 2,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Chromatic Mantle of the Dawn",
+    "effectLabel": "Chromatic Mantle of the Dawn",
+    "useText": "Permanently adds 5 resistance to all magic schools to a shoulder slot item."
+  },
+  {
+    "id": 20076,
+    "name": "Zandalar Signet of Mojo",
+    "icon": "inv_jewelry_ring_46",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Zandalar Signet of Mojo",
+    "effectLabel": "Zandalar Signet of Mojo",
+    "useText": "Permanently adds to a shoulder slot item increased damage and healing done by magical spells and effects up to 18."
+  },
+  {
+    "id": 20077,
+    "name": "Zandalar Signet of Might",
+    "icon": "inv_misc_armorkit_08",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Zandalar Signet of Might",
+    "effectLabel": "+30 AP",
+    "useText": "Permanently adds 30 attack power to a shoulder slot item.",
+    "attackPower": 30
+  },
+  {
+    "id": 20078,
+    "name": "Zandalar Signet of Serenity",
+    "icon": "spell_holy_powerwordshield",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Zandalar Signet of Serenity",
+    "effectLabel": "Zandalar Signet of Serenity",
+    "useText": "Permanently adds to a shoulder slot item increased healing done by spells and effects up to 33."
+  },
+  {
+    "id": 23545,
+    "name": "Power of the Scourge",
+    "icon": "spell_shadow_darkritual",
+    "quality": 4,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Power of the Scourge",
+    "effectLabel": "Power of the Scourge",
+    "useText": "Permanently adds to a shoulder slot item increased damage and healing done by magical spells and effects up to 15 and also increases your chance to land a critical strike with spells by 1%.",
+    "spellCritChance": 0.01
+  },
+  {
+    "id": 23547,
+    "name": "Resilience of the Scourge",
+    "icon": "spell_shadow_deadofnight",
+    "quality": 4,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Resilience of the Scourge",
+    "effectLabel": "+5 Mp5",
+    "useText": "Permanently adds to a shoulder slot item increased healing done by magical spells and effects up to 31 and also increases your mana regen by 5 mana per 5 sec.",
+    "mp5": 5
+  },
+  {
+    "id": 23548,
+    "name": "Might of the Scourge",
+    "icon": "spell_shadow_deathpact",
+    "quality": 4,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Might of the Scourge",
+    "effectLabel": "+1% Crit",
+    "useText": "Permanently adds to a shoulder slot item increased Attack Power by 26 and also increases your chance to land a critical strike by 1%. Dropped by: Sapphiron Drop Chance: 46.89%",
+    "critChance": 0.01
+  },
+  {
+    "id": 23549,
+    "name": "Fortitude of the Scourge",
+    "icon": "spell_shadow_antishadow",
+    "quality": 4,
+    "kind": "permanent",
+    "slots": [
+      3
+    ],
+    "effectName": "Fortitude of the Scourge",
+    "effectLabel": "Fortitude of the Scourge",
+    "useText": "Permanently adds to a shoulder slot item increased Stamina by 16 and also grants 100 armor."
+  },
+  {
+    "id": 273463,
+    "name": "Enchant Cloak - Minor Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Minor Resistance",
+    "effectLabel": "Minor Resistance",
+    "useText": "Permanently enchant a cloak so that it increases the resistance to all schools of magic by 2."
+  },
+  {
+    "id": 273468,
+    "name": "Enchant Cloak - Minor Protection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Minor Protection",
+    "effectLabel": "Minor Protection",
+    "useText": "Permanently enchant a cloak to increase armor by 0."
+  },
+  {
+    "id": 273477,
+    "name": "Enchant Cloak - Lesser Fire Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Lesser Fire Resistance",
+    "effectLabel": "Lesser Fire Resistance",
+    "useText": "Permanently enchant a cloak so that it increases resistance to fire by 10."
+  },
+  {
+    "id": 273482,
+    "name": "Enchant Cloak - Minor Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Minor Agility",
+    "effectLabel": "+3 Agility",
+    "useText": "Permanently enchant a cloak to grant +3 Agility.",
+    "agility": 3
+  },
+  {
+    "id": 273483,
+    "name": "Enchant Cloak - Lesser Protection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Lesser Protection",
+    "effectLabel": "Lesser Protection",
+    "useText": "Permanently enchant a cloak to increase armor by 0."
+  },
+  {
+    "id": 273488,
+    "name": "Enchant Cloak - Lesser Shadow Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Lesser Shadow Resistance",
+    "effectLabel": "Lesser Shadow Resistance",
+    "useText": "Permanently enchant a cloak so that it increases resistance to shadow by 10."
+  },
+  {
+    "id": 273499,
+    "name": "Enchant Cloak - Defense",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Defense",
+    "effectLabel": "Defense",
+    "useText": "Permanently enchant a cloak to give 60 additional armor."
+  },
+  {
+    "id": 273508,
+    "name": "Enchant Cloak - Fire Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Fire Resistance",
+    "effectLabel": "Fire Resistance",
+    "useText": "Permanently enchant a cloak to give 12 Fire Resistance."
+  },
+  {
+    "id": 273518,
+    "name": "Enchant Cloak - Greater Defense",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Greater Defense",
+    "effectLabel": "Greater Defense",
+    "useText": "Permanently enchant a cloak to give 60 additional armor."
+  },
+  {
+    "id": 273519,
+    "name": "Enchant Cloak - Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Resistance",
+    "effectLabel": "Resistance",
+    "useText": "Permanently enchant a cloak to give 3 to all resistances."
+  },
+  {
+    "id": 273528,
+    "name": "Enchant Cloak - Lesser Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Lesser Agility",
+    "effectLabel": "Lesser Agility",
+    "useText": "Permanently enchant a cloak to give 3 Agility."
+  },
+  {
+    "id": 273551,
+    "name": "Enchant Cloak - Greater Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Greater Resistance",
+    "effectLabel": "Greater Resistance",
+    "useText": "Permanently enchant a cloak to give 5 to all resistances."
+  },
+  {
+    "id": 273552,
+    "name": "Enchant Cloak - Superior Defense",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Superior Defense",
+    "effectLabel": "Superior Defense",
+    "useText": "Permanently enchant a cloak to give 70 additional armor."
+  },
+  {
+    "id": 273584,
+    "name": "Enchant Cloak - Greater Fire Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Greater Fire Resistance",
+    "effectLabel": "Greater Fire Resistance",
+    "useText": "Permanently enchant a cloak to give 15 fire resistance."
+  },
+  {
+    "id": 273585,
+    "name": "Enchant Cloak - Greater Nature Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Greater Nature Resistance",
+    "effectLabel": "Greater Nature Resistance",
+    "useText": "Permanently enchant a cloak to give 15 nature resistance."
+  },
+  {
+    "id": 273586,
+    "name": "Enchant Cloak - Stealth",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Stealth",
+    "effectLabel": "Stealth",
+    "useText": "Permanently enchant a cloak to give an increase to your stealth as if you were 1 level higher."
+  },
+  {
+    "id": 273587,
+    "name": "Enchant Cloak - Subtlety",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Subtlety",
+    "effectLabel": "Subtlety",
+    "useText": "Permanently enchant a cloak to decrease threat caused by the wearer by 2%."
+  },
+  {
+    "id": 273588,
+    "name": "Enchant Cloak - Dodge",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Dodge",
+    "effectLabel": "Dodge",
+    "useText": "Permanently enchant a cloak to give a 1% chance to dodge."
+  },
+  {
+    "id": 273604,
+    "name": "Enchant Cloak - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      4
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+5 Agility",
+    "useText": "Permanently enchant a Cloak to add 5 to agility.",
+    "agility": 5
+  },
+  {
+    "id": 273459,
+    "name": "Enchant Chest - Inferior Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Inferior Stamina",
+    "effectLabel": "Inferior Stamina",
+    "useText": "Permanently enchant a piece of chest armor so that it increases the Stamina of the wearer by 2."
+  },
+  {
+    "id": 273460,
+    "name": "Enchant Chest - Minor Absorption",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Minor Absorption",
+    "effectLabel": "Minor Absorption",
+    "useText": "Enchant a piece of chest armor so it has a 2% chance per hit of giving you 10 points of damage absorption. Cannot occur more often than once every 5 sec."
+  },
+  {
+    "id": 273462,
+    "name": "Enchant Chest - Minor Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Minor Intellect",
+    "effectLabel": "Minor Intellect",
+    "useText": "Permanently enchant a piece of chest armor so that it increases the Intellect of the wearer by 2."
+  },
+  {
+    "id": 273466,
+    "name": "Enchant Chest - Lesser Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Lesser Stamina",
+    "effectLabel": "Lesser Stamina",
+    "useText": "Permanently enchant a piece of chest armor so that it increases the Stamina of the wearer by 3."
+  },
+  {
+    "id": 273469,
+    "name": "Enchant Chest - Lesser Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Lesser Intellect",
+    "effectLabel": "Lesser Intellect",
+    "useText": "Permanently enchant a piece of chest armor so that it increases the Intellect of the wearer by 3."
+  },
+  {
+    "id": 273475,
+    "name": "Enchant Chest - Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Stamina",
+    "effectLabel": "Stamina",
+    "useText": "Permanently enchant a piece of chest armor to increase the Stamina of the wearer by 4."
+  },
+  {
+    "id": 273491,
+    "name": "Enchant Chest - Lesser Absorption",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Lesser Absorption",
+    "effectLabel": "Lesser Absorption",
+    "useText": "Enchant a piece of chest armor so it has a 5% chance per hit of giving you 25 points of damage absorption. Cannot occur more often than once every 5 sec."
+  },
+  {
+    "id": 273492,
+    "name": "Enchant Chest - Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Intellect",
+    "effectLabel": "Intellect",
+    "useText": "Permanently enchant a piece of chest armor to increase the Intellect of the wearer by 4."
+  },
+  {
+    "id": 273497,
+    "name": "Enchant Chest - Minor Stats",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Minor Stats",
+    "effectLabel": "+2 All Stats",
+    "useText": "Permanently enchant a piece of chest armor to grant +2 to all stats.",
+    "strength": 2,
+    "agility": 2,
+    "stamina": 2,
+    "intellect": 2,
+    "spirit": 2
+  },
+  {
+    "id": 273501,
+    "name": "Enchant Chest - Greater Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Greater Stamina",
+    "effectLabel": "+6 Stamina",
+    "useText": "Permanently enchant a piece of chest armor to give +6 Stamina.",
+    "stamina": 6
+  },
+  {
+    "id": 273511,
+    "name": "Enchant Chest - Greater Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Greater Intellect",
+    "effectLabel": "+6 Intellect",
+    "useText": "Permanently enchant a piece of chest armor to give +6 Intellect.",
+    "intellect": 6
+  },
+  {
+    "id": 273517,
+    "name": "Enchant Chest - Lesser Stats",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Lesser Stats",
+    "effectLabel": "+2 All Stats",
+    "useText": "Permanently enchant a piece of chest armor to grant +2 to all stats.",
+    "strength": 2,
+    "agility": 2,
+    "stamina": 2,
+    "intellect": 2,
+    "spirit": 2
+  },
+  {
+    "id": 273526,
+    "name": "Enchant Chest - Superior Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Superior Stamina",
+    "effectLabel": "+8 Stamina",
+    "useText": "Permanently enchant a piece of chest armor to grant +8 Stamina.",
+    "stamina": 8
+  },
+  {
+    "id": 273534,
+    "name": "Enchant Chest - Superior Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Superior Intellect",
+    "effectLabel": "+8 Intellect",
+    "useText": "Permanently enchant a piece of chest armor to give +8 Intellect.",
+    "intellect": 8
+  },
+  {
+    "id": 273540,
+    "name": "Enchant Chest - Stats",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Stats",
+    "effectLabel": "+3 All Stats",
+    "useText": "Permanently enchant a piece of chest armor to grant +3 to all stats.",
+    "strength": 3,
+    "agility": 3,
+    "stamina": 3,
+    "intellect": 3,
+    "spirit": 3
+  },
+  {
+    "id": 273558,
+    "name": "Enchant Chest - Greater Stats",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Greater Stats",
+    "effectLabel": "+4 All Stats",
+    "useText": "Permanently enchant a piece of chest armor to grant +4 to all stats.",
+    "strength": 4,
+    "agility": 4,
+    "stamina": 4,
+    "intellect": 4,
+    "spirit": 4
+  },
+  {
+    "id": 273559,
+    "name": "Enchant Chest - Major Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Major Stamina",
+    "effectLabel": "+10 Stamina",
+    "useText": "Permanently enchant a piece of chest armor to grant +10 Stamina.",
+    "stamina": 10
+  },
+  {
+    "id": 273560,
+    "name": "Enchant Chest - Major Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Major Intellect",
+    "effectLabel": "+10 Intellect",
+    "useText": "Permanently enchant a piece of chest armor to give +10 Intellect.",
+    "intellect": 10
+  },
+  {
+    "id": 273591,
+    "name": "Enchant Chest - Retricutioner",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Retricutioner",
+    "effectLabel": "Retricutioner",
+    "useText": "Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker when the bearer is struck in Melee."
+  },
+  {
+    "id": 273593,
+    "name": "Enchant Chest - Living Stats",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Living Stats",
+    "effectLabel": "Living Stats",
+    "useText": "Permanently enchant a piece of chest armor to increase all stats by 4, and Nature Resistance by 15."
+  },
+  {
+    "id": 273635,
+    "name": "Enchant Chest - Absorption",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      5
+    ],
+    "effectName": "Absorption",
+    "effectLabel": "Absorption",
+    "useText": "Enchant a piece of chest armor so it has a 25% chance per hit of giving you 50 points of damage absorption. Cannot occur more often than once every 5 sec."
+  },
+  {
+    "id": 273458,
+    "name": "Enchant Bracer - Inferior Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Inferior Stamina",
+    "effectLabel": "Inferior Stamina",
+    "useText": "Permanently enchant bracers to increase the Stamina of the wearer by 2."
+  },
+  {
+    "id": 273461,
+    "name": "Enchant Bracer - Minor Deflect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Deflect",
+    "effectLabel": "Minor Deflect",
+    "useText": "Permanently enchant bracers so that the defense skill of the wearer is increased by 3."
+  },
+  {
+    "id": 273464,
+    "name": "Enchant Bracer - Minor Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Stamina",
+    "effectLabel": "Minor Stamina",
+    "useText": "Permanently enchant bracers so they increase the wearer's Stamina by 3."
+  },
+  {
+    "id": 273467,
+    "name": "Enchant Bracer - Minor Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Spirit",
+    "effectLabel": "Minor Spirit",
+    "useText": "Permanently enchant bracers so they increase the wearer's Spirit by 3."
+  },
+  {
+    "id": 273470,
+    "name": "Enchant Bracer - Minor Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Agility",
+    "effectLabel": "Minor Agility",
+    "useText": "Permanently enchant bracers so they increase the wearer's Agility by 3."
+  },
+  {
+    "id": 273471,
+    "name": "Enchant Bracer - Minor Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Strength",
+    "effectLabel": "Minor Strength",
+    "useText": "Permanently enchant bracers so they increase the wearer's Strength by 3."
+  },
+  {
+    "id": 273476,
+    "name": "Enchant Bracer - Lesser Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Spirit",
+    "effectLabel": "Lesser Spirit",
+    "useText": "Permanently enchant a bracer so it increases the wearer's Spirit by 4."
+  },
+  {
+    "id": 273486,
+    "name": "Enchant Bracer - Lesser Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Stamina",
+    "effectLabel": "Lesser Stamina",
+    "useText": "Permanently enchant a bracer so it increases the wearer's Stamina by 4."
+  },
+  {
+    "id": 273490,
+    "name": "Enchant Bracer - Lesser Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Strength",
+    "effectLabel": "Lesser Strength",
+    "useText": "Permanently enchant a bracer so it increases the wearer's Strength by 4."
+  },
+  {
+    "id": 273496,
+    "name": "Enchant Bracer - Lesser Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Intellect",
+    "effectLabel": "Lesser Intellect",
+    "useText": "Permanently enchant a bracer so it increases the wearer's Intellect by 5."
+  },
+  {
+    "id": 273502,
+    "name": "Enchant Bracer - Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Spirit",
+    "effectLabel": "+5 Spirit",
+    "useText": "Permanently enchant bracers to give +5 Spirit.",
+    "spirit": 5
+  },
+  {
+    "id": 273504,
+    "name": "Enchant Bracer - Lesser Deflection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Deflection",
+    "effectLabel": "Lesser Deflection",
+    "useText": "Permanently enchant bracers to give +5 Defense."
+  },
+  {
+    "id": 273505,
+    "name": "Enchant Bracer - Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Stamina",
+    "effectLabel": "+5 Stamina",
+    "useText": "Permanently enchant bracers to give +5 Stamina.",
+    "stamina": 5
+  },
+  {
+    "id": 273510,
+    "name": "Enchant Bracer - Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Strength",
+    "effectLabel": "+5 Strength",
+    "useText": "Permanently enchant bracers to give +5 Strength.",
+    "strength": 5
+  },
+  {
+    "id": 273522,
+    "name": "Enchant Bracer - Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Intellect",
+    "effectLabel": "+5 Intellect",
+    "useText": "Permanently enchant bracers to give +5 Intellect.",
+    "intellect": 5
+  },
+  {
+    "id": 273525,
+    "name": "Enchant Bracer - Greater Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Spirit",
+    "effectLabel": "+7 Spirit",
+    "useText": "Permanently enchant bracers to give +7 Spirit.",
+    "spirit": 7
+  },
+  {
+    "id": 273535,
+    "name": "Enchant Bracer - Deflection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Deflection",
+    "effectLabel": "Deflection",
+    "useText": "Permanently enchant bracers to give +7 Defense."
+  },
+  {
+    "id": 273539,
+    "name": "Enchant Bracer - Greater Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Strength",
+    "effectLabel": "+7 Strength",
+    "useText": "Permanently enchant bracers to give +7 Strength.",
+    "strength": 7
+  },
+  {
+    "id": 273542,
+    "name": "Enchant Bracer - Greater Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Stamina",
+    "effectLabel": "+7 Stamina",
+    "useText": "Permanently enchant bracers to give +7 Stamina.",
+    "stamina": 7
+  },
+  {
+    "id": 273545,
+    "name": "Enchant Bracer - Greater Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Intellect",
+    "effectLabel": "+7 Intellect",
+    "useText": "Permanently enchant bracers to give +7 Intellect.",
+    "intellect": 7
+  },
+  {
+    "id": 273546,
+    "name": "Enchant Bracer - Superior Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Spirit",
+    "effectLabel": "+9 Spirit",
+    "useText": "Permanently enchant bracers to give +9 Spirit.",
+    "spirit": 9
+  },
+  {
+    "id": 273547,
+    "name": "Enchant Bracer - Superior Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Strength",
+    "effectLabel": "+9 Strength",
+    "useText": "Permanently enchant bracers to give +9 Strength.",
+    "strength": 9
+  },
+  {
+    "id": 273548,
+    "name": "Enchant Bracer - Superior Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Stamina",
+    "effectLabel": "+9 Stamina",
+    "useText": "Permanently enchant bracers to give +9 Stamina.",
+    "stamina": 9
+  },
+  {
+    "id": 273574,
+    "name": "Enchant Bracer - Mana Regeneration",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Mana Regeneration",
+    "effectLabel": "Mana Regeneration",
+    "useText": "Permanently enchant bracers to restore 4 mana every 5 seconds."
+  },
+  {
+    "id": 273575,
+    "name": "Enchant Bracer - Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Healing Power",
+    "effectLabel": "Healing Power",
+    "useText": "Permanently enchant bracers to increase the effects of your healing spells by up to 24 and the effects of your damage spells by up to 8."
+  },
+  {
+    "id": 273596,
+    "name": "Enchant Bracer - Spell Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Spell Power",
+    "effectLabel": "Spell Power",
+    "useText": "Permanently enchant bracers to add up to 12 damage to spells."
+  },
+  {
+    "id": 273597,
+    "name": "Enchant Bracer - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+9 Agility",
+    "useText": "Permanently enchant bracers to increase Agility by 9.",
+    "agility": 9
+  },
+  {
+    "id": 273606,
+    "name": "Enchant Bracer - Greater Spellpower",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Spellpower",
+    "effectLabel": "Greater Spellpower",
+    "useText": "Permanently enchant Bracers to add 16 to spell power."
+  },
+  {
+    "id": 273611,
+    "name": "Enchant Bracer - Minor Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Intellect",
+    "effectLabel": "+3 Intellect",
+    "useText": "Permanently enchant bracers to give +3 Intellect.",
+    "intellect": 3
+  },
+  {
+    "id": 273612,
+    "name": "Enchant Bracer - Minor Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Minor Healing Power",
+    "effectLabel": "Minor Healing Power",
+    "useText": "Permanently enchant bracers so they increase the wearer's healing spells by up to 8 and damage spells by up to 3."
+  },
+  {
+    "id": 273613,
+    "name": "Enchant Bracer - Lesser Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Agility",
+    "effectLabel": "Lesser Agility",
+    "useText": "Permanently enchant a bracer so it increases the wearer's Agility by 4."
+  },
+  {
+    "id": 273614,
+    "name": "Enchant Bracer - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+5 Agility",
+    "useText": "Permanently enchant bracers to give +5 Agility.",
+    "agility": 5
+  },
+  {
+    "id": 273615,
+    "name": "Enchant Bracer - Lesser Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Lesser Healing Power",
+    "effectLabel": "Lesser Healing Power",
+    "useText": "Permanently enchant bracers to increase healing by up to 16 and damage by up to 6."
+  },
+  {
+    "id": 273616,
+    "name": "Enchant Bracer - Greater Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Greater Agility",
+    "effectLabel": "+7 Agility",
+    "useText": "Permanently enchant bracers to give +7 Agility.",
+    "agility": 7
+  },
+  {
+    "id": 273620,
+    "name": "Enchant Bracer - Superior Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Agility",
+    "effectLabel": "+9 Agility",
+    "useText": "Permanently enchant bracers to give +9 Agility.",
+    "agility": 9
+  },
+  {
+    "id": 273625,
+    "name": "Enchant Bracer - Superior Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Intellect",
+    "effectLabel": "+9 Intellect",
+    "useText": "Permanently enchant bracers to give +9 Intellect.",
+    "intellect": 9
+  },
+  {
+    "id": 273626,
+    "name": "Enchant Bracer - Superior Deflection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      6
+    ],
+    "effectName": "Superior Deflection",
+    "effectLabel": "Superior Deflection",
+    "useText": "Permanently enchant bracers to give +9 defense skill."
+  },
+  {
+    "id": 273493,
+    "name": "Enchant Gloves - Mining",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Mining",
+    "effectLabel": "Mining",
+    "useText": "Permanently enchant gloves to grant +2 mining skill."
+  },
+  {
+    "id": 273494,
+    "name": "Enchant Gloves - Herbalism",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Herbalism",
+    "effectLabel": "Herbalism",
+    "useText": "Permanently enchant gloves to grant +2 herbalism skill."
+  },
+  {
+    "id": 273495,
+    "name": "Enchant Gloves - Fishing",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Fishing",
+    "effectLabel": "Fishing",
+    "useText": "Permanently enchant gloves to grant +2 fishing skill."
+  },
+  {
+    "id": 273516,
+    "name": "Enchant Gloves - Skinning",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Skinning",
+    "effectLabel": "Skinning",
+    "useText": "Permanently enchant gloves to grant +5 skinning skill."
+  },
+  {
+    "id": 273520,
+    "name": "Enchant Gloves - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+7 Agility",
+    "useText": "Permanently enchant gloves to grant +7 Agility.",
+    "agility": 7
+  },
+  {
+    "id": 273524,
+    "name": "Enchant Gloves - Advanced Mining",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Advanced Mining",
+    "effectLabel": "Advanced Mining",
+    "useText": "Permanently enchant gloves to grant +5 mining skill."
+  },
+  {
+    "id": 273527,
+    "name": "Enchant Gloves - Advanced Herbalism",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Advanced Herbalism",
+    "effectLabel": "Advanced Herbalism",
+    "useText": "Permanently enchant gloves to grant +5 herbalism skill."
+  },
+  {
+    "id": 273529,
+    "name": "Enchant Gloves - Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Strength",
+    "effectLabel": "+7 Strength",
+    "useText": "Permanently enchant gloves to grant +7 Strength.",
+    "strength": 7
+  },
+  {
+    "id": 273543,
+    "name": "Enchant Gloves - Riding Skill",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Riding Skill",
+    "effectLabel": "Riding Skill",
+    "useText": "Permanently enchant gloves to grant a minor movement bonus while mounted."
+  },
+  {
+    "id": 273544,
+    "name": "Enchant Gloves - Minor Haste",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Minor Haste",
+    "effectLabel": "Minor Haste",
+    "useText": "Permanently enchant gloves to grant a +1% attack and casting speed bonus."
+  },
+  {
+    "id": 273549,
+    "name": "Enchant Gloves - Greater Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Greater Agility",
+    "effectLabel": "+10 Agility",
+    "useText": "Permanently enchant gloves to grant +10 Agility.",
+    "agility": 10
+  },
+  {
+    "id": 273550,
+    "name": "Enchant Gloves - Greater Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Greater Strength",
+    "effectLabel": "+10 Strength",
+    "useText": "Permanently enchant gloves to grant +10 Strength.",
+    "strength": 10
+  },
+  {
+    "id": 273578,
+    "name": "Enchant Gloves - Threat",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Threat",
+    "effectLabel": "Threat",
+    "useText": "Permanently enchant gloves to increase threat from all attacks and spells by 2%."
+  },
+  {
+    "id": 273579,
+    "name": "Enchant Gloves - Shadow Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Shadow Power",
+    "effectLabel": "Shadow Power",
+    "useText": "Permanently enchant gloves to increase shadow damage by up to 20."
+  },
+  {
+    "id": 273580,
+    "name": "Enchant Gloves - Frost Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Frost Power",
+    "effectLabel": "Frost Power",
+    "useText": "Permanently enchant gloves to increase frost damage by up to 20."
+  },
+  {
+    "id": 273581,
+    "name": "Enchant Gloves - Fire Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Fire Power",
+    "effectLabel": "Fire Power",
+    "useText": "Permanently enchant gloves to increase fire damage by up to 20."
+  },
+  {
+    "id": 273582,
+    "name": "Enchant Gloves - Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Healing Power",
+    "effectLabel": "Healing Power",
+    "useText": "Permanently enchant gloves to increase the caster's healing spells by up to 35 and damage spells by up to 12."
+  },
+  {
+    "id": 273583,
+    "name": "Enchant Gloves - Superior Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Superior Agility",
+    "effectLabel": "+15 Agility",
+    "useText": "Permanently enchant gloves to increase agility by 15.",
+    "agility": 15
+  },
+  {
+    "id": 273594,
+    "name": "Enchant Gloves - Holy Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Holy Power",
+    "effectLabel": "Holy Power",
+    "useText": "Permanently enchant gloves to increase holy damage by up to 20."
+  },
+  {
+    "id": 273595,
+    "name": "Enchant Gloves - Arcane Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Arcane Power",
+    "effectLabel": "Arcane Power",
+    "useText": "Permanently enchant gloves to increase arcane damage by up to 20."
+  },
+  {
+    "id": 273619,
+    "name": "Enchant Gloves - Advanced Skinning",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Advanced Skinning",
+    "effectLabel": "Advanced Skinning",
+    "useText": "Permanently enchant gloves to grant +10 skinning skill."
+  },
+  {
+    "id": 273623,
+    "name": "Enchant Gloves - Superior Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Superior Strength",
+    "effectLabel": "+15 Strength",
+    "useText": "Permanently enchant gloves to increase Strength by 15.",
+    "strength": 15
+  },
+  {
+    "id": 273624,
+    "name": "Enchant Gloves - Natural Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Natural Power",
+    "effectLabel": "Natural Power",
+    "useText": "Permanently enchant gloves to increase nature damage by up to 20."
+  },
+  {
+    "id": 274426,
+    "name": "Enchant Gloves - Lotus Claw",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      7
+    ],
+    "effectName": "Lotus Claw",
+    "effectLabel": "Lotus Claw",
+    "useText": "Permanently enchant a pair of gloves to give a small chance to acquire Death Lotus when gathering any herb in Hyjal."
+  },
+  {
+    "id": 273478,
+    "name": "Enchant Boots - Minor Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Minor Stamina",
+    "effectLabel": "Minor Stamina",
+    "useText": "Permanently enchant a pair of boots so they increase the wearer's Stamina by 3."
+  },
+  {
+    "id": 273479,
+    "name": "Enchant Boots - Minor Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Minor Agility",
+    "effectLabel": "Minor Agility",
+    "useText": "Permanently enchant a pair of boots so they increase the wearer's Agility by 3."
+  },
+  {
+    "id": 273500,
+    "name": "Enchant Boots - Lesser Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Lesser Agility",
+    "effectLabel": "+4 Agility",
+    "useText": "Permanently enchant boots to give +4 Agility.",
+    "agility": 4
+  },
+  {
+    "id": 273503,
+    "name": "Enchant Boots - Lesser Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Lesser Stamina",
+    "effectLabel": "+4 Stamina",
+    "useText": "Permanently enchant boots to give +4 Stamina.",
+    "stamina": 4
+  },
+  {
+    "id": 273512,
+    "name": "Enchant Boots - Lesser Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Lesser Spirit",
+    "effectLabel": "+4 Spirit",
+    "useText": "Permanently enchant boots to give +4 Spirit.",
+    "spirit": 4
+  },
+  {
+    "id": 273523,
+    "name": "Enchant Boots - Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Stamina",
+    "effectLabel": "+5 Stamina",
+    "useText": "Permanently enchant boots to give +5 Stamina.",
+    "stamina": 5
+  },
+  {
+    "id": 273530,
+    "name": "Enchant Boots - Minor Speed",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Minor Speed",
+    "effectLabel": "Minor Speed",
+    "useText": "Permanently enchant boots to give a slight movement speed increase."
+  },
+  {
+    "id": 273537,
+    "name": "Enchant Boots - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+5 Agility",
+    "useText": "Permanently enchant boots to give +5 Agility.",
+    "agility": 5
+  },
+  {
+    "id": 273555,
+    "name": "Enchant Boots - Greater Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Greater Stamina",
+    "effectLabel": "+7 Stamina",
+    "useText": "Permanently enchant boots to give +7 Stamina.",
+    "stamina": 7
+  },
+  {
+    "id": 273556,
+    "name": "Enchant Boots - Greater Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Greater Agility",
+    "effectLabel": "+7 Agility",
+    "useText": "Permanently enchant boots to give +7 Agility.",
+    "agility": 7
+  },
+  {
+    "id": 273557,
+    "name": "Enchant Boots - Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      10
+    ],
+    "effectName": "Spirit",
+    "effectLabel": "+5 Spirit",
+    "useText": "Permanently enchant boots to give +5 Spirit.",
+    "spirit": 5
+  },
+  {
+    "id": 273465,
+    "name": "Enchant 2H Weapon - Minor Impact",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Minor Impact",
+    "effectLabel": "Minor Impact",
+    "useText": "Permanently enchant a Two-Handed Melee Weapon to do 4 additional points of damage.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273472,
+    "name": "Enchant Weapon - Minor Beastslayer",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Minor Beastslayer",
+    "effectLabel": "Minor Beastslayer",
+    "useText": "Permanently enchant a Melee Weapon to do 2 additional points of damage to Beasts.",
+    "weapon": true
+  },
+  {
+    "id": 273473,
+    "name": "Enchant Weapon - Minor Striking",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Minor Striking",
+    "effectLabel": "Minor Striking",
+    "useText": "Permanently enchant a Melee Weapon to do 1 additional point of damage.",
+    "weapon": true
+  },
+  {
+    "id": 273474,
+    "name": "Enchant 2H Weapon - Lesser Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Lesser Intellect",
+    "effectLabel": "+5 Intellect",
+    "useText": "Permanently enchant a Two-Handed Melee Weapon to add 5 to Intellect.",
+    "twoHandOnly": true,
+    "intellect": 5
+  },
+  {
+    "id": 273481,
+    "name": "Enchant 2H Weapon - Lesser Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Lesser Spirit",
+    "effectLabel": "+5 Spirit",
+    "useText": "Permanently enchant a Two-Handed Melee Weapon to add 5 to Spirit.",
+    "twoHandOnly": true,
+    "spirit": 5
+  },
+  {
+    "id": 273487,
+    "name": "Enchant Weapon - Lesser Striking",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lesser Striking",
+    "effectLabel": "Lesser Striking",
+    "useText": "Permanently enchant a Melee Weapon to do 2 additional points of damage.",
+    "weapon": true
+  },
+  {
+    "id": 273489,
+    "name": "Enchant 2H Weapon - Lesser Impact",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Lesser Impact",
+    "effectLabel": "Lesser Impact",
+    "useText": "Permanently enchant a Two-handed Melee Weapon to do 5 additional points of damage.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273506,
+    "name": "Enchant Weapon - Lesser Beastslayer",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lesser Beastslayer",
+    "effectLabel": "Lesser Beastslayer",
+    "useText": "Permanently enchant a Melee Weapon to do 6 additional points of damage to Beasts.",
+    "weapon": true
+  },
+  {
+    "id": 273507,
+    "name": "Enchant Weapon - Lesser Elemental Slayer",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lesser Elemental Slayer",
+    "effectLabel": "Lesser Elemental Slayer",
+    "useText": "Permanently enchant a Melee Weapon to do 6 additional damage against Elementals.",
+    "weapon": true
+  },
+  {
+    "id": 273514,
+    "name": "Enchant Weapon - Striking",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Striking",
+    "effectLabel": "Striking",
+    "useText": "Permanently enchant a Melee Weapon to do 3 additional points of damage.",
+    "weapon": true
+  },
+  {
+    "id": 273515,
+    "name": "Enchant 2H Weapon - Impact",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Impact",
+    "effectLabel": "Impact",
+    "useText": "Permanently enchant a Two-handed Melee Weapon to do 6 additional points of damage.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273531,
+    "name": "Enchant Weapon - Fiery Weapon",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Fiery Weapon",
+    "effectLabel": "Fiery Weapon",
+    "useText": "Permanently enchant a melee weapon to often strike for 40 additional fire damage.",
+    "weapon": true
+  },
+  {
+    "id": 273533,
+    "name": "Enchant Weapon - Demonslaying",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Demonslaying",
+    "effectLabel": "Demonslaying",
+    "useText": "Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.",
+    "weapon": true
+  },
+  {
+    "id": 273538,
+    "name": "Enchant 2H Weapon - Greater Impact",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Greater Impact",
+    "effectLabel": "Greater Impact",
+    "useText": "Permanently enchant a two-handed melee weapon to do +7 damage.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273541,
+    "name": "Enchant Weapon - Greater Striking",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Greater Striking",
+    "effectLabel": "Greater Striking",
+    "useText": "Permanently enchant a Melee Weapon to do 4 additional points of damage.",
+    "weapon": true
+  },
+  {
+    "id": 273561,
+    "name": "Enchant Weapon - Icy Chill",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Icy Chill",
+    "effectLabel": "Icy Chill",
+    "useText": "Permanently enchant a melee weapon to often chill the target reducing their movement and attack speed.",
+    "weapon": true
+  },
+  {
+    "id": 273562,
+    "name": "Enchant 2H Weapon - Superior Impact",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Superior Impact",
+    "effectLabel": "Superior Impact",
+    "useText": "Permanently enchant a two-handed melee weapon to do +9 damage.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273563,
+    "name": "Enchant Weapon - Superior Striking",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Superior Striking",
+    "effectLabel": "Superior Striking",
+    "useText": "Permanently enchant a Melee Weapon to do 5 additional points of damage.",
+    "weapon": true
+  },
+  {
+    "id": 273564,
+    "name": "Enchant Weapon - Lifestealing",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lifestealing",
+    "effectLabel": "Lifestealing",
+    "useText": "Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.",
+    "weapon": true
+  },
+  {
+    "id": 273565,
+    "name": "Enchant Weapon - Unholy Weapon",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Unholy Weapon",
+    "effectLabel": "Unholy Weapon",
+    "useText": "Permanently enchant a melee weapon to often inflict a curse on the target reducing their melee damage.",
+    "weapon": true
+  },
+  {
+    "id": 273566,
+    "name": "Enchant Weapon - Crusader",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Crusader",
+    "effectLabel": "Crusader",
+    "useText": "Permanently enchant a melee weapon so that often when attacking in melee it heals for 100 and increases Strength by 100 for 15 sec.",
+    "weapon": true,
+    "proc": true
+  },
+  {
+    "id": 273567,
+    "name": "Enchant 2H Weapon - Major Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Major Spirit",
+    "effectLabel": "+9 Spirit",
+    "useText": "Permanently enchant a Two-Handed Melee Weapon to add 9 to Spirit.",
+    "twoHandOnly": true,
+    "spirit": 9
+  },
+  {
+    "id": 273568,
+    "name": "Enchant 2H Weapon - Major Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Major Intellect",
+    "effectLabel": "+9 Intellect",
+    "useText": "Permanently enchant a Two-Handed Melee Weapon to add 9 to intellect.",
+    "twoHandOnly": true,
+    "intellect": 9
+  },
+  {
+    "id": 273569,
+    "name": "Enchant Weapon - Winter's Might",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Winter's Might",
+    "effectLabel": "Winter's Might",
+    "useText": "Permanently enchant a weapon to grant up to 15 additional frost damage when casting frost spells.",
+    "weapon": true
+  },
+  {
+    "id": 273570,
+    "name": "Enchant Weapon - Spell Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Spell Power",
+    "effectLabel": "Spell Power",
+    "useText": "Permanently enchant a Melee Weapon to add up to 30 damage to spells.",
+    "weapon": true
+  },
+  {
+    "id": 273571,
+    "name": "Enchant Weapon - Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Healing Power",
+    "effectLabel": "Healing Power",
+    "useText": "Permanently enchant a Melee Weapon to add up to 55 points of healing to healing spells and up to 19 points of damage to damage spells.",
+    "weapon": true
+  },
+  {
+    "id": 273572,
+    "name": "Enchant Weapon - Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Strength",
+    "effectLabel": "+15 Strength",
+    "useText": "Permanently enchant a melee weapon to grant +15 strength.",
+    "weapon": true,
+    "strength": 15
+  },
+  {
+    "id": 273573,
+    "name": "Enchant Weapon - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+15 Agility",
+    "useText": "Permanently enchant a melee weapon to grant +15 Agility.",
+    "weapon": true,
+    "agility": 15
+  },
+  {
+    "id": 273576,
+    "name": "Enchant Weapon - Mighty Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Mighty Spirit",
+    "effectLabel": "+22 Spirit",
+    "useText": "Permanently enchant a melee weapon to grant +22 Spirit.",
+    "weapon": true,
+    "spirit": 22
+  },
+  {
+    "id": 273577,
+    "name": "Enchant Weapon - Mighty Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Mighty Intellect",
+    "effectLabel": "+22 Intellect",
+    "useText": "Permanently enchant a melee weapon to grant +22 Intellect.",
+    "weapon": true,
+    "intellect": 22
+  },
+  {
+    "id": 273589,
+    "name": "Enchant 2H Weapon - Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Agility",
+    "effectLabel": "+25 Agility",
+    "useText": "Permanently enchant a two-handed melee weapon to grant +25 Agility.",
+    "twoHandOnly": true,
+    "agility": 25
+  },
+  {
+    "id": 273590,
+    "name": "Enchant Weapon - Dismantle",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Dismantle",
+    "effectLabel": "Dismantle",
+    "useText": "Permanently enchant a Weapon to cause all spells and attacks to sometimes deal 75 additional damage to mechanical creatures.",
+    "weapon": true
+  },
+  {
+    "id": 273601,
+    "name": "Enchant 2H Weapon - Spellblasting",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Spellblasting",
+    "effectLabel": "Spellblasting",
+    "useText": "Permanently enchant a 2H Weapon to add 65 Spell Power.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273607,
+    "name": "Enchant Weapon - Grand Crusader",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Grand Crusader",
+    "effectLabel": "Grand Crusader",
+    "useText": "Permanently enchant a melee weapon so that often when attacking in melee it heals for 400 and increases Strength by 120 for 20 sec.",
+    "weapon": true,
+    "proc": true
+  },
+  {
+    "id": 273608,
+    "name": "Enchant 2H Weapon - Grand Arcanist",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Grand Arcanist",
+    "effectLabel": "Grand Arcanist",
+    "useText": "Permanently enchant a two-handed melee weapon so that often when striking with a spell it restores 400 mana and increases Spell Power by 140 for 20 sec.",
+    "twoHandOnly": true,
+    "proc": true
+  },
+  {
+    "id": 273609,
+    "name": "Enchant Weapon - Grand Sorcerer",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Grand Sorcerer",
+    "effectLabel": "Grand Sorcerer",
+    "useText": "Permanently enchant a melee weapon so that often when striking with a spell it restores 400 mana and increases Spell Power by 70 for 20 sec.",
+    "weapon": true,
+    "proc": true
+  },
+  {
+    "id": 273610,
+    "name": "Enchant 2H Weapon - Grand Inquisitor",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Grand Inquisitor",
+    "effectLabel": "Grand Inquisitor",
+    "useText": "Permanently enchant a two-handed melee weapon so that often when attacking in melee it heals for 400 and increases Strength by 200 for 20 sec.",
+    "twoHandOnly": true,
+    "proc": true
+  },
+  {
+    "id": 273617,
+    "name": "Enchant 2H Weapon - Lesser Agility",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Lesser Agility",
+    "effectLabel": "+15 Agility",
+    "useText": "Permanently enchant a Two-handed Melee Weapon to grant +15 Agility.",
+    "twoHandOnly": true,
+    "agility": 15
+  },
+  {
+    "id": 273618,
+    "name": "Enchant 2H Weapon - Lesser Strength",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Lesser Strength",
+    "effectLabel": "+15 Strength",
+    "useText": "Permanently enchant a Two-handed Melee Weapon to grant +15 Strength.",
+    "twoHandOnly": true,
+    "strength": 15
+  },
+  {
+    "id": 273621,
+    "name": "Enchant 2H Weapon - Mighty Spell Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Mighty Spell Power",
+    "effectLabel": "Mighty Spell Power",
+    "useText": "Permanently enchant a two-handed melee weapon to increase damage and healing by up to 55.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273622,
+    "name": "Enchant 2H Weapon - Mighty Healing Power",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15
+    ],
+    "effectName": "Mighty Healing Power",
+    "effectLabel": "Mighty Healing Power",
+    "useText": "Permanently enchant a two-handed melee weapon to increase healing by up to 100 and damage by up to 34.",
+    "twoHandOnly": true
+  },
+  {
+    "id": 273627,
+    "name": "Enchant Weapon - Insight",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Insight",
+    "effectLabel": "Insight",
+    "useText": "Permanently enchant a Melee Weapon to have a chance to grant Insight when you cast a spell, increasing Spirit by 100% for 10 sec.",
+    "weapon": true,
+    "proc": true
+  },
+  {
+    "id": 273628,
+    "name": "Enchant Weapon - Recovery",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Recovery",
+    "effectLabel": "Recovery",
+    "useText": "Permanently enchant a Melee Weapon to trigger Recovery when you are Parried or Dodged, healing you for 5% of your maximum health. Cannot occur more often than once every 10 sec.",
+    "weapon": true
+  },
+  {
+    "id": 273629,
+    "name": "Enchant Weapon - Revelation",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Revelation",
+    "effectLabel": "Revelation",
+    "useText": "Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell fails to critically strike. Revelation grants 100% increased critical strike chance to the next spell cast. Revelation's chance to trigger is diminished as your critical strike chance increases.",
+    "weapon": true
+  },
+  {
+    "id": 273480,
+    "name": "Enchant Shield - Minor Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Minor Stamina",
+    "effectLabel": "Minor Stamina",
+    "useText": "Permanently enchant a shield so that it increases the Stamina of the bearer by 3.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273484,
+    "name": "Enchant Shield - Lesser Protection",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Lesser Protection",
+    "effectLabel": "Lesser Protection",
+    "useText": "Permanently enchant a shield to increase its armor by 30.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273485,
+    "name": "Enchant Shield - Lesser Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Lesser Spirit",
+    "effectLabel": "Lesser Spirit",
+    "useText": "Permanently enchant a shield to give 3 spirit.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273498,
+    "name": "Enchant Shield - Lesser Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Lesser Stamina",
+    "effectLabel": "Lesser Stamina",
+    "useText": "Permanently enchant a shield to give 5 Stamina.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273509,
+    "name": "Enchant Shield - Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Spirit",
+    "effectLabel": "Spirit",
+    "useText": "Permanently enchant a shield to give 5 Spirit.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273513,
+    "name": "Enchant Shield - Lesser Block",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Lesser Block",
+    "effectLabel": "Lesser Block",
+    "useText": "Permanently enchant a shield to give +2% chance to block.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273521,
+    "name": "Enchant Shield - Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Stamina",
+    "effectLabel": "+7 Stamina",
+    "useText": "Permanently enchant a shield to give +7 Stamina.",
+    "shieldOnly": true,
+    "stamina": 7
+  },
+  {
+    "id": 273532,
+    "name": "Enchant Shield - Greater Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Greater Spirit",
+    "effectLabel": "+7 Spirit",
+    "useText": "Permanently enchant a shield to give +7 Spirit.",
+    "shieldOnly": true,
+    "spirit": 7
+  },
+  {
+    "id": 273536,
+    "name": "Enchant Shield - Frost Resistance",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Frost Resistance",
+    "effectLabel": "Frost Resistance",
+    "useText": "Permanently enchant a shield to give +8 Frost Resistance.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273553,
+    "name": "Enchant Shield - Superior Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Superior Spirit",
+    "effectLabel": "+9 Spirit",
+    "useText": "Permanently enchant a shield to give +9 Spirit.",
+    "shieldOnly": true,
+    "spirit": 9
+  },
+  {
+    "id": 273554,
+    "name": "Enchant Shield - Greater Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Greater Stamina",
+    "effectLabel": "+9 Stamina",
+    "useText": "Permanently enchant a shield to give +9 Stamina.",
+    "shieldOnly": true,
+    "stamina": 9
+  },
+  {
+    "id": 273592,
+    "name": "Enchant Shield - Law of Nature",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Law of Nature",
+    "effectLabel": "Law of Nature",
+    "useText": "Permanently enchant a Shield to add up to 30 damage to spells and up to 55 points of healing to healing spells.",
+    "shieldOnly": true
+  },
+  {
+    "id": 273598,
+    "name": "Enchant Off-Hand - Superior Intellect",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Superior Intellect",
+    "effectLabel": "+9 Intellect",
+    "useText": "Permanently enchant an Off-Hand to add 9 to intellect.",
+    "offHandOnly": true,
+    "intellect": 9
+  },
+  {
+    "id": 273599,
+    "name": "Enchant Off-Hand - Excellent Spirit",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Excellent Spirit",
+    "effectLabel": "+12 Spirit",
+    "useText": "Permanently enchant an Off-Hand to add 12 to spirit.",
+    "offHandOnly": true,
+    "spirit": 12
+  },
+  {
+    "id": 273600,
+    "name": "Enchant Off-Hand - Wisdom",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Wisdom",
+    "effectLabel": "+6 Intellect",
+    "useText": "Permanently enchant an Off-Hand to add 6 to intellect and 5 to spirit.",
+    "offHandOnly": true,
+    "intellect": 6
+  },
+  {
+    "id": 273602,
+    "name": "Enchant Shield - Excellent Stamina",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Excellent Stamina",
+    "effectLabel": "+12 Stamina",
+    "useText": "Permanently enchant a Shield to add 12 to stamina.",
+    "shieldOnly": true,
+    "stamina": 12
+  },
+  {
+    "id": 273605,
+    "name": "Enchant Shield - Critical Strike",
+    "icon": "inv_misc_enchantedscroll",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      16
+    ],
+    "effectName": "Critical Strike",
+    "effectLabel": "+1% Crit",
+    "useText": "Permanently enchant a Shield to add 1% critical strike chance.",
+    "shieldOnly": true,
+    "critChance": 0.01
+  },
+  {
+    "id": 4405,
+    "name": "Crude Scope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Crude Scope",
+    "effectLabel": "Crude Scope",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its damage by 1.",
+    "ranged": true
+  },
+  {
+    "id": 4406,
+    "name": "Standard Scope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Standard Scope",
+    "effectLabel": "Standard Scope",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its damage by 2.",
+    "ranged": true
+  },
+  {
+    "id": 4407,
+    "name": "Accurate Scope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Accurate Scope",
+    "effectLabel": "Accurate Scope",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its damage by 3.",
+    "ranged": true
+  },
+  {
+    "id": 10546,
+    "name": "Deadly Scope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Deadly Scope",
+    "effectLabel": "Deadly Scope",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its damage by 5.",
+    "ranged": true
+  },
+  {
+    "id": 10548,
+    "name": "Sniper Scope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 1,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Sniper Scope",
+    "effectLabel": "Sniper Scope",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its damage by 7.",
+    "ranged": true
+  },
+  {
+    "id": 18283,
+    "name": "Biznicks 247x128 Accurascope",
+    "icon": "inv_misc_spyglass_02",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "Biznicks 247x128 Accurascope",
+    "effectLabel": "+3% Hit",
+    "useText": "Attaches a permanent scope to a bow or gun that increases its chance to hit by 3%.",
+    "ranged": true,
+    "hitChance": 0.03
+  },
+  {
+    "id": 279272,
+    "name": "SAF-T Ultra Precision Scope",
+    "icon": "inv_engineering_90_scope_blue",
+    "quality": 3,
+    "kind": "permanent",
+    "slots": [
+      17
+    ],
+    "effectName": "SAF-T Ultra Precision Scope",
+    "effectLabel": "+2% Crit",
+    "useText": "Attaches a permanent scope to a bow, gun, or crossbow that increases its critical strike chance by 2%.",
+    "ranged": true,
+    "critChance": 0.02
+  },
+  {
+    "id": 23122,
+    "name": "Consecrated Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_02",
+    "quality": 2,
+    "kind": "temporary",
+    "slots": [],
+    "effectName": "Consecrated Sharpening Stone",
+    "effectLabel": "Consecrated Sharpening Stone",
+    "useText": "While applied to target weapon it increases attack power against undead by 100. Lasts for 1 hour."
+  },
+  {
+    "id": 211845,
+    "name": "Blackfathom Sharpening Stone",
+    "icon": "inv_misc_rune_04",
+    "quality": 2,
+    "kind": "temporary",
+    "slots": [],
+    "effectName": "Blackfathom Sharpening Stone",
+    "effectLabel": "Blackfathom Sharpening Stone",
+    "useText": "While applied to the target weapon increases Hit Chance by 2% for 30 minutes. This has no effect outside of Blackfathom Deeps. &quot;These mysterious enchanted stones seem to glow more brightly the deeper you descend into Blackfathom.&quot;"
+  },
+  {
+    "id": 2862,
+    "name": "Rough Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_01",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Rough Sharpening Stone",
+    "effectLabel": "+2 Damage",
+    "useText": "Increase sharp weapon damage by 2 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 2
+  },
+  {
+    "id": 2863,
+    "name": "Coarse Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_02",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Coarse Sharpening Stone",
+    "effectLabel": "+3 Damage",
+    "useText": "Increase sharp weapon damage by 3 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 3
+  },
+  {
+    "id": 2871,
+    "name": "Heavy Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_03",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Heavy Sharpening Stone",
+    "effectLabel": "+4 Damage",
+    "useText": "Increase sharp weapon damage by 4 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 4
+  },
+  {
+    "id": 3239,
+    "name": "Rough Weightstone",
+    "icon": "inv_stone_weightstone_01",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Rough Weightstone",
+    "effectLabel": "+2 Damage",
+    "useText": "Increase the damage of a blunt weapon by 2 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 2
+  },
+  {
+    "id": 3240,
+    "name": "Coarse Weightstone",
+    "icon": "inv_stone_weightstone_02",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Coarse Weightstone",
+    "effectLabel": "+3 Damage",
+    "useText": "Increase the damage of a blunt weapon by 3 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 3
+  },
+  {
+    "id": 3241,
+    "name": "Heavy Weightstone",
+    "icon": "inv_stone_weightstone_03",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Heavy Weightstone",
+    "effectLabel": "+4 Damage",
+    "useText": "Increase the damage of a blunt weapon by 4 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 4
+  },
+  {
+    "id": 3824,
+    "name": "Shadow Oil",
+    "icon": "inv_potion_23",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Shadow Oil",
+    "effectLabel": "Shadow Oil",
+    "useText": "When applied to a melee weapon it gives a 15% chance of casting Shadowbolt III at the opponent when it hits. Lasts 30 minutes.",
+    "weapon": true
+  },
+  {
+    "id": 3829,
+    "name": "Frost Oil",
+    "icon": "inv_potion_20",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Frost Oil",
+    "effectLabel": "Frost Oil",
+    "useText": "When applied to a melee weapon it gives a 10% chance of casting Frostbolt at the opponent when it hits. Lasts 30 minutes.",
+    "weapon": true
+  },
+  {
+    "id": 7964,
+    "name": "Solid Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_04",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Solid Sharpening Stone",
+    "effectLabel": "+6 Damage",
+    "useText": "Increase sharp weapon damage by 6 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 6
+  },
+  {
+    "id": 7965,
+    "name": "Solid Weightstone",
+    "icon": "inv_stone_weightstone_04",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Solid Weightstone",
+    "effectLabel": "+6 Damage",
+    "useText": "Increase the damage of a blunt weapon by 6 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 6
+  },
+  {
+    "id": 12404,
+    "name": "Dense Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_05",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Dense Sharpening Stone",
+    "effectLabel": "+8 Damage",
+    "useText": "Increase sharp weapon damage by 8 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 8
+  },
+  {
+    "id": 12643,
+    "name": "Dense Weightstone",
+    "icon": "inv_stone_weightstone_05",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Dense Weightstone",
+    "effectLabel": "+8 Damage",
+    "useText": "Increase the damage of a blunt weapon by 8 for 30 minutes.",
+    "weapon": true,
+    "weaponDamage": 8
+  },
+  {
+    "id": 18262,
+    "name": "Elemental Sharpening Stone",
+    "icon": "inv_stone_02",
+    "quality": 2,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Elemental Sharpening Stone",
+    "effectLabel": "+2% Crit",
+    "useText": "Increase critical chance on a melee weapon by 2% for 30 minutes.",
+    "weapon": true,
+    "critChance": 0.02
+  },
+  {
+    "id": 20744,
+    "name": "Minor Wizard Oil",
+    "icon": "inv_poison_mindnumbing",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Minor Wizard Oil",
+    "effectLabel": "Minor Wizard Oil",
+    "useText": "While applied to target weapon it increases spell damage and healing by up to 15. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20745,
+    "name": "Minor Mana Oil",
+    "icon": "inv_potion_98",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Minor Mana Oil",
+    "effectLabel": "Minor Mana Oil",
+    "useText": "While applied to target weapon it restores 5 mana to the caster every 5 seconds and increases healing done by up to 10. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20746,
+    "name": "Lesser Wizard Oil",
+    "icon": "inv_potion_103",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lesser Wizard Oil",
+    "effectLabel": "Lesser Wizard Oil",
+    "useText": "While applied to target weapon it increases spell damage and healing by up to 25. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20747,
+    "name": "Lesser Mana Oil",
+    "icon": "inv_potion_99",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Lesser Mana Oil",
+    "effectLabel": "Lesser Mana Oil",
+    "useText": "While applied to target weapon it restores 10 mana to the caster every 5 seconds and increases healing by up to 20. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20748,
+    "name": "Brilliant Mana Oil",
+    "icon": "inv_potion_100",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Brilliant Mana Oil",
+    "effectLabel": "Brilliant Mana Oil",
+    "useText": "While applied to target weapon it restores 15 mana to the caster every 5 seconds and increases the effect of healing spells by up to 30. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20749,
+    "name": "Brilliant Wizard Oil",
+    "icon": "inv_potion_105",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Brilliant Wizard Oil",
+    "effectLabel": "Brilliant Wizard Oil",
+    "useText": "While applied to target weapon it increases spell damage and healing by up to 36 and increases Spell Critical chance by 1%. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 20750,
+    "name": "Wizard Oil",
+    "icon": "inv_potion_104",
+    "quality": 1,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Wizard Oil",
+    "effectLabel": "Wizard Oil",
+    "useText": "While applied to target weapon it increases spell damage and healing by up to 30. Lasts for 30 minutes. 5 Charges",
+    "weapon": true
+  },
+  {
+    "id": 23123,
+    "name": "Blessed Wizard Oil",
+    "icon": "inv_potion_26",
+    "quality": 2,
+    "kind": "temporary",
+    "slots": [
+      15,
+      16
+    ],
+    "effectName": "Blessed Wizard Oil",
+    "effectLabel": "Blessed Wizard Oil",
+    "useText": "While applied to target weapon it increases spell damage against undead by up to 60. Lasts for 1 hour.",
+    "weapon": true
+  }
+]

@@ -37,6 +37,8 @@ type Ability struct {
 	BuffHaste         float64 `json:"buffHaste"`
 	BuffAP            float64 `json:"buffAP"`
 	BuffCrit          float64 `json:"buffCrit"`
+	BuffStr           float64 `json:"buffStr"`
+	BuffAgi           float64 `json:"buffAgi"`
 	Priority          int     `json:"priority"`
 	Resource          string  `json:"resource"`
 	Cost              float64 `json:"cost"`
@@ -49,6 +51,8 @@ type Ability struct {
 	ConsumeCombo      bool    `json:"consumeCombo"`
 	DumpRage          bool    `json:"dumpRage"`
 	RequiresProc      string  `json:"requiresProc"`
+	RequiresStance    string  `json:"requiresStance"`
+	RequiresStealth   bool    `json:"requiresStealth"`
 }
 
 var (

@@ -1,6 +1,5 @@
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
 import {
-  ActionMetricSchema,
   SimRequestSchema,
   SimResultSchema,
   StatWeightsResultSchema,
@@ -10,35 +9,46 @@ import {
   type StatWeightsResult,
 } from '../gen/wowfsim/sim_pb.ts'
 import type { CatalogItem } from '../catalog/era.ts'
+import type { SimWorkerRequest, SimWorkerResponse } from './protocol.ts'
+
+export type { SimResult }
+export { mergeSimResults, iterationChunkSize } from './merge.ts'
 
 let ready: Promise<void> | null = null
+let worker: Worker | null = null
+let jobId = 0
 
 export function initEngine(): Promise<void> {
   if (!ready) {
-    ready = loadWasm()
+    ready = startWorker()
   }
   return ready
 }
 
-async function loadWasm(): Promise<void> {
-  const go = new Go()
-  const wasmReady = new Promise<void>((resolve) => {
-    window.wowfSimReady = () => resolve()
-  })
-
-  const response = await fetch(`${import.meta.env.BASE_URL}wowfsim.wasm`)
-  if (!response.ok) {
-    throw new Error(
-      `Failed to load wowfsim.wasm (${response.status}). Build the engine first.`,
+function startWorker(): Promise<void> {
+  const simWorker = new Worker(new URL('./sim.worker.ts', import.meta.url), { type: 'module' })
+  worker = simWorker
+  return new Promise((resolve, reject) => {
+    const onMessage = (event: MessageEvent<SimWorkerResponse>) => {
+      if (event.data.kind === 'ready') {
+        simWorker.removeEventListener('message', onMessage)
+        resolve()
+        return
+      }
+      if (event.data.kind === 'error' && event.data.id === 0) {
+        simWorker.removeEventListener('message', onMessage)
+        reject(new Error(event.data.message || 'Engine worker failed to start'))
+      }
+    }
+    simWorker.addEventListener('message', onMessage)
+    simWorker.addEventListener(
+      'error',
+      () => {
+        reject(new Error('Engine worker crashed while loading'))
+      },
+      { once: true },
     )
-  }
-
-  const { instance } = await WebAssembly.instantiateStreaming(
-    response,
-    go.importObject,
-  )
-  void go.run(instance)
-  await wasmReady
+  })
 }
 
 export type TalentRanks = Record<number, number>
@@ -49,10 +59,17 @@ export type SimInput = {
   durationSeconds: number
   iterations: number
   seed: bigint
-  items: CatalogItem[]
+  items: Array<CatalogItem & { enchantId?: number }>
   talents: TalentRanks
   raidBuffs?: string[]
+  abilityPriorities?: Record<string, number>
+  stance?: number
+  combatPotion?: number
+  mhWeaponTemp?: string
+  ohWeaponTemp?: string
 }
+
+export type SimProgress = (result: SimResult, done: number, total: number) => void
 
 function toRequest(input: SimInput) {
   return create(SimRequestSchema, {
@@ -79,15 +96,24 @@ function toRequest(input: SimInput) {
           spellPower: item.spellPower ?? 0,
           spellCritChance: item.spellCritChance ?? 0,
           spellHitChance: item.spellHitChance ?? 0,
+          enchantId: item.enchantId ?? 0,
         })),
       },
       talents: Object.entries(input.talents)
         .filter(([, rank]) => rank > 0)
         .map(([id, rank]) => ({ id: Number(id), rank })),
       raidBuffs: input.raidBuffs ?? [],
+      abilityPriorities: Object.entries(input.abilityPriorities ?? {})
+        .filter(([id]) => id)
+        .map(([id, priority]) => ({ id, priority })),
+      stance: input.stance ?? 0,
+      combatPotion: input.combatPotion ?? 0,
+      mhWeaponTemp: input.mhWeaponTemp ?? '',
+      ohWeaponTemp: input.ohWeaponTemp ?? '',
     },
     encounter: {
       durationSeconds: input.durationSeconds,
+      armor: 7700,
     },
     options: {
       iterations: input.iterations,
@@ -96,111 +122,64 @@ function toRequest(input: SimInput) {
   })
 }
 
-export function runSim(input: SimInput): SimResult {
-  const bytes = toBinary(SimRequestSchema, toRequest(input))
-  const out = window.wowfSimRun(bytes)
+function requestBytes(input: SimInput) {
+  return toBinary(SimRequestSchema, toRequest(input))
+}
+
+function callWorker(
+  kind: SimWorkerRequest['kind'],
+  request: Uint8Array,
+  onProgress?: SimProgress,
+): Promise<Uint8Array> {
+  if (!worker) {
+    return Promise.reject(new Error('Engine is not ready'))
+  }
+  const id = ++jobId
+  const target = worker
+  return new Promise((resolve, reject) => {
+    const onMessage = (event: MessageEvent<SimWorkerResponse>) => {
+      if (event.data.id !== id) {
+        return
+      }
+      if (event.data.kind === 'progress' && event.data.result && onProgress) {
+        onProgress(
+          fromBinary(SimResultSchema, event.data.result),
+          event.data.done ?? 0,
+          event.data.total ?? 0,
+        )
+        return
+      }
+      if (event.data.kind === 'done' && event.data.result) {
+        target.removeEventListener('message', onMessage)
+        resolve(event.data.result)
+        return
+      }
+      if (event.data.kind === 'error') {
+        target.removeEventListener('message', onMessage)
+        reject(new Error(event.data.message || 'Simulation failed'))
+      }
+    }
+    target.addEventListener('message', onMessage)
+    const msg: SimWorkerRequest = { id, kind, request }
+    target.postMessage(msg)
+  })
+}
+
+export async function runSim(input: SimInput, onProgress?: SimProgress): Promise<SimResult> {
+  await initEngine()
+  const out = await callWorker('sim', requestBytes(input), onProgress)
   return fromBinary(SimResultSchema, out)
 }
 
-export function runStatWeights(input: SimInput): StatWeightsResult {
-  const bytes = toBinary(SimRequestSchema, toRequest(input))
-  const out = window.wowfSimStatWeights(bytes)
+export async function runStatWeights(input: SimInput): Promise<StatWeightsResult> {
+  await initEngine()
+  const out = await callWorker('weights', requestBytes(input))
   return fromBinary(StatWeightsResultSchema, out)
 }
 
-export function mergeSimResults(parts: SimResult[]): SimResult {
-  if (parts.length === 1) {
-    return parts[0]
-  }
-
-  let iterations = 0
-  let meanAcc = 0
-  let secondMoment = 0
-  let dpsMin = Number.POSITIVE_INFINITY
-  let dpsMax = Number.NEGATIVE_INFINITY
-  const actions = new Map<
-    string,
-    {
-      name: string
-      icon: string
-      dps: number
-      casts: bigint
-      crits: bigint
-      misses: bigint
-    }
-  >()
-
-  for (const part of parts) {
-    const n = part.iterations
-    iterations += n
-    meanAcc += part.dpsMean * n
-    secondMoment += n * (part.dpsStdev * part.dpsStdev + part.dpsMean * part.dpsMean)
-    dpsMin = Math.min(dpsMin, part.dpsMin)
-    dpsMax = Math.max(dpsMax, part.dpsMax)
-    for (const action of part.actions) {
-      const current = actions.get(action.name)
-      const weight = BigInt(n)
-      if (!current) {
-        actions.set(action.name, {
-          name: action.name,
-          icon: action.icon,
-          dps: action.dps * n,
-          casts: action.casts * weight,
-          crits: action.crits * weight,
-          misses: action.misses * weight,
-        })
-      } else {
-        current.dps += action.dps * n
-        current.casts += action.casts * weight
-        current.crits += action.crits * weight
-        current.misses += action.misses * weight
-      }
-    }
-  }
-
-  const mean = meanAcc / iterations
-  let variance = secondMoment / iterations - mean * mean
-  if (variance < 0) {
-    variance = 0
-  }
-
-  const mergedActions = [...actions.values()].map((action) =>
-    create(ActionMetricSchema, {
-      name: action.name,
-      icon: action.icon,
-      dps: action.dps / iterations,
-      casts: action.casts / BigInt(iterations),
-      crits: action.crits / BigInt(iterations),
-      misses: action.misses / BigInt(iterations),
-    }),
-  )
-  mergedActions.sort((a, b) => {
-    if (a.name === 'Auto Attack') {
-      return -1
-    }
-    if (b.name === 'Auto Attack') {
-      return 1
-    }
-    return b.dps - a.dps
-  })
-
-  return create(SimResultSchema, {
-    dpsMean: mean,
-    dpsStdev: Math.sqrt(variance),
-    dpsMin,
-    dpsMax,
-    iterations,
-    actions: mergedActions,
-    modifiers: parts[0].modifiers,
-    timeline: parts[0].timeline,
-  })
-}
-
-export function iterationChunkSize(durationSeconds: number, iterations: number) {
-  const work = durationSeconds * iterations
-  if (work <= 40_000) {
-    return iterations
-  }
-  const chunks = Math.ceil(work / 80_000)
-  return Math.max(40, Math.min(400, Math.ceil(iterations / chunks)))
+export function randomSimSeed(): bigint {
+  const bits = new Uint32Array(2)
+  crypto.getRandomValues(bits)
+  const n = (BigInt(bits[0]) << 31n) | BigInt(bits[1] >>> 1)
+  return n === 0n ? 1n : n
 }

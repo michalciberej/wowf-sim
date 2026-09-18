@@ -20,6 +20,20 @@ message Player {
   repeated TalentPick talents = 6;
   repeated string raid_buffs = 7;
   BonusStats bonus_stats = 8;
+  // Rotation APL order. Higher priority is tried first. Missing IDs keep catalog defaults.
+  repeated AbilityPriority ability_priorities = 9;
+  // Warrior DPS stance. Other classes ignore this. Unspecified is Berserker.
+  WarriorStance stance = 10;
+  // Wowhead Forever potion item id. 0 means none. Used off GCD like a trinket.
+  int32 combat_potion = 11;
+  // Consumable weapon temp id (sharpening stone / weightstone). Empty means none.
+  string mh_weapon_temp = 12;
+  string oh_weapon_temp = 13;
+}
+
+message AbilityPriority {
+  string id = 1;
+  int32 priority = 2;
 }
 
 // Extra stats added after gear, before raid multipliers. Used for EP measurement.
@@ -57,6 +71,8 @@ message EquippedItem {
   int32 spell_power = 14;
   double spell_crit_chance = 15;
   double spell_hit_chance = 16;
+  // Wowhead Forever enhancement item id (permanent or temporary). 0 means none.
+  int32 enchant_id = 18;
 }
 
 message TalentPick {
@@ -66,6 +82,8 @@ message TalentPick {
 
 message Encounter {
   double duration_seconds = 1;
+  // Unspecified (0) is Patchwerk: 7700 armor, no mechanics.
+  double armor = 2;
 }
 
 message SimOptions {
@@ -83,15 +101,22 @@ message SimResult {
   repeated string modifiers = 7;
   // Cast log from the first iteration so the UI can draw a combat timeline.
   repeated TimelineEvent timeline = 8;
+  // One DPS sample per iteration, used for the result histogram.
+  repeated double iteration_dps = 9;
 }
 
 message ActionMetric {
   string name = 1;
   double dps = 2;
-  int64 casts = 3;
-  int64 crits = 4;
-  int64 misses = 5;
+  // Mean per iteration. Fractional when the ability is not used every fight.
+  double casts = 3;
+  double crits = 4;
+  double misses = 5;
   string icon = 6;
+  double hit_dps = 7;
+  double crit_dps = 8;
+  // Mean damage per cast, including misses as 0.
+  double avg_cast = 9;
 }
 
 message TimelineEvent {
@@ -101,6 +126,12 @@ message TimelineEvent {
   bool crit = 4;
   bool miss = 5;
   string icon = 6;
+  // Remaining rage/energy after this event. Empty kind means no resource bar.
+  string resource_kind = 7;
+  double resource = 8;
+  // hit, tick, dot, or buff. Empty is treated as a hit.
+  string kind = 9;
+  double duration_seconds = 10;
 }
 
 message StatWeight {
@@ -118,6 +149,13 @@ message StatWeightsResult {
   double baseline_dps = 3;
   int32 iterations = 4;
   repeated StatWeight weights = 5;
+}
+
+enum WarriorStance {
+  WARRIOR_STANCE_UNSPECIFIED = 0;
+  WARRIOR_STANCE_BATTLE = 1;
+  WARRIOR_STANCE_BERSERKER = 2;
+  WARRIOR_STANCE_DEFENSIVE = 3;
 }
 
 enum Class {

@@ -221,7 +221,7 @@ func defaultCastTime(ab clientdata.Ability) float64 {
 		return 6
 	case "wrath":
 		return 2
-	case "mind-blast", "searing-pain":
+	case "mind-blast", "searing-pain", "slam":
 		return 1.5
 	case "immolate":
 		return 2
@@ -235,14 +235,14 @@ func defaultCastTime(ab clientdata.Ability) float64 {
 }
 
 func isSpellAbility(ab clientdata.Ability) bool {
-	if ab.DamageSP > 0 || ab.CastTime > 0 {
-		return true
-	}
 	if ab.DamageWeapon > 0 || ab.DamageAP > 0 || ab.DumpRagePer > 0 {
 		return false
 	}
 	if ab.Resource == "rage" || ab.Resource == "energy" {
 		return false
+	}
+	if ab.DamageSP > 0 || ab.CastTime > 0 {
+		return true
 	}
 	if ab.Kind != "strike" || ab.DamageFlat <= 0 {
 		return false

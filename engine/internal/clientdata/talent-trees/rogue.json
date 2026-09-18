@@ -14,7 +14,12 @@
         "spellIds": [
           105742
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the duration of your Gouge ability by 0.5 sec.",
+          "Increases the duration of your Gouge ability by 1 sec.",
+          "Increases the duration of your Gouge ability by 1.5 sec."
+        ]
       },
       {
         "fieldName": "remorselessAttacks",
@@ -27,7 +32,11 @@
         "spellIds": [
           105723
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "After killing a non-trivial enemy, gives you a 20% increased critical strike chance on your next Sinister Strike, Backstab, Ambush, Mutilate, or Ghostly Strike. Lasts 20 sec.",
+          "After killing a non-trivial enemy, gives you a 40% increased critical strike chance on your next Sinister Strike, Backstab, Ambush, Mutilate, or Ghostly Strike. Lasts 20 sec."
+        ]
       },
       {
         "fieldName": "malice",
@@ -40,7 +49,14 @@
         "spellIds": [
           105722
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases your critical strike chance with all attacks and Poisons by 1%.",
+          "Increases your critical strike chance with all attacks and Poisons by 2%.",
+          "Increases your critical strike chance with all attacks and Poisons by 3%.",
+          "Increases your critical strike chance with all attacks and Poisons by 4%.",
+          "Increases your critical strike chance with all attacks and Poisons by 5%."
+        ]
       },
       {
         "fieldName": "ruthlessness",
@@ -53,7 +69,12 @@
         "spellIds": [
           105721
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Gives your finishing moves a 20% chance to add a Combo Point to your target.",
+          "Gives your finishing moves a 40% chance to add a Combo Point to your target.",
+          "Gives your finishing moves a 60% chance to add a Combo Point to your target."
+        ]
       },
       {
         "fieldName": "murder",
@@ -66,7 +87,11 @@
         "spellIds": [
           105720
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases all damage dealt by 2% against Humanoid and Giant targets.",
+          "Increases all damage dealt by 4% against Humanoid and Giant targets."
+        ]
       },
       {
         "fieldName": "improvedSliceAndDice",
@@ -79,7 +104,12 @@
         "spellIds": [
           105739
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the duration of your Slice and Dice ability by 15%.",
+          "Increases the duration of your Slice and Dice ability by 30%.",
+          "Increases the duration of your Slice and Dice ability by 45%."
+        ]
       },
       {
         "fieldName": "relentlessStrikes",
@@ -92,7 +122,10 @@
         "spellIds": [
           105759
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Your finishing moves have a 20% chance per Combo Point to restore 25 Energy."
+        ]
       },
       {
         "fieldName": "improvedExposeArmor",
@@ -105,7 +138,11 @@
         "spellIds": [
           105717
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the Energy cost of your Expose Armor ability by 5, and refunds 1 Combo Point when cast with 5 Combo Points.",
+          "Reduces the Energy cost of your Expose Armor ability by 10, and refunds 2 Combo Points when cast with 5 Combo Points."
+        ]
       },
       {
         "fieldName": "lethality",
@@ -119,6 +156,13 @@
           105716
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 6%.",
+          "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 12%.",
+          "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 18%.",
+          "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 24%.",
+          "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 30%."
+        ],
         "prereqLocation": {
           "rowIdx": 0,
           "colIdx": 2
@@ -135,7 +179,14 @@
         "spellIds": [
           105714
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases the damage dealt by your poisons by 4% and gives your poisons an additional 8% chance to resist dispel effects.",
+          "Increases the damage dealt by your poisons by 8% and gives your poisons an additional 16% chance to resist dispel effects.",
+          "Increases the damage dealt by your poisons by 12% and gives your poisons an additional 24% chance to resist dispel effects.",
+          "Increases the damage dealt by your poisons by 16% and gives your poisons an additional 32% chance to resist dispel effects.",
+          "Increases the damage dealt by your poisons by 20% and gives your poisons an additional 40% chance to resist dispel effects."
+        ]
       },
       {
         "fieldName": "coldBlood",
@@ -148,7 +199,10 @@
         "spellIds": [
           105715
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "When activated, increases the critical strike chance of your next Sinister Strike, Backstab, Ambush, Eviscerate, or Mutilate by 100%."
+        ]
       },
       {
         "fieldName": "improvedPoisons",
@@ -161,7 +215,14 @@
         "spellIds": [
           105713
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases the chance to apply Poisons to your target by 2%, and gives Poison applications a 10% chance to not consume a charge.",
+          "Increases the chance to apply Poisons to your target by 4%, and gives Poison applications a 20% chance to not consume a charge.",
+          "Increases the chance to apply Poisons to your target by 6%, and gives Poison applications a 30% chance to not consume a charge.",
+          "Increases the chance to apply Poisons to your target by 8%, and gives Poison applications a 40% chance to not consume a charge.",
+          "Increases the chance to apply Poisons to your target by 10%, and gives Poison applications a 50% chance to not consume a charge."
+        ]
       },
       {
         "fieldName": "vigor",
@@ -174,7 +235,11 @@
         "spellIds": [
           105718
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases your maximum Energy by 5.",
+          "Increases your maximum Energy by 10."
+        ]
       },
       {
         "fieldName": "mutilate",
@@ -187,7 +252,10 @@
         "spellIds": [
           105709
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Instantly attacks with both weapons for 75% weapon damage plus an additional 13 with each weapon. Damage increased by 20% against Poisoned targets. Awards 2 Combo Points."
+        ]
       },
       {
         "fieldName": "improvedKidneyShot",
@@ -200,7 +268,11 @@
         "spellIds": [
           105711
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Enemies Stunned by your Kidney Shot ability take 5% increased damage from your poisons and attacks.",
+          "Enemies Stunned by your Kidney Shot ability take 10% increased damage from your poisons and attacks."
+        ]
       },
       {
         "fieldName": "sealFate",
@@ -213,7 +285,14 @@
         "spellIds": [
           105710
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Your critical strikes from abilities that add Combo Points have a 20% chance to add an additional Combo Point.",
+          "Your critical strikes from abilities that add Combo Points have a 40% chance to add an additional Combo Point.",
+          "Your critical strikes from abilities that add Combo Points have a 60% chance to add an additional Combo Point.",
+          "Your critical strikes from abilities that add Combo Points have a 80% chance to add an additional Combo Point.",
+          "Your critical strikes from abilities that add Combo Points have a 100% chance to add an additional Combo Point."
+        ]
       },
       {
         "fieldName": "venom",
@@ -227,6 +306,9 @@
           105712
         ],
         "maxPoints": 1,
+        "ranks": [
+          "Finishing move that increases the damage of your Poisons by 30% and your chance to apply Poisons by 10%. Lasts longer per combo point:\n   1 point: 9 seconds\n   2 points: 12 seconds\n   3 points: 15 seconds\n   4 points: 18 seconds\n   5 points: 21 seconds"
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1
@@ -249,7 +331,12 @@
         "spellIds": [
           105708
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the damage done by your Eviscerate ability by 7%.",
+          "Increases the damage done by your Eviscerate ability by 13%.",
+          "Increases the damage done by your Eviscerate ability by 20%."
+        ]
       },
       {
         "fieldName": "improvedSinisterStrike",
@@ -262,7 +349,11 @@
         "spellIds": [
           105741
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the Energy cost of your Sinister Strike ability by 3.",
+          "Reduces the Energy cost of your Sinister Strike ability by 5."
+        ]
       },
       {
         "fieldName": "lightningReflexes",
@@ -275,7 +366,14 @@
         "spellIds": [
           113398
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases your Dodge chance by 1%.",
+          "Increases your Dodge chance by 2%.",
+          "Increases your Dodge chance by 3%.",
+          "Increases your Dodge chance by 4%.",
+          "Increases your Dodge chance by 5%."
+        ]
       },
       {
         "fieldName": "puncturingWounds",
@@ -288,7 +386,12 @@
         "spellIds": [
           105719
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the critical strike chance of your Backstab by 10% and your Mutilate by 5%, and gives Backstab a 15% chance to add an additional Combo Point.",
+          "Increases the critical strike chance of your Backstab by 20% and your Mutilate by 10%, and gives Backstab a 30% chance to add an additional Combo Point.",
+          "Increases the critical strike chance of your Backstab by 30% and your Mutilate by 15%, and gives Backstab a 45% chance to add an additional Combo Point."
+        ]
       },
       {
         "fieldName": "deflection",
@@ -301,7 +404,12 @@
         "spellIds": [
           105738
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases your Parry chance by 2%.",
+          "Increases your Parry chance by 4%.",
+          "Increases your Parry chance by 6%."
+        ]
       },
       {
         "fieldName": "precision",
@@ -314,7 +422,12 @@
         "spellIds": [
           105737
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases your chance to hit with all attacks and Poisons by 1%.",
+          "Increases your chance to hit with all attacks and Poisons by 2%.",
+          "Increases your chance to hit with all attacks and Poisons by 3%."
+        ]
       },
       {
         "fieldName": "endurance",
@@ -327,7 +440,11 @@
         "spellIds": [
           105736
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the cooldown of your Sprint and Evasion abilities by 30%.",
+          "Reduces the cooldown of your Sprint and Evasion abilities by 60%."
+        ]
       },
       {
         "fieldName": "riposte",
@@ -341,6 +458,9 @@
           105735
         ],
         "maxPoints": 1,
+        "ranks": [
+          "A strike that becomes active after parrying an opponent's attack.  This attack deals 150% weapon damage and disarms the target for 6 sec."
+        ],
         "prereqLocation": {
           "rowIdx": 1,
           "colIdx": 1
@@ -357,7 +477,11 @@
         "spellIds": [
           105732
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Gives a 50% chance to remove all movement impairing effects when you activate your Sprint ability.",
+          "Gives a 100% chance to remove all movement impairing effects when you activate your Sprint ability."
+        ]
       },
       {
         "fieldName": "improvedKick",
@@ -370,7 +494,11 @@
         "spellIds": [
           105733
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Gives your Kick ability a 50% chance to Silence the target for 2 sec.",
+          "Gives your Kick ability a 100% chance to Silence the target for 2 sec."
+        ]
       },
       {
         "fieldName": "restlessBlades",
@@ -383,7 +511,10 @@
         "spellIds": [
           108100
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Your damaging finishing moves reduce the remaining cooldown of your Adrenaline Rush, Blade Flurry, Evasion, Sprint, and Vanish abilities by 2 sec per combo point."
+        ]
       },
       {
         "fieldName": "dualWieldSpecialization",
@@ -397,6 +528,13 @@
           105740
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Increases the damage done by your off-hand weapon by 5%.",
+          "Increases the damage done by your off-hand weapon by 10%.",
+          "Increases the damage done by your off-hand weapon by 15%.",
+          "Increases the damage done by your off-hand weapon by 20%.",
+          "Increases the damage done by your off-hand weapon by 25%."
+        ],
         "prereqLocation": {
           "rowIdx": 1,
           "colIdx": 2
@@ -413,7 +551,10 @@
         "spellIds": [
           105728
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Increases your melee attack speed by 20% and your melee attacks strike an additional nearby opponent. Lasts 15 sec."
+        ]
       },
       {
         "fieldName": "hackAndSlash",
@@ -426,7 +567,14 @@
         "spellIds": [
           105727
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    Axe/Sword: Your successful\n    melee attacks have a 1% chance\n    to trigger an extra attack on the \n    target.\n\n    Dagger/Fist: Increases your\n    critical strike chance by 1%.\n\n    Mace: Your attacks ignore 3% of\n    your target's armor.",
+          "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    Axe/Sword: Your successful\n    melee attacks have a 2% chance\n    to trigger an extra attack on the \n    target.\n\n    Dagger/Fist: Increases your\n    critical strike chance by 2%.\n\n    Mace: Your attacks ignore 6% of\n    your target's armor.",
+          "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    Axe/Sword: Your successful\n    melee attacks have a 3% chance\n    to trigger an extra attack on the \n    target.\n\n    Dagger/Fist: Increases your\n    critical strike chance by 3%.\n\n    Mace: Your attacks ignore 9% of\n    your target's armor.",
+          "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    Axe/Sword: Your successful\n    melee attacks have a 4% chance\n    to trigger an extra attack on the \n    target.\n\n    Dagger/Fist: Increases your\n    critical strike chance by 4%.\n\n    Mace: Your attacks ignore 12% of\n    your target's armor.",
+          "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    Axe/Sword: Your successful\n    melee attacks have a 5% chance\n    to trigger an extra attack on the \n    target.\n\n    Dagger/Fist: Increases your\n    critical strike chance by 5%.\n\n    Mace: Your attacks ignore 15% of\n    your target's armor."
+        ]
       },
       {
         "fieldName": "weaponExpertise",
@@ -440,6 +588,10 @@
           105726
         ],
         "maxPoints": 2,
+        "ranks": [
+          "Reduces the chance for your attacks to be Dodged or Parried by 1%.",
+          "Reduces the chance for your attacks to be Dodged or Parried by 2%."
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1
@@ -456,7 +608,12 @@
         "spellIds": [
           105730
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 2%.",
+          "Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 4%.",
+          "Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 6%."
+        ]
       },
       {
         "fieldName": "adrenalineRush",
@@ -469,7 +626,10 @@
         "spellIds": [
           105724
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Increases your Energy regeneration rate by 100% for 15 sec."
+        ]
       }
     ]
   },
@@ -488,7 +648,14 @@
         "spellIds": [
           105756
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces your speed penalty from your Stealth ability by 3% and reduces its cooldown by 2 sec.",
+          "Reduces your speed penalty from your Stealth ability by 6% and reduces its cooldown by 3 sec.",
+          "Reduces your speed penalty from your Stealth ability by 9% and reduces its cooldown by 4 sec.",
+          "Reduces your speed penalty from your Stealth ability by 12% and reduces its cooldown by 5 sec.",
+          "Reduces your speed penalty from your Stealth ability by 15% and reduces its cooldown by 6 sec."
+        ]
       },
       {
         "fieldName": "masterOfDeception",
@@ -501,7 +668,12 @@
         "spellIds": [
           105761
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Reduces the chance enemies have to detect you while in Stealth mode as if you were 1 level higher.",
+          "Reduces the chance enemies have to detect you while in Stealth mode as if you were 2 levels higher.",
+          "Reduces the chance enemies have to detect you while in Stealth mode as if you were 3 levels higher."
+        ]
       },
       {
         "fieldName": "opportunity",
@@ -514,7 +686,11 @@
         "spellIds": [
           105760
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the damage dealt by your Backstab, Garrote, Ambush, and Mutilate abilities by 5%.",
+          "Increases the damage dealt by your Backstab, Garrote, Ambush, and Mutilate abilities by 10%."
+        ]
       },
       {
         "fieldName": "setup",
@@ -527,7 +703,12 @@
         "spellIds": [
           105751
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Gives you a 33% chance to add a Combo Point to your target after Dodging an attack or fully resisting a spell.",
+          "Gives you a 67% chance to add a Combo Point to your target after Dodging an attack or fully resisting a spell.",
+          "Gives you a 100% chance to add a Combo Point to your target after Dodging an attack or fully resisting a spell."
+        ]
       },
       {
         "fieldName": "elusiveness",
@@ -540,7 +721,11 @@
         "spellIds": [
           105753
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the cooldown of your Vanish and Blind abilities by 45 sec.",
+          "Reduces the cooldown of your Vanish and Blind abilities by 1.5 min."
+        ]
       },
       {
         "fieldName": "dirtyTricks",
@@ -553,7 +738,11 @@
         "spellIds": [
           105757
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the Energy cost of your Sap and Blind abilities by 25%.",
+          "Reduces the Energy cost of your Sap and Blind abilities by 50%."
+        ]
       },
       {
         "fieldName": "improvedAmbush",
@@ -566,7 +755,12 @@
         "spellIds": [
           105749
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the critical strike chance of your Ambush ability by 15%.",
+          "Increases the critical strike chance of your Ambush ability by 30%.",
+          "Increases the critical strike chance of your Ambush ability by 45%."
+        ]
       },
       {
         "fieldName": "initiative",
@@ -579,7 +773,12 @@
         "spellIds": [
           105755
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Gives you a 33% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability.",
+          "Gives you a 67% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability.",
+          "Gives you a 100% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability."
+        ]
       },
       {
         "fieldName": "ghostlyStrike",
@@ -592,7 +791,10 @@
         "spellIds": [
           105754
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "A strike that deals 125% (180% if a Dagger is equipped in your Main Hand) weapon damage and increases your chance to dodge by 15% for 7 sec. Awards 1 combo point."
+        ]
       },
       {
         "fieldName": "improvedDistract",
@@ -605,7 +807,11 @@
         "spellIds": [
           110868
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the radius of your Distract ability by 3 yds, and further reduces the Stealth detection of distracted enemies as though they were an additional 1 level lower.",
+          "Increases the radius of your Distract ability by 5 yds, and further reduces the Stealth detection of distracted enemies as though they were an additional 2 levels lower."
+        ]
       },
       {
         "fieldName": "heightenedSenses",
@@ -618,7 +824,11 @@
         "spellIds": [
           105747
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases your Stealth detection as if you were 1 level higher and reduces your chance to be hit by spells and ranged attacks by 2%.",
+          "Increases your Stealth detection as if you were 3 levels higher and reduces your chance to be hit by spells and ranged attacks by 4%."
+        ]
       },
       {
         "fieldName": "premeditation",
@@ -631,7 +841,10 @@
         "spellIds": [
           105743
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Adds 2 Combo Points to your target.  You must add to or use those combo points within 20 sec or the combo points are lost."
+        ]
       },
       {
         "fieldName": "serratedBlades",
@@ -644,7 +857,12 @@
         "spellIds": [
           105752
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Causes your attacks to ignore 3% of your target's Armor and increases the damage dealt by your Rupture ability by 10%.",
+          "Causes your attacks to ignore 6% of your target's Armor and increases the damage dealt by your Rupture ability by 20%.",
+          "Causes your attacks to ignore 9% of your target's Armor and increases the damage dealt by your Rupture ability by 30%."
+        ]
       },
       {
         "fieldName": "dirtyDeeds",
@@ -657,7 +875,11 @@
         "spellIds": [
           105745
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces the Energy cost of your Cheap Shot and Garrote abilities by 10, and your Garrote ability no longer requires you to be behind your target.",
+          "Reduces the Energy cost of your Cheap Shot and Garrote abilities by 20, and your Garrote ability no longer requires you to be behind your target."
+        ]
       },
       {
         "fieldName": "preparation",
@@ -670,7 +892,10 @@
         "spellIds": [
           105746
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "When activated, this ability immediately finishes the cooldown on your other Rogue abilities."
+        ]
       },
       {
         "fieldName": "hemorrhage",
@@ -684,6 +909,9 @@
           105748
         ],
         "maxPoints": 1,
+        "ranks": [
+          "An instant strike that deals 100% weapon damage (145% if a Dagger is equipped) and causes the target to take 15% increased Rupture damage from the Rogue. Lasts 15 sec. Awards 1 Combo Point."
+        ],
         "prereqLocation": {
           "rowIdx": 3,
           "colIdx": 2
@@ -701,6 +929,13 @@
           110867
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 2% more damage against targets below 35% health.",
+          "Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 4% more damage against targets below 35% health.",
+          "Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 6% more damage against targets below 35% health.",
+          "Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 8% more damage against targets below 35% health.",
+          "Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 10% more damage against targets below 35% health."
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 0
@@ -717,7 +952,14 @@
         "spellIds": [
           105750
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Your Backstab has a 3% chance to cause your next Ambush within 10 sec to not require Stealth.",
+          "Your Backstab has a 6% chance to cause your next Ambush within 10 sec to not require Stealth.",
+          "Your Backstab has a 9% chance to cause your next Ambush within 10 sec to not require Stealth.",
+          "Your Backstab has a 12% chance to cause your next Ambush within 10 sec to not require Stealth.",
+          "Your Backstab has a 15% chance to cause your next Ambush within 10 sec to not require Stealth."
+        ]
       },
       {
         "fieldName": "thousandCuts",
@@ -731,6 +973,9 @@
           110866
         ],
         "maxPoints": 1,
+        "ranks": [
+          "When your Rupture ability deals periodic damage, the Energy cost of your next Hemorrhage or Backstab ability within 10 sec is reduced by 3, stacking up to 5 times."
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1

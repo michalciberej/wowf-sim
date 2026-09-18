@@ -30,21 +30,21 @@ type dotSpec struct {
 }
 
 var abilityDots = map[string]dotSpec{
-	"rend":              {period: 3, spell: false},
-	"garrote":           {period: 3, spell: false},
-	"rupture":           {period: 2, spell: false},
-	"shadow-word-pain":  {period: 3, spell: true, dotCoeff: 18.0 / 15},
-	"corruption":        {period: 3, spell: true, dotCoeff: 18.0 / 15},
-	"curse-of-agony":    {period: 2, spell: true, dotCoeff: 1.2},
-	"siphon-life":       {period: 3, spell: true, dotCoeff: 1.0},
-	"immolate":          {period: 3, spell: true, directFlat: 297.5, dotCoeff: 1},
-	"serpent-sting":     {period: 3, spell: false},
-	"insect-swarm":      {period: 2, spell: true, dotCoeff: 12.0 / 15},
-	"moonfire":          {period: 3, spell: true, directPortion: 0.355, dotCoeff: 0.52},
-	"flame-shock":       {period: 3, spell: true, directPortion: 0.5, dotCoeff: 0.5},
-	"consecration":      {period: 1, spell: true, dotCoeff: 8.0 / 15},
-	"deadly-poison":     {period: 2, spell: false},
-	"deep-wounds":       {period: 3, spell: false},
+	"rend":             {period: 3, spell: false},
+	"garrote":          {period: 3, spell: false},
+	"rupture":          {period: 2, spell: false},
+	"shadow-word-pain": {period: 3, spell: true, dotCoeff: 18.0 / 15},
+	"corruption":       {period: 3, spell: true, dotCoeff: 18.0 / 15},
+	"curse-of-agony":   {period: 2, spell: true, dotCoeff: 1.2},
+	"siphon-life":      {period: 3, spell: true, dotCoeff: 1.0},
+	"immolate":         {period: 3, spell: true, directFlat: 297.5, dotCoeff: 1},
+	"serpent-sting":    {period: 3, spell: false},
+	"insect-swarm":     {period: 2, spell: true, dotCoeff: 12.0 / 15},
+	"moonfire":         {period: 3, spell: true, directPortion: 0.355, dotCoeff: 0.52},
+	"flame-shock":      {period: 3, spell: true, directPortion: 0.5, dotCoeff: 0.5},
+	"consecration":     {period: 1, spell: true, dotCoeff: 8.0 / 15},
+	"deadly-poison":    {period: 2, spell: false},
+	"deep-wounds":      {period: 3, spell: false},
 }
 
 func talentHandledLocally(id int32) bool {
@@ -120,7 +120,7 @@ func (f *fight) tickDots() {
 			dmg *= f.physMul
 		}
 		if dmg > 0 {
-			f.recordHit(d.name, d.icon, dmg, false, false)
+			f.recordTick(d.name, d.icon, dmg)
 		}
 		d.next += d.period
 		if d.next > d.expire+1e-9 {
@@ -145,20 +145,27 @@ func (f *fight) applyDot(id, name, icon string, total, duration, period float64,
 	per := total / ticks
 	expire := f.t + duration
 	for i := range f.dots {
-		if f.dots[i].id == id {
-			f.dots[i] = combatDot{
-				id: id, name: name, icon: icon,
-				next: f.t + period, expire: expire, period: period, tick: per,
-				stacks: stacks, spell: spell,
-			}
-			return
+		if f.dots[i].id != id {
+			continue
 		}
+		next := f.dots[i].next
+		if next <= f.t+1e-9 {
+			next = f.t + period
+		}
+		f.dots[i] = combatDot{
+			id: id, name: name, icon: icon,
+			next: next, expire: expire, period: period, tick: per,
+			stacks: stacks, spell: spell,
+		}
+		f.emitAura("dot", name, icon, duration)
+		return
 	}
 	f.dots = append(f.dots, combatDot{
 		id: id, name: name, icon: icon,
 		next: f.t + period, expire: expire, period: period, tick: per,
 		stacks: stacks, spell: spell,
 	})
+	f.emitAura("dot", name, icon, duration)
 }
 
 func (f *fight) applyAbilityDot(ab clientdata.Ability, combo int) (direct float64, applied bool) {
@@ -254,10 +261,11 @@ func (f *fight) talentMul(id string) float64 {
 		}
 	case "rupture":
 		m *= 1 + 0.10*float64(f.named("Serrated Blades"))
-	case "garrote", "ambush":
-		m *= 1 + 0.04*float64(f.named("Opportunity"))
 	case "instant-poison", "deadly-poison":
 		m *= 1 + 0.04*float64(f.named("Improved Poisons"))
+	}
+	if extra := f.abilityMul[id]; extra > 0 {
+		m *= extra
 	}
 	return m
 }
@@ -277,7 +285,7 @@ func (f *fight) critMultiplier(ab clientdata.Ability, spell, yellow bool) float6
 		m += 0.10 * float64(f.named("Impale"))
 	}
 	switch ab.ID {
-	case "sinister-strike", "hemorrhage", "ghostly-strike":
+	case "sinister-strike", "hemorrhage", "ghostly-strike", "mutilate", "backstab", "gouge":
 		m += 0.06 * float64(f.named("Lethality"))
 	}
 	return m
@@ -287,10 +295,19 @@ func (f *fight) onPhysicalHit(crit, offHand bool) {
 	if !offHand {
 		f.procItems()
 	}
-	if crit && f.class == pb.Class_CLASS_WARRIOR {
-		if r := f.named("Deep Wounds"); r > 0 {
-			pct := 0.20 * float64(r)
-			f.applyDot("deep-wounds", "Deep Wounds", iconDeepWounds, f.mhSwing()*pct, 12, 3, false, 1)
+	if crit {
+		f.procFlurry(true)
+	}
+	if f.class == pb.Class_CLASS_WARRIOR {
+		if crit {
+			if r := f.named("Deep Wounds"); r > 0 {
+				pct := 0.20 * float64(r)
+				f.applyDot("deep-wounds", "Deep Wounds", iconDeepWounds, f.mhSwing()*pct, 12, 3, false, 1)
+			}
+		}
+		f.unbridledWrath()
+		if !offHand {
+			f.procWeaponmasterExtra()
 		}
 	}
 	if f.class != pb.Class_CLASS_ROGUE {

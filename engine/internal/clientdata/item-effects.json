@@ -118,5 +118,25 @@
       "cooldown": 360,
       "text": "Use: Increases Strength by 75 for 1 min. (6 Min Cooldown)"
     }
+  ],
+  "Zandalarian Hero Badge": [
+    {
+      "kind": "use",
+      "name": "Zandalarian Hero Badge",
+      "attackPower": 150,
+      "duration": 20,
+      "cooldown": 120,
+      "text": "Use: Increases your melee attack power by 150. Effect lasts 20 sec. (2 Min Cooldown)"
+    }
+  ],
+  "Gri'lek's Charm of Might": [
+    {
+      "kind": "use",
+      "name": "Gri'lek's Charm of Might",
+      "strength": 150,
+      "duration": 20,
+      "cooldown": 180,
+      "text": "Use: Increases Strength by 150 for 20 sec. (3 Min Cooldown)"
+    }
   ]
 }

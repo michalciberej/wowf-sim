@@ -14,7 +14,14 @@
         "spellIds": [
           104923
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces the cast time of your Wrath spell by 0.1 sec and its Mana cost by 10%.",
+          "Reduces the cast time of your Wrath spell by 0.2 sec and its Mana cost by 20%.",
+          "Reduces the cast time of your Wrath spell by 0.3 sec and its Mana cost by 30%.",
+          "Reduces the cast time of your Wrath spell by 0.4 sec and its Mana cost by 40%.",
+          "Reduces the cast time of your Wrath spell by 0.5 sec and its Mana cost by 50%."
+        ]
       },
       {
         "fieldName": "genesis",
@@ -27,7 +34,14 @@
         "spellIds": [
           104924
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases the periodic damage and healing done by your spells and abilities by 1%.",
+          "Increases the periodic damage and healing done by your spells and abilities by 2%.",
+          "Increases the periodic damage and healing done by your spells and abilities by 3%.",
+          "Increases the periodic damage and healing done by your spells and abilities by 4%.",
+          "Increases the periodic damage and healing done by your spells and abilities by 5%."
+        ]
       },
       {
         "fieldName": "moonglow",
@@ -40,7 +54,12 @@
         "spellIds": [
           104925
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Reduces the Mana cost of your spells by 3%.",
+          "Reduces the Mana cost of your spells by 6%.",
+          "Reduces the Mana cost of your spells by 9%."
+        ]
       },
       {
         "fieldName": "improvedMoonfire",
@@ -53,7 +72,11 @@
         "spellIds": [
           104931
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the damage and critical strike chance of your Moonfire spell by 5%.",
+          "Increases the damage and critical strike chance of your Moonfire spell by 10%."
+        ]
       },
       {
         "fieldName": "natureSMajesty",
@@ -66,7 +89,11 @@
         "spellIds": [
           104927
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases your critical strike chance with spells and melee attacks by 2%.",
+          "Increases your critical strike chance with spells and melee attacks by 4%."
+        ]
       },
       {
         "fieldName": "natureSReach",
@@ -79,7 +106,11 @@
         "spellIds": [
           104929
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the range of your offensive Balance spells by 10% and increases the chance for all your spells and attacks to hit by 2%.",
+          "Increases the range of your offensive Balance spells by 20% and increases the chance for all your spells and attacks to hit by 4%."
+        ]
       },
       {
         "fieldName": "improvedEntanglingRoots",
@@ -92,7 +123,12 @@
         "spellIds": [
           104926
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the damage done by your Entangling Roots spell by 25%, and its victims can take up to 25% more damage without interrupting the effect.",
+          "Increases the damage done by your Entangling Roots spell by 50%, and its victims can take up to 50% more damage without interrupting the effect.",
+          "Increases the damage done by your Entangling Roots spell by 75%, and its victims can take up to 75% more damage without interrupting the effect."
+        ]
       },
       {
         "fieldName": "natureSSplendor",
@@ -106,6 +142,9 @@
           104928
         ],
         "maxPoints": 1,
+        "ranks": [
+          "Increases the duration of your Moonfire and Rejuvenation spells by 3 sec, your Regrowth spell by 6 sec, and your Insect Swarm spell by 2 sec."
+        ],
         "prereqLocation": {
           "rowIdx": 1,
           "colIdx": 2
@@ -122,7 +161,14 @@
         "spellIds": [
           110843
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Each time you cast a Nature spell, your next Arcane damage spell within 10 sec deals 1% increased damage. Each time you cast an Arcane spell, your next Nature damage spell within 10 sec deals 1% increased damage.",
+          "Each time you cast a Nature spell, your next Arcane damage spell within 10 sec deals 2% increased damage. Each time you cast an Arcane spell, your next Nature damage spell within 10 sec deals 2% increased damage.",
+          "Each time you cast a Nature spell, your next Arcane damage spell within 10 sec deals 3% increased damage. Each time you cast an Arcane spell, your next Nature damage spell within 10 sec deals 3% increased damage.",
+          "Each time you cast a Nature spell, your next Arcane damage spell within 10 sec deals 4% increased damage. Each time you cast an Arcane spell, your next Nature damage spell within 10 sec deals 4% increased damage.",
+          "Each time you cast a Nature spell, your next Arcane damage spell within 10 sec deals 5% increased damage. Each time you cast an Arcane spell, your next Nature damage spell within 10 sec deals 5% increased damage."
+        ]
       },
       {
         "fieldName": "insectSwarm",
@@ -135,7 +181,10 @@
         "spellIds": [
           104930
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "The enemy target is swarmed by insects, decreasing their chance to hit by 2% and causing 55 Nature damage over 12 sec."
+        ]
       },
       {
         "fieldName": "vengeance",
@@ -149,6 +198,13 @@
           104932
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Increases the critical strike damage bonus of your Arcane and Nature spells by 20%.",
+          "Increases the critical strike damage bonus of your Arcane and Nature spells by 40%.",
+          "Increases the critical strike damage bonus of your Arcane and Nature spells by 60%.",
+          "Increases the critical strike damage bonus of your Arcane and Nature spells by 80%.",
+          "Increases the critical strike damage bonus of your Arcane and Nature spells by 100%."
+        ],
         "prereqLocation": {
           "rowIdx": 1,
           "colIdx": 1
@@ -165,7 +221,14 @@
         "spellIds": [
           104933
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces the cast time of Starfire by 0.1 sec and Starfire has a 3% chance to stun its target for 3 sec.",
+          "Reduces the cast time of Starfire by 0.2 sec and Starfire has a 6% chance to stun its target for 3 sec.",
+          "Reduces the cast time of Starfire by 0.3 sec and Starfire has a 9% chance to stun its target for 3 sec.",
+          "Reduces the cast time of Starfire by 0.4 sec and Starfire has a 12% chance to stun its target for 3 sec.",
+          "Reduces the cast time of Starfire by 0.5 sec and Starfire has a 15% chance to stun its target for 3 sec."
+        ]
       },
       {
         "fieldName": "overgrowth",
@@ -178,7 +241,11 @@
         "spellIds": [
           110844
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the maximum number of targets you may have affected by Entangling Roots by 1.",
+          "Increases the maximum number of targets you may have affected by Entangling Roots by 2."
+        ]
       },
       {
         "fieldName": "natureSGrace",
@@ -191,7 +258,10 @@
         "spellIds": [
           104934
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "All non-periodic spell criticals grace you with a blessing of nature, increasing your spellcasting speed and reducing your global cooldown by 10% for 3 sec."
+        ]
       },
       {
         "fieldName": "eclipse",
@@ -204,7 +274,12 @@
         "spellIds": [
           104935
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Your Wrath spell reduces the cast time of your next 2 Starfire spells by 0.17 sec. Stores up to 4 charges. Lasts 15 sec.",
+          "Your Wrath spell reduces the cast time of your next 2 Starfire spells by 0.33 sec. Stores up to 4 charges. Lasts 15 sec.",
+          "Your Wrath spell reduces the cast time of your next 2 Starfire spells by 0.5 sec. Stores up to 4 charges. Lasts 15 sec."
+        ]
       },
       {
         "fieldName": "moonfury",
@@ -217,7 +292,14 @@
         "spellIds": [
           104936
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases the damage done by your Arcane and Nature spells by 1%.",
+          "Increases the damage done by your Arcane and Nature spells by 2%.",
+          "Increases the damage done by your Arcane and Nature spells by 3%.",
+          "Increases the damage done by your Arcane and Nature spells by 4%.",
+          "Increases the damage done by your Arcane and Nature spells by 5%."
+        ]
       },
       {
         "fieldName": "moonkinForm",
@@ -230,7 +312,10 @@
         "spellIds": [
           104937
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Transforms the Druid into Moonkin Form. While in this form, the armor contribution from items is increased by 360% and all party members within 45 yards have their critical chance increased by 3%, exclusive with Leader of the Pack. The Moonkin cannot cast healing spells while shapeshifted.\n\nThe act of shapeshifting frees the caster of Polymorph and Movement Impairing effects."
+        ]
       }
     ]
   },
@@ -249,7 +334,14 @@
         "spellIds": [
           104938
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces the cost of your Maul, Mangle, Swipe, Claw, and Rake abilities by 1 Rage or Energy.",
+          "Reduces the cost of your Maul, Mangle, Swipe, Claw, and Rake abilities by 2 Rage or Energy.",
+          "Reduces the cost of your Maul, Mangle, Swipe, Claw, and Rake abilities by 3 Rage or Energy.",
+          "Reduces the cost of your Maul, Mangle, Swipe, Claw, and Rake abilities by 4 Rage or Energy.",
+          "Reduces the cost of your Maul, Mangle, Swipe, Claw, and Rake abilities by 5 Rage or Energy."
+        ]
       },
       {
         "fieldName": "heartOfTheWild",
@@ -262,7 +354,14 @@
         "spellIds": [
           104939
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases your Intellect by 2%.  In addition, while in Bear Form or Dire Bear Form your Stamina is increased by 4% and while in Cat Form your Strength is increased by 2%.",
+          "Increases your Intellect by 4%.  In addition, while in Bear Form or Dire Bear Form your Stamina is increased by 8% and while in Cat Form your Strength is increased by 4%.",
+          "Increases your Intellect by 6%.  In addition, while in Bear Form or Dire Bear Form your Stamina is increased by 12% and while in Cat Form your Strength is increased by 6%.",
+          "Increases your Intellect by 8%.  In addition, while in Bear Form or Dire Bear Form your Stamina is increased by 16% and while in Cat Form your Strength is increased by 8%.",
+          "Increases your Intellect by 10%.  In addition, while in Bear Form or Dire Bear Form your Stamina is increased by 20% and while in Cat Form your Strength is increased by 10%."
+        ]
       },
       {
         "fieldName": "feralSwiftness",
@@ -275,7 +374,11 @@
         "spellIds": [
           104943
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases your movement speed while in Cat Form by 15%, and increases your chance to Dodge by 2%.",
+          "Increases your movement speed while in Cat Form by 30%, and increases your chance to Dodge by 4%."
+        ]
       },
       {
         "fieldName": "feralInstinct",
@@ -288,7 +391,12 @@
         "spellIds": [
           104940
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases damage done by your Swipe ability by 10% and reduces the chance enemies have to detect you while Prowling as if you were 1 level higher.",
+          "Increases damage done by your Swipe ability by 20% and reduces the chance enemies have to detect you while Prowling as if you were 2 levels higher.",
+          "Increases damage done by your Swipe ability by 30% and reduces the chance enemies have to detect you while Prowling as if you were 3 levels higher."
+        ]
       },
       {
         "fieldName": "brutalImpact",
@@ -301,7 +409,11 @@
         "spellIds": [
           104941
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the stun duration of your Bash and Pounce abilities by 0.5 sec and reduces the cooldown of Bash by 15 sec.",
+          "Increases the stun duration of your Bash and Pounce abilities by 1 sec and reduces the cooldown of Bash by 30 sec."
+        ]
       },
       {
         "fieldName": "thickHide",
@@ -314,7 +426,12 @@
         "spellIds": [
           104942
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "While in Bear Form, Cat Form, Dire Bear Form, or Moonkin Form, you gain 1 additional base Armor per level and another 0.67 base Armor for each point of defense skill beyond five times your level. This amount can be further increased by multipliers from those forms.",
+          "While in Bear Form, Cat Form, Dire Bear Form, or Moonkin Form, you gain 2 additional base Armor per level and another 1.33 base Armor for each point of defense skill beyond five times your level. This amount can be further increased by multipliers from those forms.",
+          "While in Bear Form, Cat Form, Dire Bear Form, or Moonkin Form, you gain 3 additional base Armor per level and another 2 base Armor for each point of defense skill beyond five times your level. This amount can be further increased by multipliers from those forms."
+        ]
       },
       {
         "fieldName": "savageFury",
@@ -327,7 +444,11 @@
         "spellIds": [
           104948
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the damage caused by your Claw, Rake, Shred, Maul, and Swipe abilities by 5%.",
+          "Increases the damage caused by your Claw, Rake, Shred, Maul, and Swipe abilities by 10%."
+        ]
       },
       {
         "fieldName": "feralCharge",
@@ -340,7 +461,10 @@
         "spellIds": [
           104944
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Charge an enemy, immobilizing them and interrupting any spell they are casting for 4 sec.\n\nFeral Charge (Cat)\nLeap behind an enemy, Dazing them for 3 sec."
+        ]
       },
       {
         "fieldName": "sharpenedClaws",
@@ -353,7 +477,11 @@
         "spellIds": [
           104946
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases your critical strike chance while in Bear Form, Dire Bear Form, or Cat Form by 3%.",
+          "Increases your critical strike chance while in Bear Form, Dire Bear Form, or Cat Form by 6%."
+        ]
       },
       {
         "fieldName": "shreddingAttacks",
@@ -366,7 +494,12 @@
         "spellIds": [
           104945
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Reduces the Energy cost of your Shred ability by 6 and reduces the Rage cost of your Lacerate ability by 1.",
+          "Reduces the Energy cost of your Shred ability by 12 and reduces the Rage cost of your Lacerate ability by 2.",
+          "Reduces the Energy cost of your Shred ability by 18 and reduces the Rage cost of your Lacerate ability by 3."
+        ]
       },
       {
         "fieldName": "mangle",
@@ -380,6 +513,9 @@
           104949
         ],
         "maxPoints": 1,
+        "ranks": [
+          "Mangle the target for 100% normal damage plus 26."
+        ],
         "prereqLocation": {
           "rowIdx": 2,
           "colIdx": 1
@@ -396,7 +532,12 @@
         "spellIds": [
           104952
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases your melee Attack Power by 50% of your level.",
+          "Increases your melee Attack Power by 100% of your level.",
+          "Increases your melee Attack Power by 150% of your level."
+        ]
       },
       {
         "fieldName": "primalFury",
@@ -410,6 +551,10 @@
           104947
         ],
         "maxPoints": 2,
+        "ranks": [
+          "Gives you a 50% chance to gain an additional 5 Rage any time you get a critical strike while in Bear Form or Dire Bear Form. In addition, your non-periodic critical strikes from Cat Form abilities that generate Combo Points have a 50% chance to add an additional Combo Point.",
+          "Gives you a 100% chance to gain an additional 5 Rage any time you get a critical strike while in Bear Form or Dire Bear Form. In addition, your non-periodic critical strikes from Cat Form abilities that generate Combo Points have a 100% chance to add an additional Combo Point."
+        ],
         "prereqLocation": {
           "rowIdx": 2,
           "colIdx": 3
@@ -426,7 +571,11 @@
         "spellIds": [
           104950
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Increases the critical strike damage bonus of your melee abilities by 10%.",
+          "Increases the critical strike damage bonus of your melee abilities by 20%."
+        ]
       },
       {
         "fieldName": "leaderOfThePack",
@@ -439,7 +588,10 @@
         "spellIds": [
           104955
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "While in Cat Form, Bear Form, or Dire Bear Form, the Leader of the Pack increases the critical strike chance of all party members within 45 yards by 3%, exclusive with Moonkin Aura."
+        ]
       },
       {
         "fieldName": "kingOfTheJungle",
@@ -452,7 +604,12 @@
         "spellIds": [
           104951
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Tiger's Fury now instantly grants you 20 Energy.",
+          "Tiger's Fury now instantly grants you 40 Energy.",
+          "Tiger's Fury now instantly grants you 60 Energy."
+        ]
       },
       {
         "fieldName": "naturalReaction",
@@ -465,7 +622,14 @@
         "spellIds": [
           104954
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases your dodge chance by 1%, and gives you a 20% chance to gain 5 Rage each time you dodge.",
+          "Increases your dodge chance by 2%, and gives you a 40% chance to gain 5 Rage each time you dodge.",
+          "Increases your dodge chance by 3%, and gives you a 60% chance to gain 5 Rage each time you dodge.",
+          "Increases your dodge chance by 4%, and gives you a 80% chance to gain 5 Rage each time you dodge.",
+          "Increases your dodge chance by 5%, and gives you a 100% chance to gain 5 Rage each time you dodge."
+        ]
       },
       {
         "fieldName": "rendAndTear",
@@ -479,6 +643,13 @@
           104953
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Increases damage done by your melee abilities on Bleeding targets by 2%.",
+          "Increases damage done by your melee abilities on Bleeding targets by 4%.",
+          "Increases damage done by your melee abilities on Bleeding targets by 6%.",
+          "Increases damage done by your melee abilities on Bleeding targets by 8%.",
+          "Increases damage done by your melee abilities on Bleeding targets by 10%."
+        ],
         "prereqLocation": {
           "rowIdx": 3,
           "colIdx": 2
@@ -496,6 +667,9 @@
           104956
         ],
         "maxPoints": 1,
+        "ranks": [
+          "Causes your Mangle ability to strike up to 3 targets, removes its cooldown, and increases the critical strike chance of your Combo Point-generating abilities by 100%. Clears and grants immunity to Fear effects for the duration. Lasts 15 sec."
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1
@@ -518,7 +692,14 @@
         "spellIds": [
           104957
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Gives you a 14% chance to avoid interruption caused by damage while casting Arcane and Nature spells.",
+          "Gives you a 28% chance to avoid interruption caused by damage while casting Arcane and Nature spells.",
+          "Gives you a 42% chance to avoid interruption caused by damage while casting Arcane and Nature spells.",
+          "Gives you a 56% chance to avoid interruption caused by damage while casting Arcane and Nature spells.",
+          "Gives you a 70% chance to avoid interruption caused by damage while casting Arcane and Nature spells."
+        ]
       },
       {
         "fieldName": "furor",
@@ -531,7 +712,14 @@
         "spellIds": [
           104958
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Gives you a 20% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 20% of the Energy you had when you were last in Cat Form, plus 2 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 20 Energy.",
+          "Gives you a 40% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 40% of the Energy you had when you were last in Cat Form, plus 4 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 40 Energy.",
+          "Gives you a 60% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 60% of the Energy you had when you were last in Cat Form, plus 6 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 60 Energy.",
+          "Gives you a 80% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 80% of the Energy you had when you were last in Cat Form, plus 8 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 80 Energy.",
+          "Gives you a 100% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 100% of the Energy you had when you were last in Cat Form, plus 10 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 100 Energy."
+        ]
       },
       {
         "fieldName": "naturalist",
@@ -544,7 +732,14 @@
         "spellIds": [
           104922
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces the cast time of your Healing Touch spell by 0.1 sec and increases all damage you deal by 1%.",
+          "Reduces the cast time of your Healing Touch spell by 0.2 sec and increases all damage you deal by 2%.",
+          "Reduces the cast time of your Healing Touch spell by 0.3 sec and increases all damage you deal by 3%.",
+          "Reduces the cast time of your Healing Touch spell by 0.4 sec and increases all damage you deal by 4%.",
+          "Reduces the cast time of your Healing Touch spell by 0.5 sec and increases all damage you deal by 5%."
+        ]
       },
       {
         "fieldName": "subtlety",
@@ -557,7 +752,12 @@
         "spellIds": [
           104920
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Reduces the threat generated by your Nature and Arcane spells by 10%.",
+          "Reduces the threat generated by your Nature and Arcane spells by 20%.",
+          "Reduces the threat generated by your Nature and Arcane spells by 30%."
+        ]
       },
       {
         "fieldName": "naturalShapeshifter",
@@ -570,7 +770,12 @@
         "spellIds": [
           104919
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Reduces the mana cost of all shapeshifting by 10%.",
+          "Reduces the mana cost of all shapeshifting by 20%.",
+          "Reduces the mana cost of all shapeshifting by 30%."
+        ]
       },
       {
         "fieldName": "reflection",
@@ -583,7 +788,12 @@
         "spellIds": [
           104917
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Allows 17% of your Mana regeneration to continue while casting.",
+          "Allows 33% of your Mana regeneration to continue while casting.",
+          "Allows 50% of your Mana regeneration to continue while casting."
+        ]
       },
       {
         "fieldName": "giftOfNature",
@@ -596,7 +806,14 @@
         "spellIds": [
           104916
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Increases the effect of all your healing spells by 2%.",
+          "Increases the effect of all your healing spells by 4%.",
+          "Increases the effect of all your healing spells by 6%.",
+          "Increases the effect of all your healing spells by 8%.",
+          "Increases the effect of all your healing spells by 10%."
+        ]
       },
       {
         "fieldName": "giftOfTheEarthmother",
@@ -609,7 +826,10 @@
         "spellIds": [
           104918
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Reduces the global cooldown by 0.5 seconds on your Rejuvenation, Swiftmend, and Wild Growth spells."
+        ]
       },
       {
         "fieldName": "tranquilSpirit",
@@ -622,7 +842,14 @@
         "spellIds": [
           104915
         ],
-        "maxPoints": 5
+        "maxPoints": 5,
+        "ranks": [
+          "Reduces the mana cost of your Healing Touch and Tranquility spells by 2%.",
+          "Reduces the mana cost of your Healing Touch and Tranquility spells by 4%.",
+          "Reduces the mana cost of your Healing Touch and Tranquility spells by 6%.",
+          "Reduces the mana cost of your Healing Touch and Tranquility spells by 8%.",
+          "Reduces the mana cost of your Healing Touch and Tranquility spells by 10%."
+        ]
       },
       {
         "fieldName": "improvedRejuvenation",
@@ -635,7 +862,12 @@
         "spellIds": [
           104914
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases the effect of your Rejuvenation spell by 5%.",
+          "Increases the effect of your Rejuvenation spell by 10%.",
+          "Increases the effect of your Rejuvenation spell by 15%."
+        ]
       },
       {
         "fieldName": "swiftmend",
@@ -648,7 +880,10 @@
         "spellIds": [
           104912
         ],
-        "maxPoints": 1
+        "maxPoints": 1,
+        "ranks": [
+          "Instantly heals a target with an active Rejuvenation or Regrowth effect for an amount equal to the full duration of the periodic effect of one of those spells."
+        ]
       },
       {
         "fieldName": "natureSSwiftness",
@@ -662,6 +897,9 @@
           104921
         ],
         "maxPoints": 1,
+        "ranks": [
+          "When activated, your next Nature spell becomes an instant cast spell."
+        ],
         "prereqLocation": {
           "rowIdx": 1,
           "colIdx": 0
@@ -678,7 +916,12 @@
         "spellIds": [
           104911
         ],
-        "maxPoints": 3
+        "maxPoints": 3,
+        "ranks": [
+          "Increases your Spirit by 5%.",
+          "Increases your Spirit by 10%.",
+          "Increases your Spirit by 15%."
+        ]
       },
       {
         "fieldName": "improvedTranquility",
@@ -691,7 +934,11 @@
         "spellIds": [
           104909
         ],
-        "maxPoints": 2
+        "maxPoints": 2,
+        "ranks": [
+          "Reduces threat caused by Tranquility by 50% and its cooldown by 30%.",
+          "Reduces threat caused by Tranquility by 100% and its cooldown by 60%."
+        ]
       },
       {
         "fieldName": "improvedRegrowth",
@@ -705,6 +952,13 @@
           104913
         ],
         "maxPoints": 5,
+        "ranks": [
+          "Increases the critical effect chance of your Regrowth spell by 10%.",
+          "Increases the critical effect chance of your Regrowth spell by 20%.",
+          "Increases the critical effect chance of your Regrowth spell by 30%.",
+          "Increases the critical effect chance of your Regrowth spell by 40%.",
+          "Increases the critical effect chance of your Regrowth spell by 50%."
+        ],
         "prereqLocation": {
           "rowIdx": 3,
           "colIdx": 2
@@ -722,6 +976,9 @@
           104910
         ],
         "maxPoints": 1,
+        "ranks": [
+          "Heals the target and their party for 285 over 7 sec. Party members must be within 43 yards of target. The amount healed is applied quickly at first, and slows down as Wild Growth reaches its full duration."
+        ],
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1

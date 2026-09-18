@@ -1,7 +1,9 @@
-import { Class, ItemSlot, Race } from '../gen/wowfsim/sim_pb.ts'
-import { ITEMS, TALENTS, type CatalogItem } from './era.ts'
+import { Class, ItemSlot, Race, WarriorStance } from '../gen/wowfsim/sim_pb.ts'
+import { ITEMS, TALENTS, type CatalogItem, type ItemEffect } from './era.ts'
+import { enchantById } from './enchants.ts'
 import { BUFFS } from './buffs.ts'
 import overlayEffects from './item-effects.json' with { type: 'json' }
+import { itemUseAbilityID } from './abilities.ts'
 import type { TalentRanks } from '../sim/engine.ts'
 
 export type SheetStats = {
@@ -10,15 +12,26 @@ export type SheetStats = {
   intellect: number
   spirit: number
   stamina: number
+  health: number
   attackPower: number
   spellPower: number
   meleeHit: number
+  meleeHitCap: number
+  mhHit: number
+  mhHitCap: number
+  ohHit: number
+  ohHitCap: number
   meleeCrit: number
   spellHit: number
   spellCrit: number
+  meleeHaste: number
   mhDps: number
   mhSpeed: number
+  ohDps: number
+  ohSpeed: number
   melee: boolean
+  stanceDamage: number
+  stanceCrit: number
 }
 
 const CLASS_BASE: Record<number, { str: number; agi: number; intel: number; sta: number; spi: number; ap: number }> = {
@@ -94,6 +107,100 @@ function attackPowerFromStats(playerClass: Class, str: number, agi: number) {
 }
 
 const BATTLE_SHOUT_AP = 232
+const YELLOW_MISS = 0.09
+const WHITE_MISS_DW = 0.28
+
+const CLASS_BASE_HEALTH: Record<number, number> = {
+  [Class.WARRIOR]: 1689,
+  [Class.PALADIN]: 1389,
+  [Class.HUNTER]: 1467,
+  [Class.ROGUE]: 1593,
+  [Class.PRIEST]: 1396,
+  [Class.SHAMAN]: 1377,
+  [Class.MAGE]: 1376,
+  [Class.WARLOCK]: 1412,
+  [Class.DRUID]: 1483,
+}
+
+function healthFromStamina(playerClass: Class, race: Race, stamina: number) {
+  const base = CLASS_BASE_HEALTH[playerClass] ?? 1400
+  let hp = base + Math.round(stamina) * 10
+  if (race === Race.TAUREN) {
+    hp *= 1.05
+  }
+  return Math.floor(hp)
+}
+
+function isDualWield(mh?: CatalogItem, oh?: CatalogItem) {
+  return mh?.hand !== '2h' && !!oh?.weaponDps && oh.hand !== '2h'
+}
+
+function talentRankText(id: number, rank: number) {
+  const talent = TALENTS.find((entry) => entry.id === id)
+  if (!talent?.ranks?.length || rank <= 0) {
+    return ''
+  }
+  return talent.ranks[Math.min(rank, talent.ranks.length) - 1] ?? ''
+}
+
+function firstPct(text: string) {
+  const match = text.match(/(\d+(?:\.\d+)?)%/)
+  return match ? Number(match[1]) / 100 : 0
+}
+
+function talentPassives(playerClass: Class, ranks: TalentRanks) {
+  let meleeCrit = 0
+  let hit = 0
+  let strMul = 1
+  let agiMul = 1
+  let intMul = 1
+  if (playerClass === Class.WARRIOR) {
+    hit += 0.01 * talentRankByName(ranks, 'Precision')
+    return { meleeCrit, hit, strMul, agiMul, intMul }
+  }
+  for (const [idKey, rank] of Object.entries(ranks)) {
+    if (!rank) {
+      continue
+    }
+    const talent = TALENTS.find((entry) => entry.id === Number(idKey) && entry.class === playerClass)
+    if (!talent) {
+      continue
+    }
+    const t = talentRankText(talent.id, rank).toLowerCase().replace(/\n/g, ' ')
+    if (!t || t.includes('when activated') || t.includes('your next ')) {
+      continue
+    }
+    if (t.includes('your pet') || t.includes('summoned')) {
+      continue
+    }
+    for (const match of t.matchAll(/(strength|agility|intellect) by (\d+(?:\.\d+)?)%/g)) {
+      const mul = 1 + Number(match[2]) / 100
+      if (match[1] === 'strength') {
+        strMul *= mul
+      } else if (match[1] === 'agility') {
+        agiMul *= mul
+      } else {
+        intMul *= mul
+      }
+    }
+    if (t.includes('chance to hit') && !t.includes('their chance to hit') && !t.includes('trap') && !t.includes('feign death')) {
+      const p = firstPct(t)
+      if (p && !(t.includes('spell') && !t.includes('attack'))) {
+        hit += p
+      }
+    }
+    if (t.includes('critical strike damage bonus')) {
+      continue
+    }
+    if (t.includes('critical strike chance') || t.includes('chance to get a critical strike')) {
+      if (t.includes('your ') && !t.includes('your critical') && !t.includes('all attacks') && !t.includes('melee attacks') && !t.includes('spells and melee')) {
+        continue
+      }
+      meleeCrit += firstPct(t)
+    }
+  }
+  return { meleeCrit, hit, strMul, agiMul, intMul }
+}
 
 function talentRankByName(ranks: TalentRanks, name: string) {
   const want = name.toLowerCase()
@@ -235,12 +342,25 @@ export function buffApplies(buff: (typeof BUFFS)[number], playerClass: Class) {
   return true
 }
 
+function useAttackPower(effect: ItemEffect) {
+  if (effect.stackAP && effect.interval && effect.duration) {
+    const n = effect.duration / effect.interval
+    return (effect.stackAP * (n + 1)) / 2
+  }
+  return effect.attackPower ?? 0
+}
+
 export function computeSheetStats(opts: {
   playerClass: Class
   race: Race
   gearIds: Record<number, number>
+  enchantIds?: Record<number, number>
   raidBuffs: Record<string, boolean>
+  mhWeaponTemp?: string
+  ohWeaponTemp?: string
   talents: TalentRanks
+  abilityPriorities?: Record<string, number>
+  stance?: number
 }): SheetStats {
   const base = CLASS_BASE[opts.playerClass] ?? { str: 80, agi: 80, intel: 80, sta: 80, spi: 80, ap: 0 }
   const race = RACE_OFFSET[opts.race] ?? { str: 0, agi: 0, intel: 0, sta: 0, spi: 0 }
@@ -254,9 +374,16 @@ export function computeSheetStats(opts: {
   let meleeHit = 0
   let spellHit = 0
   let gearCrit = 0
+  const stanceCrit =
+    opts.playerClass === Class.WARRIOR && opts.stance !== WarriorStance.BATTLE && opts.stance !== WarriorStance.DEFENSIVE
+      ? 0.03
+      : 0
+  const stanceDamage = opts.playerClass === Class.WARRIOR && opts.stance === WarriorStance.DEFENSIVE ? -0.1 : 0
   let gearSpellCrit = 0
   let mhDps = 0
   let mhSpeed = 0
+  let ohDps = 0
+  let ohSpeed = 0
 
   const items: CatalogItem[] = Object.values(opts.gearIds).flatMap((id) => {
     const item = ITEMS.find((entry) => entry.id === id)
@@ -275,11 +402,92 @@ export function computeSheetStats(opts: {
     gearCrit += item.critChance ?? 0
     gearSpellCrit += item.spellCritChance ?? 0
   }
+  let mhEnchantDmg = 0
+  let ohEnchantDmg = 0
+  let enchantHaste = 0
+  for (const [slotKey, id] of Object.entries(opts.enchantIds ?? {})) {
+    const enchant = enchantById(id)
+    if (!enchant) {
+      continue
+    }
+    str += enchant.strength ?? 0
+    agi += enchant.agility ?? 0
+    intel += enchant.intellect ?? 0
+    sta += enchant.stamina ?? 0
+    spi += enchant.spirit ?? 0
+    gearAP += enchant.attackPower ?? 0
+    spellPower += enchant.spellPower ?? 0
+    meleeHit += enchant.hitChance ?? 0
+    spellHit += enchant.spellHitChance ?? 0
+    gearCrit += enchant.critChance ?? 0
+    gearSpellCrit += enchant.spellCritChance ?? 0
+    enchantHaste += enchant.haste ?? 0
+    if (Number(slotKey) === ItemSlot.MAIN_HAND) {
+      mhEnchantDmg += enchant.weaponDamage ?? 0
+    }
+    if (Number(slotKey) === ItemSlot.OFF_HAND) {
+      ohEnchantDmg += enchant.weaponDamage ?? 0
+    }
+  }
+
+  const mhTemp = BUFFS.find((buff) => buff.id === opts.mhWeaponTemp && buff.category === 'Weapon Enchant')
+  const ohTemp = BUFFS.find((buff) => buff.id === opts.ohWeaponTemp && buff.category === 'Weapon Enchant')
+  if (mhTemp) {
+    mhEnchantDmg += mhTemp.weaponDamage ?? 0
+    gearCrit += mhTemp.meleeCrit ?? 0
+    spellPower += mhTemp.spellPower ?? 0
+    gearSpellCrit += mhTemp.spellCrit ?? 0
+  }
 
   const mh = ITEMS.find((entry) => entry.id === (opts.gearIds[ItemSlot.MAIN_HAND] ?? 0))
+  const oh = ITEMS.find((entry) => entry.id === (opts.gearIds[ItemSlot.OFF_HAND] ?? 0))
+  const dualWield = isDualWield(mh, oh)
+  if (ohTemp && dualWield) {
+    ohEnchantDmg += ohTemp.weaponDamage ?? 0
+    gearCrit += ohTemp.meleeCrit ?? 0
+  }
+
+  let useStr = 0
+  let useAgi = 0
+  let useAP = 0
+  let useSP = 0
+  let useCrit = 0
+  let useHaste = 0
+  for (const item of items) {
+    for (const effect of itemEffectsFor(item) as ItemEffect[]) {
+      if (effect.kind !== 'use') {
+        continue
+      }
+      const prio = opts.abilityPriorities?.[itemUseAbilityID(item.name)]
+      if (prio !== undefined && prio <= 0) {
+        continue
+      }
+      useStr += effect.strength ?? 0
+      useAgi += effect.agility ?? 0
+      useAP += useAttackPower(effect)
+      useSP += effect.spellPower ?? 0
+      useCrit += effect.crit ?? 0
+      useHaste += effect.haste ?? 0
+    }
+  }
+  str += useStr
+  agi += useAgi
+  spellPower += useSP
+  gearCrit += useCrit
+
   if (mh?.weaponDps) {
     mhDps = mh.weaponDps
     mhSpeed = (mh.attackSpeedMs ?? 0) / 1000
+    if (mhEnchantDmg && mhSpeed) {
+      mhDps += mhEnchantDmg / mhSpeed
+    }
+  }
+  if (dualWield && oh?.weaponDps) {
+    ohDps = oh.weaponDps
+    ohSpeed = (oh.attackSpeedMs ?? 0) / 1000
+    if (ohEnchantDmg && ohSpeed) {
+      ohDps += ohEnchantDmg / ohSpeed
+    }
   }
 
   let raidStr = 0
@@ -294,7 +502,7 @@ export function computeSheetStats(opts: {
   let statMul = 1
   let apMul = 1
   for (const buff of BUFFS) {
-    if (!opts.raidBuffs[buff.id] || !buffApplies(buff, opts.playerClass)) {
+    if (!opts.raidBuffs[buff.id] || !buffApplies(buff, opts.playerClass) || buff.category === 'Weapon Enchant') {
       continue
     }
     raidStr += buff.strength ?? 0
@@ -315,16 +523,21 @@ export function computeSheetStats(opts: {
   intel = (intel + raidInt) * statMul
   sta = sta * statMul
   spi = spi * statMul
+  const passives = talentPassives(opts.playerClass, opts.talents)
+  str *= passives.strMul
+  agi *= passives.agiMul
+  intel *= passives.intMul
   spellPower += raidSP
-  meleeHit += raidHit
+  meleeHit += raidHit + passives.hit
   spellHit += raidSpellHit
-  gearCrit += raidMeleeCrit
+  gearCrit += raidMeleeCrit + passives.meleeCrit
   gearSpellCrit += raidSpellCrit
 
   const melee = usesMeleeAutos(opts.playerClass, opts.talents)
   let attackPower = (gearAP + raidAP + selfClassAP(opts.playerClass, opts.talents, opts.raidBuffs)) * apMul
   if (melee) {
     attackPower += attackPowerFromStats(opts.playerClass, str, agi) * apMul
+    attackPower += useAP
   } else {
     attackPower = 0
   }
@@ -335,14 +548,27 @@ export function computeSheetStats(opts: {
     intellect: intel,
     spirit: spi,
     stamina: sta,
+    health: healthFromStamina(opts.playerClass, opts.race, sta),
     attackPower,
     spellPower,
     meleeHit,
-    meleeCrit: classBaseMeleeCrit(opts.playerClass) + meleeCritFromAgi(opts.playerClass, agi) + gearCrit,
+    meleeHitCap: YELLOW_MISS,
+    mhHit: meleeHit,
+    mhHitCap: dualWield ? WHITE_MISS_DW : YELLOW_MISS,
+    ohHit: dualWield
+      ? meleeHit + (opts.playerClass === Class.WARRIOR ? 0.02 * talentRankByName(opts.talents, 'Dual Wield Specialization') : 0)
+      : 0,
+    ohHitCap: WHITE_MISS_DW,
+    meleeCrit: classBaseMeleeCrit(opts.playerClass) + meleeCritFromAgi(opts.playerClass, agi) + gearCrit + stanceCrit,
     spellHit,
     spellCrit: baseSpellCrit(opts.playerClass) + spellCritFromInt(opts.playerClass, intel) + gearSpellCrit,
+    meleeHaste: useHaste + enchantHaste,
     mhDps,
     mhSpeed,
+    ohDps,
+    ohSpeed,
     melee,
+    stanceDamage,
+    stanceCrit,
   }
 }

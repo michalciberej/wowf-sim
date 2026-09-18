@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   TALENT_COLS,
   TALENT_POINTS,
@@ -12,6 +13,7 @@ import {
 } from '../catalog/era.ts'
 import type { Class } from '../gen/wowfsim/sim_pb.ts'
 import type { TalentRanks } from '../sim/engine'
+import { TalentTooltip } from './TalentTooltip.tsx'
 
 type Props = {
   playerClass: Class
@@ -24,6 +26,7 @@ export function TalentTrees({ playerClass, ranks, onChange }: Props) {
   const talents = talentsForClass(playerClass)
   const spentTotal = talents.reduce((sum, talent) => sum + (ranks[talent.id] ?? 0), 0)
   const remaining = TALENT_POINTS - spentTotal
+  const [hover, setHover] = useState<{ talent: CatalogTalent; x: number; y: number } | null>(null)
 
   function spentInTree(tree: string) {
     return talents
@@ -133,9 +136,15 @@ export function TalentTrees({ playerClass, ranks, onChange }: Props) {
                       key={talent.id}
                       type="button"
                       className={`talent ${rank > 0 ? 'learned' : ''} ${maxed ? 'maxed' : ''} ${locked || prereqLocked ? 'locked' : ''}`}
-                      title={`${talent.name} (${rank}/${talent.maxRank})\nLeft click to learn, right click to unlearn`}
                       disabled={(locked || prereqLocked) && rank === 0}
                       onClick={() => addPoint(talent)}
+                      onMouseEnter={(event) =>
+                        setHover({ talent, x: event.clientX, y: event.clientY })
+                      }
+                      onMouseMove={(event) =>
+                        setHover({ talent, x: event.clientX, y: event.clientY })
+                      }
+                      onMouseLeave={() => setHover(null)}
                       onContextMenu={(event) => {
                         event.preventDefault()
                         removePoint(talent)
@@ -153,6 +162,7 @@ export function TalentTrees({ playerClass, ranks, onChange }: Props) {
           )
         })}
       </div>
+      {hover ? <TalentTooltip talent={hover.talent} rank={ranks[hover.talent.id] ?? 0} x={hover.x} y={hover.y} /> : null}
     </section>
   )
 }

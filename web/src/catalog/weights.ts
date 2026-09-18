@@ -1,3 +1,6 @@
+import { Class } from '../gen/wowfsim/sim_pb.ts'
+import warriorDefaults from './default-weights-warrior.json' with { type: 'json' }
+
 export type WeightStat = {
   id: string
   name: string
@@ -22,6 +25,24 @@ export const WEIGHT_GROUPS = [...new Set(WEIGHT_STATS.map((stat) => stat.group))
 
 export function emptyWeights(): Record<string, number> {
   return Object.fromEntries(WEIGHT_STATS.map((stat) => [stat.id, 0]))
+}
+
+export function defaultWeightsFor(playerClass: Class): Record<string, number> {
+  const next = emptyWeights()
+  if (playerClass === Class.WARRIOR) {
+    Object.assign(next, warriorDefaults)
+  }
+  return next
+}
+
+export function weightStatsFor(playerClass: Class) {
+  if (playerClass === Class.WARRIOR || playerClass === Class.ROGUE) {
+    return WEIGHT_STATS.filter((stat) => stat.group === 'Melee')
+  }
+  if (playerClass === Class.MAGE || playerClass === Class.PRIEST || playerClass === Class.WARLOCK) {
+    return WEIGHT_STATS.filter((stat) => stat.group === 'Spell')
+  }
+  return WEIGHT_STATS
 }
 
 export function weightsFromMeasured(

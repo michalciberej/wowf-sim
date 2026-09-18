@@ -3,10 +3,14 @@ import assert from 'node:assert/strict'
 import {
   applySpellToAbility,
   catalogItemFromParsed,
+  extractGearPlannerDumpUrls,
   extractGearPlannerItems,
   extractListviewItems,
+  isForeverTooltipPayload,
   extractSpellRanks,
   extractTalentCalcDump,
+  keepEnchantment,
+  parseEnchantment,
   parseItemTooltip,
   parseSpellTooltip,
   pickMaxRank,
@@ -90,6 +94,28 @@ test('extractGearPlannerItems reads WH.setPageData blobs', () => {
   assert.equal(items['19019'].name, 'Thunderfury')
 })
 
+test('extractGearPlannerItems ignores classic.item when classicplus key is set', () => {
+  const db = `WH.setPageData("wow.gearPlanner.classic.item", {"868":{"id":868,"name":"Ardent Custodian","quality":4,"itemLevel":43,}});
+WH.setPageData("wow.gearPlanner.classicplus.item", {"19019":{"id":19019,"name":"Thunderfury","quality":5,"itemLevel":80,}});`
+  const items = extractGearPlannerItems(db, 'wow.gearPlanner.classicplus.item')
+  assert.equal(items['868'], undefined)
+  assert.equal(items['19019'].name, 'Thunderfury')
+})
+
+test('isForeverTooltipPayload rejects Classic/SoD stubs', () => {
+  assert.equal(isForeverTooltipPayload({ error: 'Entity not found' }), false)
+  assert.equal(isForeverTooltipPayload({ name: 'Lionheart Helm', tooltip: '<b>x</b>' }), true)
+})
+
+test('extractGearPlannerDumpUrls reads nether script src from planner HTML', () => {
+  const html = `<script src="https://nether.wowhead.com/forever/data/gear-planner?dv=58&amp;db=1789642865"></script>
+<script>throw new TypeError('undefined is not an object')</script>`
+  const urls = extractGearPlannerDumpUrls(html)
+  assert.deepEqual(urls, [
+    'https://nether.wowhead.com/forever/data/gear-planner?dv=58&db=1789642865',
+  ])
+})
+
 test('extractListviewItems reads unquoted Wowhead listview rows', () => {
   const html = `var listviewitems = [{"id":12640,"quality":4,"level":61,"name":"Lionheart Helm",firstseenpatch: 0,popularity:12}];
 new Listview({template: 'item', data: listviewitems});`
@@ -108,6 +134,7 @@ test('extractTalentCalcDump maps Forever trees', () => {
   assert.equal(trees.warrior[0].talents[0].fieldName, 'improvedHeroicStrike')
   assert.equal(trees.warrior[0].talents[0].maxPoints, 3)
   assert.equal(trees.warrior[0].talents[0].spellIds[0], 12282)
+  assert.deepEqual(trees.warrior[0].talents[0].ranks, ['a', 'b', 'c'])
   assert.match(trees.warrior[0].backgroundUrl, /161/)
 })
 
@@ -206,6 +233,78 @@ test('parseItemTooltip reads Earthstrike on-use AP and Hand of Justice proc', ()
   assert.equal(hoj.effects[0].chance, 0.02)
 })
 
+test('parseItemTooltip reads Diamond Flask strength for 1 min', () => {
+  const item = parseItemTooltip({
+    id: 20130,
+    name: 'Diamond Flask',
+    tooltip:
+      'Diamond Flask Item Level 52 Unique Trinket Classes: Warrior Use: Increases Strength by 75 for 1 min. (6 Min Cooldown)',
+  })
+  assert.equal(item.effects[0].kind, 'use')
+  assert.equal(item.effects[0].strength, 75)
+  assert.equal(item.effects[0].duration, 60)
+  assert.equal(item.effects[0].cooldown, 360)
+})
+
+test('parseItemTooltip reads Mighty Rage potion rage, strength, and classes', () => {
+  const item = parseItemTooltip({
+    id: 13442,
+    name: 'Mighty Rage Potion',
+    icon: 'inv_potion_41',
+    tooltip:
+      'Mighty Rage Potion Item Level 51 Classes: Warrior , Druid Requires Level 46 Use: Increases Rage by 60 and increases Strength by 60 for 20 sec. (2 Min Cooldown)',
+  })
+  assert.equal(item.classMask, 1 | 1024)
+  assert.equal(item.effects[0].rage, 60)
+  assert.equal(item.effects[0].strength, 60)
+  assert.equal(item.effects[0].duration, 20)
+  assert.equal(item.effects[0].cooldown, 120)
+})
+
+test('parseItemTooltip reads rage range, spell damage pots, and for-duration not tick interval', () => {
+  const rage = parseItemTooltip({
+    id: 5633,
+    name: 'Great Rage Potion',
+    tooltip: 'Great Rage Potion Classes: Warrior Use: Increases Rage by 30 to 60. (2 Min Cooldown)',
+  })
+  assert.equal(rage.effects[0].rage, 45)
+  const blast = parseItemTooltip({
+    id: 250937,
+    name: 'Major Spellblasting Potion',
+    tooltip: 'Major Spellblasting Potion Use: Increases your Spell Damage by 40 for 30 sec.',
+  })
+  assert.equal(blast.effects[0].spellPower, 40)
+  assert.equal(blast.effects[0].duration, 30)
+  const fervor = parseItemTooltip({
+    id: 1450,
+    name: 'Potion of Fervor',
+    tooltip:
+      'Potion of Fervor Use: Increases Strength by 14 and does 15 damage to you every 15 sec for 1 min. (2 Min Cooldown)',
+  })
+  assert.equal(fervor.effects[0].strength, 14)
+  assert.equal(fervor.effects[0].duration, 60)
+})
+
+test('parseItemTooltip reads informal on-use strength and attack power phrasing', () => {
+  const flask = parseItemTooltip({
+    id: 1,
+    name: 'Test Flask',
+    tooltip: 'Trinket on use increase 75 strength for 15 seconds (15 Sec Cooldown)',
+  })
+  assert.equal(flask.effects[0].strength, 75)
+  assert.equal(flask.effects[0].duration, 15)
+  const crest = parseItemTooltip({
+    id: 23041,
+    name: "Slayer's Crest",
+    tooltip:
+      "Slayer's Crest Trinket +64 Attack Power Use: Increases attack power by 260 for 15 seconds. (2 Min Cooldown)",
+  })
+  assert.equal(crest.attackPower, 64)
+  assert.equal(crest.effects[0].attackPower, 260)
+  assert.equal(crest.effects[0].duration, 15)
+  assert.equal(crest.effects[0].cooldown, 120)
+})
+
 test('catalogItemFromParsed omits zero stats', () => {
   const row = catalogItemFromParsed({
     id: 1,
@@ -218,4 +317,52 @@ test('catalogItemFromParsed omits zero stats', () => {
   })
   assert.equal(row.strength, 10)
   assert.equal(row.agility, undefined)
+})
+
+test('parseEnchantment reads Crusader as a proc on weapons', () => {
+  const enchant = parseEnchantment(
+    {
+      id: 273566,
+      name: 'Enchant Weapon - Crusader',
+      quality: 1,
+      icon: 'inv_misc_enchantedscroll',
+      tooltip:
+        'Enchant Weapon - Crusader Item Level 1 Use: Permanently enchant a melee weapon so that often when attacking in melee it heals for 100 and increases Strength by 100 for 15 sec.',
+    },
+    'permanent',
+  )
+  assert.equal(enchant.proc, true)
+  assert.deepEqual(enchant.slots, [15, 16])
+  assert.equal(enchant.strength, 0)
+  assert.equal(enchant.effectName, 'Crusader')
+  assert.equal(keepEnchantment(enchant), true)
+})
+
+test('parseEnchantment reads Strength and chest Greater Stats', () => {
+  const weapon = parseEnchantment({
+    id: 273572,
+    name: 'Enchant Weapon - Strength',
+    tooltip: 'Use: Permanently enchant a melee weapon to grant +15 strength.',
+  })
+  assert.equal(weapon.strength, 15)
+  assert.equal(weapon.effectLabel, '+15 Strength')
+  const chest = parseEnchantment({
+    id: 273558,
+    name: 'Enchant Chest - Greater Stats',
+    tooltip: 'Use: Permanently enchant a piece of chest armor to grant +4 to all stats.',
+  })
+  assert.equal(chest.strength, 4)
+  assert.equal(chest.agility, 4)
+  assert.equal(chest.slots[0], 5)
+  const stone = parseEnchantment(
+    {
+      id: 12404,
+      name: 'Dense Sharpening Stone',
+      tooltip: 'Use: Increase sharp weapon damage by 8 for 30 minutes.',
+    },
+    'temporary',
+  )
+  assert.equal(stone.weaponDamage, 8)
+  assert.equal(stone.kind, 'temporary')
+  assert.equal(keepEnchantment(stone), true)
 })

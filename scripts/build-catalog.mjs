@@ -148,6 +148,7 @@ for (const [file, classId] of CLASS_FILES) {
         prereqRow: talent.prereqLocation ? talent.prereqLocation.rowIdx + 1 : 0,
         prereqCol: talent.prereqLocation ? talent.prereqLocation.colIdx + 1 : 0,
         backgroundUrl: tree.backgroundUrl,
+        ranks: Array.isArray(talent.ranks) ? talent.ranks : [],
         effect: talentEffect(talent.fieldName, tree.name),
       })
     }
@@ -157,5 +158,6 @@ for (const [file, classId] of CLASS_FILES) {
 }
 
 writeCatalog({ items: existing.items || [], talents })
+writeFileSync(join(root, 'web', 'src', 'catalog', 'abilities.json'), readFileSync(join(root, 'engine', 'internal', 'clientdata', 'abilities.json')))
 writeFileSync(cacheFile, JSON.stringify(cache, null, 2))
 console.log('wrote', outFile, 'and', webOut, 'talents', talents.length, 'items', (existing.items || []).length)

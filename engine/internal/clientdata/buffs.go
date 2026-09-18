@@ -35,8 +35,9 @@ type RaidBuff struct {
 	FireMul     float64 `json:"fireMul"`
 	FrostMul    float64 `json:"frostMul"`
 	ShadowMul   float64 `json:"shadowMul"`
-	NatureMul   float64 `json:"natureMul"`
-	HolyMul     float64 `json:"holyMul"`
+	NatureMul    float64 `json:"natureMul"`
+	HolyMul      float64 `json:"holyMul"`
+	WeaponDamage float64 `json:"weaponDamage"`
 }
 
 var (

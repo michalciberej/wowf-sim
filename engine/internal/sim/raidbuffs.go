@@ -6,13 +6,20 @@ import (
 )
 
 const (
-	// bossArmor is a level-63 raid dummy in plate (same default Classic sims use).
+	// defaultBossArmor is Patchwerk / typical level-63 raid plate (Classic sims).
 	// Sunder / Faerie Fire / Curse of Recklessness subtract from this, then
-	// physical damage is scaled by taken(remaining) / taken(full).
-	bossArmor      = 3731.0
-	iconWindfury   = "spell_nature_windfury"
-	windfuryChance = 0.20
+	// physical hits are multiplied by armor taken (not relative to a dummy).
+	defaultBossArmor = 7700.0
+	iconWindfury     = "spell_nature_windfury"
+	windfuryChance   = 0.20
 )
+
+func encounterArmor(enc *pb.Encounter) float64 {
+	if enc != nil && enc.GetArmor() > 0 {
+		return enc.GetArmor()
+	}
+	return defaultBossArmor
+}
 
 type raidBuffState struct {
 	str, agi, intel, ap, spellPower float64
@@ -24,6 +31,15 @@ type raidBuffState struct {
 	natureMul, holyMul              float64
 	windfury                        bool
 	wfAP                            float64
+	weaponDamage                    float64
+}
+
+func weaponTempBuff(id string) clientdata.RaidBuff {
+	b, ok := clientdata.RaidBuffByID(id)
+	if !ok || b.Category != "Weapon Enchant" {
+		return clientdata.RaidBuff{}
+	}
+	return b
 }
 
 func collectRaidBuffs(player *pb.Player) raidBuffState {
@@ -34,7 +50,7 @@ func collectRaidBuffs(player *pb.Player) raidBuffState {
 	class := int32(player.GetClass())
 	for _, id := range player.GetRaidBuffs() {
 		b, ok := clientdata.RaidBuffByID(id)
-		if !ok || !b.AppliesTo(class) {
+		if !ok || !b.AppliesTo(class) || b.Category == "Weapon Enchant" {
 			continue
 		}
 		st.str += b.Strength
@@ -55,6 +71,7 @@ func collectRaidBuffs(player *pb.Player) raidBuffState {
 		st.shadowMul *= 1 + b.ShadowMul
 		st.natureMul *= 1 + b.NatureMul
 		st.holyMul *= 1 + b.HolyMul
+		st.weaponDamage += b.WeaponDamage
 		if b.Windfury {
 			st.windfury = true
 			if b.WindfuryAP > st.wfAP {

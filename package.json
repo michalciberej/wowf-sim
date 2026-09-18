@@ -8,6 +8,7 @@
     "wasm": "node scripts/build-wasm.mjs",
     "cli": "go -C engine run ./cmd/cli",
     "cli:debug-rotation": "go -C engine run ./cmd/cli --debug-rotation",
+    "cli:stat-weights": "go -C engine run ./cmd/cli --stat-weights",
     "catalog": "node scripts/build-catalog.mjs",
     "wowhead": "node scripts/wowhead/ingest.mjs",
     "wowhead:test": "node --test scripts/wowhead/parse.test.mjs",

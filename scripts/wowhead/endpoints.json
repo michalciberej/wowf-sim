@@ -1,5 +1,5 @@
 {
-  "comment": "Wowhead Forever (classicplus) hosts. npm run wowhead writes baked JSON; the browser sim never calls Wowhead. Item list pages are truncated at 1000 rows, so ingest also reads the gear-planner dump.",
+  "comment": "Wowhead Forever (classicplus) hosts. npm run wowhead writes baked JSON; the browser sim never calls Wowhead. Item list pages are truncated at 1000 rows and still list Classic/SoD stubs; ingest uses the nether gear-planner dump as the Forever ID list and drops IDs whose Forever tooltip 404s. Catalog keeps uncommon+ (quality >= 2); the item picker filters rarity in the UI.",
   "name": "forever",
   "origin": "https://nether.wowhead.com",
   "www": "https://www.wowhead.com",
@@ -11,7 +11,7 @@
   "tooltipSpell": "{origin}/{path}/tooltip/spell/{id}",
   "spellPage": "{www}/{path}/spell={id}",
   "itemList": "{www}/{path}/{listPath}",
-  "gearPlanner": "{origin}/{path}/data/gear-planner?dv=100",
+  "gearPlanner": "{origin}/{path}/data/gear-planner?dv=58",
   "gearPlannerItemKey": "wow.gearPlanner.classicplus.item",
   "talentsClassic": "{origin}/{path}/data/talents-classic?dv=19",
   "talentCalcPage": "{www}/{path}/talent-calc",
@@ -49,9 +49,15 @@
     "items/weapons/wands",
     "items/weapons/thrown"
   ],
+  "consumableLists": [
+    "items/consumables/potions"
+  ],
+  "enchantLists": {
+    "permanent": "items/consumables/item-enhancements-permanent",
+    "temporary": "items/consumables/item-enhancements-temporary"
+  },
   "itemFilter": {
-    "minQuality": 4,
-    "minItemLevel": 60,
+    "minQuality": 2,
     "keepCatalogIds": true
   }
 }

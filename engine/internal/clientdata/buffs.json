@@ -64,19 +64,33 @@
     "spellPower": 35
   },
   {
-    "id": "brilliant-wizard-oil",
-    "name": "Brilliant Wizard Oil",
-    "icon": "inv_potion_105",
-    "category": "Consumables",
-    "spellPower": 36,
-    "spellCrit": 0.01
-  },
-  {
     "id": "elemental-sharpening-stone",
     "name": "Elemental Sharpening Stone",
     "icon": "inv_stone_02",
-    "category": "Consumables",
+    "category": "Weapon Enchant",
     "meleeCrit": 0.02
+  },
+  {
+    "id": "dense-sharpening-stone",
+    "name": "Dense Sharpening Stone",
+    "icon": "inv_stone_sharpeningstone_05",
+    "category": "Weapon Enchant",
+    "weaponDamage": 8
+  },
+  {
+    "id": "dense-weightstone",
+    "name": "Dense Weightstone",
+    "icon": "inv_stone_weightstone_05",
+    "category": "Weapon Enchant",
+    "weaponDamage": 8
+  },
+  {
+    "id": "brilliant-wizard-oil",
+    "name": "Brilliant Wizard Oil",
+    "icon": "inv_potion_105",
+    "category": "Weapon Enchant",
+    "spellPower": 36,
+    "spellCrit": 0.01
   },
   {
     "id": "blessing-of-kings",

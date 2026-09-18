@@ -1,7 +1,9 @@
 import type { StatWeightsResult } from '../gen/wowfsim/sim_pb.ts'
-import { WEIGHT_GROUPS, WEIGHT_STATS } from '../catalog/weights.ts'
+import { WEIGHT_GROUPS, weightStatsFor } from '../catalog/weights.ts'
+import type { Class } from '../gen/wowfsim/sim_pb.ts'
 
 type Props = {
+  playerClass: Class
   result: StatWeightsResult | null
   ep: Record<string, number>
   running: boolean
@@ -12,6 +14,7 @@ type Props = {
 }
 
 export function StatWeightsPanel({
+  playerClass,
   result,
   ep,
   running,
@@ -21,6 +24,8 @@ export function StatWeightsPanel({
   onZero,
 }: Props) {
   const measured = new Map(result?.weights.map((row) => [row.id, row]) ?? [])
+  const stats = weightStatsFor(playerClass)
+  const groups = WEIGHT_GROUPS.filter((group) => stats.some((stat) => stat.group === group))
 
   return (
     <section className="panel">
@@ -30,12 +35,12 @@ export function StatWeightsPanel({
           <p>
             {result
               ? `Measured vs ${result.referenceName}. Edit any EP; the item list uses these numbers.`
-              : 'Every stat is listed. Type EP by hand, or calculate from the current sim setup.'}
+              : 'Melee EP for this warrior setup. Type values by hand, or calculate from the current sim.'}
           </p>
         </div>
         <div className="weight-actions">
-          <button type="button" className="btn" disabled={running || !result} onClick={onResetMeasured}>
-            Restore measured
+          <button type="button" className="btn" disabled={running} onClick={onResetMeasured}>
+            Restore defaults
           </button>
           <button type="button" className="btn" disabled={running} onClick={onZero}>
             Zero
@@ -50,11 +55,11 @@ export function StatWeightsPanel({
           Baseline {result.baselineDps.toFixed(1)} DPS · {result.iterations} iterations per variant
         </p>
       ) : null}
-      {WEIGHT_GROUPS.map((group) => (
+      {groups.map((group) => (
         <div key={group} className="weight-group">
           <h3>{group}</h3>
           <div className="weight-grid">
-            {WEIGHT_STATS.filter((stat) => stat.group === group).map((stat) => {
+            {stats.filter((stat) => stat.group === group).map((stat) => {
               const row = measured.get(stat.id)
               return (
                 <label key={stat.id} className="weight-card" title={stat.hint}>

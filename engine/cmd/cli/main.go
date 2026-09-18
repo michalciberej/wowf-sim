@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -13,25 +14,21 @@ import (
 
 func main() {
 	debugRotation := false
+	statWeights := false
 	var path string
 	for _, arg := range os.Args[1:] {
 		if arg == "--debug-rotation" {
 			debugRotation = true
 			continue
 		}
+		if arg == "--stat-weights" {
+			statWeights = true
+			continue
+		}
 		path = arg
 	}
 
-	req := &pb.SimRequest{
-		Player: &pb.Player{
-			Name:  "Stub",
-			Class: pb.Class_CLASS_WARRIOR,
-			Race:  pb.Race_RACE_ORC,
-			Level: 60,
-		},
-		Encounter: &pb.Encounter{DurationSeconds: 60},
-		Options:   &pb.SimOptions{Iterations: 1000, RngSeed: 1},
-	}
+	req := sim.TypicalOrcWarrior()
 
 	if path != "" {
 		raw, err := os.ReadFile(path)
@@ -44,6 +41,21 @@ func main() {
 				fatal(err)
 			}
 		}
+	}
+
+	if statWeights {
+		out := sim.RunStatWeights(req)
+		weights := map[string]float64{}
+		for _, w := range out.Weights {
+			weights[w.Id] = w.Ep
+		}
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(weights); err != nil {
+			fatal(err)
+		}
+		fmt.Fprintf(os.Stderr, "baseline %.1f DPS  n=%d  ref=%s\n", out.BaselineDps, out.Iterations, out.ReferenceId)
+		return
 	}
 
 	if debugRotation {
@@ -63,7 +75,7 @@ func main() {
 	}
 	fmt.Printf("DPS  %.1f ± %.1f  (n=%d)\n", res.DpsMean, res.DpsStdev, res.Iterations)
 	for _, a := range res.Actions {
-		fmt.Printf("  %-16s  %.1f dps  %d casts/iter\n", a.Name, a.Dps, a.Casts)
+		fmt.Printf("  %-16s  %.1f dps  %.0f casts/iter\n", a.Name, a.Dps, a.Casts)
 	}
 }
 

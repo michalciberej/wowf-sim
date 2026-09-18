@@ -60,11 +60,11 @@ Baked files (committed):
 Sources (`scripts/wowhead/endpoints.json`):
 
 - Item category Listviews such as `/forever/items/armor` and `/forever/items/weapons/...` (each page caps at 1,000 rows)
-- Nether gear-planner dump (`wow.gearPlanner.classicplus.item`) for the full ID list
+- Nether gear-planner dump (`wow.gearPlanner.classicplus.item`) for the full Forever ID list. Ingest scrapes the `<script src>` from `/forever/gear-planner` even when that page's React UI TypeErrors. Listviews stay capped at 1,000 rows and still list Classic IDs that 404 on Forever tooltips, so they are metadata-only when the dump loads.
 - Item/spell tooltips at `nether.wowhead.com/forever/tooltip/...`
 - Talent calculator dump from [talent-calc](https://www.wowhead.com/forever/talent-calc) (`/forever/data/talents-classic`), written to `engine/internal/clientdata/talent-trees/*.json`
 
-Wowhead's Forever item database is still Classic vanilla today (same IDs/stats). The pipeline already points at Forever, so a later site update is a re-run, not a URL rewrite. Filter: epic, item level 60+.
+Ingest keeps Forever items that have a real item page/tooltip (uncommon and better). Classic/SoD stubs 404 on `/forever/item=` and are skipped. The gear picker filters rarity in the UI; there is no item-level cutoff in ingest.
 
 First run hits the network. Later runs reuse the cache unless you pass `--force`.
 

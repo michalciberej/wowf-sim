@@ -1,6 +1,7 @@
 import { Class, ItemSlot } from '../gen/wowfsim/sim_pb.ts'
 import catalog from './catalog.json' with { type: 'json' }
 import overlayEffects from './item-effects.json' with { type: 'json' }
+import extraItems from './extra-items.json' with { type: 'json' }
 
 export const TALENT_POINTS = 51
 export const TALENT_ROWS = 7
@@ -15,6 +16,7 @@ export type ItemEffect = {
   haste?: number
   crit?: number
   strength?: number
+  agility?: number
   armorIgnore?: number
   duration?: number
   cooldown?: number
@@ -22,6 +24,8 @@ export type ItemEffect = {
   extraAttack?: number
   stackAP?: number
   interval?: number
+  rage?: number
+  icon?: string
 }
 
 export type CatalogItem = {
@@ -75,6 +79,7 @@ export type CatalogTalent = {
   prereqRow?: number
   prereqCol?: number
   backgroundUrl?: string
+  ranks?: string[]
 }
 
 export const CLASS_TREES: Record<number, [string, string, string]> = {
@@ -131,13 +136,23 @@ export const GEAR_SLOTS = [...PAPERDOLL_LEFT, ...PAPERDOLL_RIGHT, ...PAPERDOLL_W
 
 const overlayByName = overlayEffects as Record<string, ItemEffect[]>
 
-export const ITEMS: CatalogItem[] = (catalog.items as CatalogItem[]).map((item) => {
+function withEffects(item: CatalogItem): CatalogItem {
   if (item.effects?.length) {
     return item
   }
   const extra = overlayByName[item.name]
   return extra ? { ...item, effects: extra } : item
-})
+}
+
+export const ITEMS: CatalogItem[] = (() => {
+  const byId = new Map<number, CatalogItem>()
+  for (const item of [...(catalog.items as CatalogItem[]), ...(extraItems as CatalogItem[])]) {
+    if (!byId.has(item.id)) {
+      byId.set(item.id, withEffects(item))
+    }
+  }
+  return [...byId.values()]
+})()
 export const TALENTS: CatalogTalent[] = catalog.talents as CatalogTalent[]
 
 const CLASS_MASK: Record<number, number> = {
@@ -259,6 +274,10 @@ export function itemsForSlot(slot: ItemSlot, playerClass?: Class): CatalogItem[]
 export function iconUrl(icon?: string) {
   const name = icon || 'inv_misc_questionmark'
   return `https://wow.zamimg.com/images/wow/icons/large/${name}.jpg`
+}
+
+export function wowheadItemUrl(id: number) {
+  return `https://www.wowhead.com/forever/item=${id}`
 }
 
 export function talentsForClass(playerClass: Class): CatalogTalent[] {

@@ -6,9 +6,7 @@ declare global {
     run(instance: WebAssembly.Instance): Promise<void>
   }
 
-  interface Window {
-    wowfSimRun: (input: Uint8Array) => Uint8Array
-    wowfSimStatWeights: (input: Uint8Array) => Uint8Array
-    wowfSimReady: () => void
-  }
+  var wowfSimRun: (input: Uint8Array) => Uint8Array
+  var wowfSimStatWeights: (input: Uint8Array) => Uint8Array
+  var wowfSimReady: () => void
 }

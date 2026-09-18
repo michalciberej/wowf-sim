@@ -4,22 +4,24 @@ import { PAPERDOLL_LEFT, PAPERDOLL_RIGHT, PAPERDOLL_WEAPONS } from '../catalog/e
 import { ItemSlotButton } from './ItemSlotButton.tsx'
 
 type Props = {
-  classLabel: string
   gearIds: Record<number, number>
+  enchantIds: Record<number, number>
   onOpenSlot: (slot: ItemSlot) => void
   onClearGear: () => void
   onHoverItem: (itemId: number, event: MouseEvent) => void
   onLeaveItem: () => void
 }
 
-export function GearPanel({ classLabel, gearIds, onOpenSlot, onClearGear, onHoverItem, onLeaveItem }: Props) {
-  function slotButton(slot: ItemSlot, label: string) {
+export function GearPanel({ gearIds, enchantIds, onOpenSlot, onClearGear, onHoverItem, onLeaveItem }: Props) {
+  function slotButton(slot: ItemSlot, label: string, labelAlign: 'outward' | 'inward' = 'outward') {
     return (
       <ItemSlotButton
         key={`${slot}-${label}`}
         slot={slot}
         label={label}
         itemId={gearIds[slot] ?? 0}
+        enchantId={enchantIds[slot] ?? 0}
+        labelAlign={labelAlign}
         onOpen={() => onOpenSlot(slot)}
         onHoverItem={onHoverItem}
         onLeaveItem={onLeaveItem}
@@ -30,21 +32,19 @@ export function GearPanel({ classLabel, gearIds, onOpenSlot, onClearGear, onHove
   return (
     <section className="gear-tab">
       <div className="doll">
-        <div className="slot-col">
-          {PAPERDOLL_LEFT.map(({ slot, label }) => slotButton(slot, label))}
-        </div>
-        <div className="doll-stage">
-          <p className="doll-caption">{classLabel}</p>
-          <p className="doll-hint">Click a slot to replace an item.</p>
-          <button type="button" className="doll-clear" onClick={onClearGear}>
-            Unequip all
-          </button>
-          <div className="weapon-row">
-            {PAPERDOLL_WEAPONS.map(({ slot, label }) => slotButton(slot, label))}
+        <button type="button" className="doll-clear" onClick={onClearGear}>
+          Unequip all
+        </button>
+        <div className="doll-cols">
+          <div className="slot-col">
+            {PAPERDOLL_LEFT.map(({ slot, label }) => slotButton(slot, label))}
+            <div className="weapon-stack">
+              {PAPERDOLL_WEAPONS.map(({ slot, label }) => slotButton(slot, label))}
+            </div>
           </div>
-        </div>
-        <div className="slot-col">
-          {PAPERDOLL_RIGHT.map(({ slot, label }) => slotButton(slot, label))}
+          <div className="slot-col">
+            {PAPERDOLL_RIGHT.map(({ slot, label }) => slotButton(slot, label, 'inward'))}
+          </div>
         </div>
       </div>
     </section>

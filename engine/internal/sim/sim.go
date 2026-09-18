@@ -29,13 +29,14 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 
 	rng := rand.New(rand.NewSource(seedOrDefault(req.GetOptions().GetRngSeed())))
 	player := req.GetPlayer()
-	kit := buildModel(player)
+	kit := buildModel(player, req.GetEncounter())
 	ranks := talentRankMap(player.GetTalents())
 
 	totals := make(map[string]*actionAccum)
 	var timeline []*pb.TimelineEvent
 	var sum, sumSq float64
 	minDPS, maxDPS := math.Inf(1), math.Inf(-1)
+	samples := make([]float64, 0, iterations)
 
 	for i := 0; i < iterations; i++ {
 		dmg, events, stats := simulateFight(duration, kit, player.GetClass(), ranks, rng, i == 0)
@@ -49,11 +50,14 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 				totals[name] = tot
 			}
 			tot.dmg += acc.dmg
+			tot.hitDmg += acc.hitDmg
+			tot.critDmg += acc.critDmg
 			tot.casts += acc.casts
 			tot.crits += acc.crits
 			tot.miss += acc.miss
 		}
 		dps := dmg / duration
+		samples = append(samples, dps)
 		sum += dps
 		sumSq += dps * dps
 		if dps < minDPS {
@@ -74,37 +78,40 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 	dur := duration
 	actions := make([]*pb.ActionMetric, 0, len(totals))
 	for _, acc := range totals {
+		avgCast := 0.0
+		if acc.casts > 0 {
+			avgCast = acc.dmg / float64(acc.casts)
+		}
 		actions = append(actions, &pb.ActionMetric{
-			Name:   acc.name,
-			Dps:    acc.dmg / dur / iter,
-			Casts:  roundPerIter(acc.casts, iterations),
-			Crits:  roundPerIter(acc.crits, iterations),
-			Misses: roundPerIter(acc.miss, iterations),
-			Icon:   acc.icon,
+			Name:    acc.name,
+			Dps:     acc.dmg / dur / iter,
+			Casts:   float64(acc.casts) / iter,
+			Crits:   float64(acc.crits) / iter,
+			Misses:  float64(acc.miss) / iter,
+			Icon:    acc.icon,
+			HitDps:  acc.hitDmg / dur / iter,
+			CritDps: acc.critDmg / dur / iter,
+			AvgCast: avgCast,
 		})
 	}
 	sort.SliceStable(actions, func(i, j int) bool {
-		if actions[i].Name == "Auto Attack" {
-			return true
-		}
-		if actions[j].Name == "Auto Attack" {
-			return false
-		}
 		return actions[i].Dps > actions[j].Dps
 	})
 
 	return &pb.SimResult{
-		DpsMean:    mean,
-		DpsStdev:   math.Sqrt(variance),
-		DpsMin:     minDPS,
-		DpsMax:     maxDPS,
-		Iterations: int32(iterations),
-		Actions:    actions,
-		Timeline:   timeline,
+		DpsMean:      mean,
+		DpsStdev:     math.Sqrt(variance),
+		DpsMin:       minDPS,
+		DpsMax:       maxDPS,
+		Iterations:   int32(iterations),
+		Actions:      actions,
+		Timeline:     timeline,
+		IterationDps: samples,
 	}
 }
 
-func buildModel(player *pb.Player) combatKit {
+func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
+	bossArmor := encounterArmor(enc)
 	ranks := talentRankMap(player.GetTalents())
 	meleeAutos := usesMeleeAutos(player.GetClass(), ranks)
 
@@ -117,6 +124,7 @@ func buildModel(player *pb.Player) combatKit {
 	str, agi, intel, _, _, classAP := playerBaseStats(player.GetClass(), player.GetRace())
 	var gearAP, spellPower, ohWeapon, ohSpeed float64
 	mhTwoHand := false
+	var mhBonusDmg, ohBonusDmg, gearHaste float64
 	raid := collectRaidBuffs(player)
 
 	for _, item := range player.GetGear().GetItems() {
@@ -140,6 +148,24 @@ func buildModel(player *pb.Player) combatKit {
 		gearSpellCrit += item.GetSpellCritChance()
 		hitChance += item.GetHitChance()
 		spellHit += item.GetSpellHitChance()
+		if enc, ok := clientdata.EnchantByID(item.GetEnchantId()); ok {
+			str += float64(enc.Strength)
+			agi += float64(enc.Agility)
+			intel += float64(enc.Intellect)
+			gearAP += float64(enc.AttackPower)
+			spellPower += float64(enc.SpellPower)
+			gearCrit += enc.CritChance
+			gearSpellCrit += enc.SpellCritChance
+			hitChance += enc.HitChance
+			spellHit += enc.SpellHitChance
+			gearHaste += enc.Haste
+			switch item.GetSlot() {
+			case pb.ItemSlot_ITEM_SLOT_MAIN_HAND:
+				mhBonusDmg += enc.WeaponDamage
+			case pb.ItemSlot_ITEM_SLOT_OFF_HAND:
+				ohBonusDmg += enc.WeaponDamage
+			}
+		}
 		switch item.GetSlot() {
 		case pb.ItemSlot_ITEM_SLOT_MAIN_HAND:
 			if item.GetWeaponDps() > 0 {
@@ -161,6 +187,17 @@ func buildModel(player *pb.Player) combatKit {
 		}
 	}
 
+	mhTemp := weaponTempBuff(player.GetMhWeaponTemp())
+	ohTemp := weaponTempBuff(player.GetOhWeaponTemp())
+	mhBonusDmg += mhTemp.WeaponDamage
+	spellPower += mhTemp.SpellPower
+	gearSpellCrit += mhTemp.SpellCrit
+	if !mhTwoHand && ohWeapon > 0 && ohSpeed > 0 {
+		ohBonusDmg += ohTemp.WeaponDamage
+		gearCrit += ohTemp.MeleeCrit
+	}
+	gearCrit += mhTemp.MeleeCrit
+
 	bonus := player.GetBonusStats()
 	str += bonus.GetStrength()
 	agi += bonus.GetAgility()
@@ -181,6 +218,10 @@ func buildModel(player *pb.Player) combatKit {
 	str *= raid.statMul
 	agi *= raid.statMul
 	intel *= raid.statMul
+	g := collectGenericTalents(player.GetClass(), player.GetTalents())
+	str *= g.strMul
+	agi *= g.agiMul
+	intel *= g.intMul
 	spellPower += raid.spellPower
 	hitChance += raid.hit
 	spellHit += raid.spellHit
@@ -191,6 +232,19 @@ func buildModel(player *pb.Player) combatKit {
 	if meleeAutos {
 		ap += attackPowerFromStats(player.GetClass(), str, agi) * raid.apMul
 		baseDPS += ap / 14
+		bonusSwing := mhBonusDmg + raid.weaponDamage
+		if bonusSwing > 0 && swingTimer > 0 {
+			baseDPS += bonusSwing / swingTimer
+		}
+		if ohBonusDmg > 0 && ohSpeed > 0 {
+			ohWeapon += ohBonusDmg / ohSpeed
+		}
+		if gearHaste > 0 {
+			swingTimer *= 1 - gearHaste
+			if ohSpeed > 0 {
+				ohSpeed *= 1 - gearHaste
+			}
+		}
 	} else {
 		baseDPS = 0
 		ap = 0
@@ -215,19 +269,31 @@ func buildModel(player *pb.Player) combatKit {
 			talents[pick.GetId()] = true
 		}
 	}
-	talMul, talHaste, talCrit := applyTalents(player.GetClass(), player.GetTalents())
+	w := warriorPassivesFor(player, ranks, mhTwoHand, mainHandSubclass(player), bossArmor)
+	talMul := g.damageMul * w.damageMul
+	talHaste := g.hasteMul
+	hitChance += w.hit + g.hit
+	spellHit += g.spellHit
+	raid.armorLost += w.armorIgnore
 	baseDPS *= talMul
 	swingTimer *= talHaste
-	meleeCrit += talCrit
-	spellCrit += talCrit
+	meleeCrit += g.meleeCrit + w.crit
+	spellCrit += g.spellCrit
 	if !meleeAutos {
 		spellMul *= talMul
 	}
+	weaponMul := g.weaponMul(mhTwoHand)
 
 	dwMul := 0.5
-	dwRanks := talentRank(ranks, "Dual Wield Specialization")
-	if dwRanks > 0 {
-		dwMul *= 1 + 0.05*float64(dwRanks)
+	ohTalentDmg := g.ohDmg
+	if ohTalentDmg == 0 {
+		dwRanks := talentRank(ranks, "Dual Wield Specialization")
+		if dwRanks > 0 {
+			ohTalentDmg = 0.05 * float64(dwRanks)
+		}
+	}
+	if ohTalentDmg > 0 {
+		dwMul *= 1 + ohTalentDmg
 	}
 
 	hasOH := meleeAutos && !mhTwoHand && ohWeapon > 0 && ohSpeed > 0
@@ -257,9 +323,9 @@ func buildModel(player *pb.Player) combatKit {
 	}
 
 	missYellow := missChance - hitChance
-	missWhite := 0.08 - hitChance
+	missWhite := 0.09 - hitChance
 	if hasOH {
-		missWhite = 0.19 - hitChance
+		missWhite = 0.28 - hitChance
 	}
 	missSpell := baseSpellMiss - spellHit
 	if missYellow < 0 {
@@ -271,13 +337,19 @@ func buildModel(player *pb.Player) combatKit {
 	if missSpell < 0 {
 		missSpell = 0
 	}
+	missOH := missWhite
+	if hasOH {
+		missOH = 0.28 - hitChance - w.ohHit
+		if missOH < 0 {
+			missOH = 0
+		}
+	}
 
 	remainingArmor := bossArmor - raid.armorLost
 	if remainingArmor < 0 {
 		remainingArmor = 0
 	}
-	physMul := physicalTaken(remainingArmor) / physicalTaken(bossArmor)
-	physMul *= raid.damageMul
+	physMul := physicalTaken(remainingArmor) * raid.damageMul
 	spellMul *= raid.damageMul
 
 	var itemEffects []clientdata.ItemEffect
@@ -297,6 +369,9 @@ func buildModel(player *pb.Player) combatKit {
 			itemEffects = append(itemEffects, effect)
 		}
 	}
+	if _, effect, ok := clientdata.CombatPotionEffect(player.GetCombatPotion()); ok {
+		itemEffects = append(itemEffects, effect)
+	}
 
 	return combatKit{
 		baseDPS:     baseDPS,
@@ -309,11 +384,14 @@ func buildModel(player *pb.Player) combatKit {
 		spellCrit:   spellCrit,
 		spellMul:    spellMul,
 		physMul:     physMul,
-		fireMul:     raid.fireMul,
-		frostMul:    raid.frostMul,
-		shadowMul:   raid.shadowMul,
-		natureMul:   raid.natureMul,
-		holyMul:     raid.holyMul,
+		fireMul:     raid.fireMul * g.fireMul,
+		frostMul:    raid.frostMul * g.frostMul,
+		shadowMul:   raid.shadowMul * g.shadowMul,
+		natureMul:   raid.natureMul * g.natureMul,
+		holyMul:     raid.holyMul * g.holyMul,
+		arcaneMul:   g.arcaneMul,
+		weaponMul:   weaponMul,
+		abilityMul:  g.abilityMul,
 		missWhite:   missWhite,
 		missYellow:  missYellow,
 		missSpell:   missSpell,
@@ -323,8 +401,16 @@ func buildModel(player *pb.Player) combatKit {
 		wfAP:        raid.wfAP,
 		abilities:   clientdata.AbilitiesFor(int32(player.GetClass()), int32(player.GetRace()), talents),
 		itemEffects: itemEffects,
+		abilityPrio: abilityPriorityMap(player.GetAbilityPriorities()),
 		armorLost:   raid.armorLost,
 		damageMul:   raid.damageMul,
+		maxRage:     w.maxRage,
+		missOH:      missOH,
+		ohRageMul:   w.ohRageMul,
+		swordProc:   w.swordProc,
+		mhTwoHand:   mhTwoHand,
+		mainStance:  warriorMainStance(player),
+		bossArmor:   bossArmor,
 	}
 }
 
@@ -365,40 +451,8 @@ func racials(race pb.Race, subclass string) (damageMul, hasteMul, crit float64) 
 }
 
 func applyTalents(class pb.Class, picks []*pb.TalentPick) (damageMul, hasteMul, crit float64) {
-	damageMul, hasteMul = 1, 1
-	for _, pick := range picks {
-		if pick.GetRank() <= 0 {
-			continue
-		}
-		rank := float64(pick.GetRank())
-		talent, ok := clientdata.TalentByID(pick.GetId())
-		if !ok {
-			continue
-		}
-		if class != pb.Class_CLASS_UNSPECIFIED && talent.Class != int32(class) {
-			continue
-		}
-		effect := talent.Effect
-		if effect.Utility || talentHandledLocally(pick.GetId()) {
-			continue
-		}
-		if effect.Damage > 0 {
-			damageMul *= 1 + effect.Damage*rank
-		}
-		crit += effect.Crit * rank
-		if effect.Haste > 0 {
-			hasteMul *= 1 - effect.Haste*rank
-		}
-	}
-	return damageMul, hasteMul, crit
-}
-
-func roundPerIter(total int64, iterations int) int64 {
-	if iterations <= 0 {
-		return 0
-	}
-	n := int64(iterations)
-	return (total + n/2) / n
+	g := collectGenericTalents(class, picks)
+	return g.damageMul, g.hasteMul, g.meleeCrit
 }
 
 func talentRankMap(picks []*pb.TalentPick) map[int32]int32 {

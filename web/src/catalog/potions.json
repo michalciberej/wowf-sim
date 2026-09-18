@@ -1,0 +1,1131 @@
+[
+  {
+    "id": 118,
+    "name": "Minor Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_49",
+    "quality": 1,
+    "itemLevel": 5,
+    "tooltip": "Minor Healing Potion\nItem Level 5\nUse: Restores 80 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 5"
+  },
+  {
+    "id": 858,
+    "name": "Lesser Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_50",
+    "quality": 1,
+    "itemLevel": 13,
+    "requiredLevel": 3,
+    "tooltip": "Lesser Healing Potion\nItem Level 13\nRequires Level 3\nUse: Restores 160 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 25"
+  },
+  {
+    "id": 929,
+    "name": "Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_51",
+    "quality": 1,
+    "itemLevel": 22,
+    "requiredLevel": 12,
+    "tooltip": "Healing Potion\nItem Level 22\nRequires Level 12\nUse: Restores 320 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 75"
+  },
+  {
+    "id": 1450,
+    "name": "Potion of Fervor",
+    "slot": 0,
+    "icon": "inv_potion_09",
+    "quality": 1,
+    "itemLevel": 25,
+    "requiredLevel": 15,
+    "tooltip": "Potion of Fervor\nItem Level 25\nRequires Level 15\nUse: Increases Strength by 14 and does 15 damage to you every 15 sec for 1 min. (2 Min Cooldown)\nMax Stack: 10\nSell Price: 10",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Strength by 14 and does 15 damage to you every 15 sec for 1 min. (2 Min Cooldown)",
+        "name": "Potion of Fervor",
+        "icon": "inv_potion_09",
+        "strength": 14,
+        "duration": 60,
+        "cooldown": 120,
+        "interval": 15
+      }
+    ]
+  },
+  {
+    "id": 1710,
+    "name": "Greater Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_52",
+    "quality": 1,
+    "itemLevel": 31,
+    "requiredLevel": 21,
+    "tooltip": "Greater Healing Potion\nItem Level 31\nRequires Level 21\nUse: Restores 520 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 25"
+  },
+  {
+    "id": 2455,
+    "name": "Minor Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_70",
+    "quality": 1,
+    "itemLevel": 15,
+    "requiredLevel": 5,
+    "tooltip": "Minor Mana Potion\nItem Level 15\nRequires Level 5\nUse: Restores 160 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 10"
+  },
+  {
+    "id": 2456,
+    "name": "Minor Rejuvenation Potion",
+    "slot": 0,
+    "icon": "inv_potion_02",
+    "quality": 1,
+    "itemLevel": 15,
+    "requiredLevel": 5,
+    "tooltip": "Minor Rejuvenation Potion\nItem Level 15\nRequires Level 5\nUse: Restores 120 mana and 120 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 15"
+  },
+  {
+    "id": 2459,
+    "name": "Swiftness Potion",
+    "slot": 0,
+    "icon": "inv_potion_95",
+    "quality": 1,
+    "itemLevel": 15,
+    "requiredLevel": 5,
+    "tooltip": "Swiftness Potion\nItem Level 15\nRequires Level 5\nUse: Increases run speed by 50% for 15 sec. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 25"
+  },
+  {
+    "id": 2633,
+    "name": "Jungle Remedy",
+    "slot": 0,
+    "icon": "inv_potion_12",
+    "quality": 1,
+    "itemLevel": 26,
+    "requiredLevel": 22,
+    "tooltip": "Jungle Remedy\nItem Level 26\nRequires Level 22\nUse: Cures diseases and neutralizes poisons up to level 35. (2 Min Cooldown)\nMax Stack: 10\nSell Price: 25"
+  },
+  {
+    "id": 3087,
+    "name": "Mug of Shimmer Stout",
+    "slot": 0,
+    "icon": "inv_drink_05",
+    "quality": 1,
+    "itemLevel": 15,
+    "tooltip": "Mug of Shimmer Stout\nItem Level 15\nUse: Restores 160 mana. (2 Min Cooldown)\nMax Stack: 10\nSell Price: 11"
+  },
+  {
+    "id": 3384,
+    "name": "Minor Magic Resistance Potion",
+    "slot": 0,
+    "icon": "inv_potion_08",
+    "quality": 1,
+    "itemLevel": 22,
+    "requiredLevel": 12,
+    "tooltip": "Minor Magic Resistance Potion\nItem Level 22\n+25 Arcane Resistance\n+25 Fire Resistance\n+25 Nature Resistance\n+25 Frost Resistance\n+25 Shadow Resistance\n+25 Holy Resistance\nRequires Level 12\nUse: Increases your resistance to all schools of magic by 25 for 3 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 20"
+  },
+  {
+    "id": 3385,
+    "name": "Lesser Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_71",
+    "quality": 1,
+    "itemLevel": 24,
+    "requiredLevel": 14,
+    "tooltip": "Lesser Mana Potion\nItem Level 24\nRequires Level 14\nUse: Restores 320 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 30"
+  },
+  {
+    "id": 3386,
+    "name": "Potion of Poison Cleansing",
+    "slot": 0,
+    "icon": "inv_potion_12",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 14,
+    "tooltip": "Potion of Poison Cleansing\nItem Level 55\nRequires Level 14\nUse: Imbiber is cured of up to four poisons up to level 60. (3 Sec Cooldown)\nMax Stack: 20\nSell Price: 35"
+  },
+  {
+    "id": 3387,
+    "name": "Limited Invulnerability Potion",
+    "slot": 0,
+    "icon": "inv_potion_62",
+    "quality": 1,
+    "itemLevel": 50,
+    "requiredLevel": 45,
+    "tooltip": "Limited Invulnerability Potion\nItem Level 50\nRequires Level 45\nUse: Imbiber is immune to physical attacks for the next 6 sec. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 30"
+  },
+  {
+    "id": 3823,
+    "name": "Lesser Invisibility Potion",
+    "slot": 0,
+    "icon": "inv_potion_18",
+    "quality": 1,
+    "itemLevel": 33,
+    "requiredLevel": 23,
+    "tooltip": "Lesser Invisibility Potion\nItem Level 33\nRequires Level 23\nUse: Gives the imbiber lesser invisibility for 15 sec. (10 Min Cooldown)\nMax Stack: 5\nSell Price: 1"
+  },
+  {
+    "id": 3827,
+    "name": "Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_72",
+    "quality": 1,
+    "itemLevel": 32,
+    "requiredLevel": 22,
+    "tooltip": "Mana Potion\nItem Level 32\nRequires Level 22\nUse: Restores 520 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 20"
+  },
+  {
+    "id": 3928,
+    "name": "Superior Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_53",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Superior Healing Potion\nItem Level 45\nRequires Level 35\nUse: Restores 800 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 50"
+  },
+  {
+    "id": 4596,
+    "name": "Minor Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_35",
+    "quality": 1,
+    "itemLevel": 15,
+    "requiredLevel": 5,
+    "tooltip": "Minor Discolored Healing Potion\nItem Level 15\nRequires Level 5\nUse: Restores 160 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 25"
+  },
+  {
+    "id": 4623,
+    "name": "Lesser Stoneshield Potion",
+    "slot": 0,
+    "icon": "inv_potion_67",
+    "quality": 1,
+    "itemLevel": 43,
+    "armor": 1000,
+    "requiredLevel": 33,
+    "tooltip": "Lesser Stoneshield Potion\nItem Level 43\n1000 Armor\nRequires Level 33\nUse: Increases armor by 1000 for 1.5 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 3 75"
+  },
+  {
+    "id": 5631,
+    "name": "Rage Potion",
+    "slot": 0,
+    "icon": "inv_potion_24",
+    "quality": 1,
+    "classMask": 1025,
+    "itemLevel": 14,
+    "requiredLevel": 4,
+    "tooltip": "Rage Potion\nItem Level 14\nClasses: Warrior , Druid\nRequires Level 4\nUse: Increases Rage by 20 to 40. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 30",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Rage by 20 to 40. (2 Min Cooldown)",
+        "name": "Rage Potion",
+        "icon": "inv_potion_24",
+        "rage": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 5633,
+    "name": "Great Rage Potion",
+    "slot": 0,
+    "icon": "inv_potion_21",
+    "quality": 1,
+    "classMask": 1025,
+    "itemLevel": 35,
+    "requiredLevel": 25,
+    "tooltip": "Great Rage Potion\nItem Level 35\nClasses: Warrior , Druid\nRequires Level 25\nUse: Increases Rage by 30 to 60. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 50",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Rage by 30 to 60. (2 Min Cooldown)",
+        "name": "Great Rage Potion",
+        "icon": "inv_potion_21",
+        "rage": 45,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 5634,
+    "name": "Free Action Potion",
+    "slot": 0,
+    "icon": "inv_potion_04",
+    "quality": 1,
+    "itemLevel": 30,
+    "requiredLevel": 20,
+    "tooltip": "Free Action Potion\nItem Level 30\nRequires Level 20\nUse: Makes you immune to Stun and Movement Impairing effects for the next 30 sec. Does not remove effects already on the imbiber. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 75"
+  },
+  {
+    "id": 5816,
+    "name": "Light of Elune",
+    "slot": 0,
+    "icon": "inv_potion_13",
+    "quality": 1,
+    "itemLevel": 25,
+    "binds": "Binds when picked up",
+    "tooltip": "Light of Elune\nItem Level 25\nBinds when picked up\nUnique\nUse: Grants immunity from all damage and spells for 10 sec. (2 Min Cooldown)\nSell Price: 4 5"
+  },
+  {
+    "id": 6048,
+    "name": "Shadow Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_44",
+    "quality": 1,
+    "itemLevel": 27,
+    "requiredLevel": 17,
+    "tooltip": "Shadow Protection Potion\nItem Level 27\nRequires Level 17\nUse: Absorbs 900 shadow damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1"
+  },
+  {
+    "id": 6049,
+    "name": "Fire Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_16",
+    "quality": 1,
+    "itemLevel": 33,
+    "requiredLevel": 23,
+    "tooltip": "Fire Protection Potion\nItem Level 33\nRequires Level 23\nUse: Absorbs 1300 fire damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 70"
+  },
+  {
+    "id": 6050,
+    "name": "Frost Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_13",
+    "quality": 1,
+    "itemLevel": 38,
+    "requiredLevel": 28,
+    "tooltip": "Frost Protection Potion\nItem Level 38\nRequires Level 28\nUse: Absorbs 1800 frost damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 3"
+  },
+  {
+    "id": 6051,
+    "name": "Holy Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_09",
+    "quality": 1,
+    "itemLevel": 20,
+    "requiredLevel": 10,
+    "tooltip": "Holy Protection Potion\nItem Level 20\nRequires Level 10\nUse: Absorbs 400 holy damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 62"
+  },
+  {
+    "id": 6052,
+    "name": "Nature Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_06",
+    "quality": 1,
+    "itemLevel": 38,
+    "requiredLevel": 28,
+    "tooltip": "Nature Protection Potion\nItem Level 38\nRequires Level 28\nUse: Absorbs 1800 nature damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 3"
+  },
+  {
+    "id": 6149,
+    "name": "Greater Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_73",
+    "quality": 1,
+    "itemLevel": 41,
+    "requiredLevel": 31,
+    "tooltip": "Greater Mana Potion\nItem Level 41\nRequires Level 31\nUse: Restores 800 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 20"
+  },
+  {
+    "id": 6372,
+    "name": "Swim Speed Potion",
+    "slot": 0,
+    "icon": "inv_potion_13",
+    "quality": 1,
+    "itemLevel": 20,
+    "requiredLevel": 10,
+    "tooltip": "Swim Speed Potion\nItem Level 20\nRequires Level 10\nUse: Increases swim speed by 100% for 20 sec. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 35"
+  },
+  {
+    "id": 9030,
+    "name": "Restorative Potion",
+    "slot": 0,
+    "icon": "inv_potion_01",
+    "quality": 1,
+    "itemLevel": 42,
+    "requiredLevel": 32,
+    "tooltip": "Restorative Potion\nItem Level 42\nRequires Level 32\nUse: Removes 1 magic, curse, poison or disease effect on you every 5 seconds for 30 seconds. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2"
+  },
+  {
+    "id": 9036,
+    "name": "Magic Resistance Potion",
+    "slot": 0,
+    "icon": "inv_potion_120",
+    "quality": 1,
+    "itemLevel": 42,
+    "requiredLevel": 32,
+    "tooltip": "Magic Resistance Potion\nItem Level 42\n+50 Arcane Resistance\n+50 Fire Resistance\n+50 Nature Resistance\n+50 Frost Resistance\n+50 Shadow Resistance\n+50 Holy Resistance\nRequires Level 32\nUse: Increases your resistance to all schools of magic by 50 for 3 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 20"
+  },
+  {
+    "id": 9144,
+    "name": "Wildvine Potion",
+    "slot": 0,
+    "icon": "inv_potion_34",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Wildvine Potion\nItem Level 45\nRequires Level 35\nUse: Restores 750 health and 750 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 50"
+  },
+  {
+    "id": 9172,
+    "name": "Invisibility Potion",
+    "slot": 0,
+    "icon": "inv_potion_25",
+    "quality": 1,
+    "itemLevel": 47,
+    "requiredLevel": 37,
+    "tooltip": "Invisibility Potion\nItem Level 47\nRequires Level 37\nUse: Gives the imbiber invisibility for 18 sec. (10 Min Cooldown)\nMax Stack: 5\nSell Price: 5"
+  },
+  {
+    "id": 12190,
+    "name": "Dreamless Sleep Potion",
+    "slot": 0,
+    "icon": "inv_potion_83",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Dreamless Sleep Potion\nItem Level 45\nRequires Level 35\nUse: Puts the imbiber in a dreamless sleep for 12 sec. During that time the imbiber heals 1200 health and 1200 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 50"
+  },
+  {
+    "id": 13442,
+    "name": "Mighty Rage Potion",
+    "slot": 0,
+    "icon": "inv_potion_41",
+    "quality": 1,
+    "classMask": 1025,
+    "itemLevel": 51,
+    "requiredLevel": 46,
+    "tooltip": "Mighty Rage Potion\nItem Level 51\nClasses: Warrior , Druid\nRequires Level 46\nUse: Increases Rage by 60 and increases Strength by 60 for 20 sec. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 5",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Rage by 60 and increases Strength by 60 for 20 sec. (2 Min Cooldown)",
+        "name": "Mighty Rage Potion",
+        "icon": "inv_potion_41",
+        "strength": 60,
+        "rage": 60,
+        "duration": 20,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 13443,
+    "name": "Superior Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_74",
+    "quality": 1,
+    "itemLevel": 51,
+    "requiredLevel": 41,
+    "tooltip": "Superior Mana Potion\nItem Level 51\nRequires Level 41\nUse: Restores 1200 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 4"
+  },
+  {
+    "id": 13444,
+    "name": "Major Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_76",
+    "quality": 1,
+    "itemLevel": 59,
+    "requiredLevel": 49,
+    "tooltip": "Major Mana Potion\nItem Level 59\nRequires Level 49\nUse: Restores 1800 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 15"
+  },
+  {
+    "id": 13446,
+    "name": "Major Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_54",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 45,
+    "tooltip": "Major Healing Potion\nItem Level 55\nRequires Level 45\nUse: Restores 1400 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 10"
+  },
+  {
+    "id": 13455,
+    "name": "Greater Stoneshield Potion",
+    "slot": 0,
+    "icon": "inv_potion_69",
+    "quality": 1,
+    "itemLevel": 56,
+    "armor": 2000,
+    "requiredLevel": 46,
+    "tooltip": "Greater Stoneshield Potion\nItem Level 56\n2000 Armor\nRequires Level 46\nUse: Increases armor by 2000 for 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13456,
+    "name": "Greater Frost Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_20",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Frost Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 frost damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13457,
+    "name": "Greater Fire Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_24",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Fire Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 fire damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13458,
+    "name": "Greater Nature Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_22",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Nature Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 nature damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13459,
+    "name": "Greater Shadow Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_23",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Shadow Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 shadow damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1"
+  },
+  {
+    "id": 13460,
+    "name": "Greater Holy Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_09",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Holy Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 holy damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13461,
+    "name": "Greater Arcane Protection Potion",
+    "slot": 0,
+    "icon": "inv_potion_83",
+    "quality": 1,
+    "itemLevel": 58,
+    "requiredLevel": 48,
+    "tooltip": "Greater Arcane Protection Potion\nItem Level 58\nRequires Level 48\nUse: Absorbs 2600 arcane damage. Lasts 2 min. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13462,
+    "name": "Purification Potion",
+    "slot": 0,
+    "icon": "inv_potion_31",
+    "quality": 1,
+    "itemLevel": 57,
+    "requiredLevel": 47,
+    "tooltip": "Purification Potion\nItem Level 57\nRequires Level 47\nUse: Attempts to remove one Curse or Bane, one Disease and one Poison from the Imbiber. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 7 50"
+  },
+  {
+    "id": 13506,
+    "name": "Flask of Petrification",
+    "slot": 0,
+    "icon": "inv_potion_26",
+    "quality": 1,
+    "itemLevel": 60,
+    "requiredLevel": 50,
+    "tooltip": "Flask of Petrification\nItem Level 60\nRequires Level 50\nUse: You turn to stone, protecting you from all physical attacks and spells for 1 min, but during that time you cannot attack, move or cast spells. You can only have the effect of one flask at a time. (3 Sec Cooldown)\nMax Stack: 5\nSell Price: 50"
+  },
+  {
+    "id": 17348,
+    "name": "Major Healing Draught",
+    "slot": 0,
+    "icon": "inv_potion_38",
+    "quality": 1,
+    "itemLevel": 55,
+    "binds": "Binds when picked up",
+    "requiredLevel": 45,
+    "tooltip": "Major Healing Draught\nItem Level 55\nBinds when picked up\nUnique (10)\nRequires Level 45\nUse: Restores 1120 health. This item may only be used in PvP Battlegrounds. (5 Min Cooldown)\nMax Stack: 10\nSell Price: 2 50"
+  },
+  {
+    "id": 17349,
+    "name": "Superior Healing Draught",
+    "slot": 0,
+    "icon": "inv_potion_39",
+    "quality": 1,
+    "itemLevel": 45,
+    "binds": "Binds when picked up",
+    "requiredLevel": 35,
+    "tooltip": "Superior Healing Draught\nItem Level 45\nBinds when picked up\nUnique (10)\nRequires Level 35\nUse: Restores 640 health. This item may only be used in PvP Battlegrounds. (5 Min Cooldown)\nMax Stack: 10\nSell Price: 1 25"
+  },
+  {
+    "id": 17351,
+    "name": "Major Mana Draught",
+    "slot": 0,
+    "icon": "inv_potion_80",
+    "quality": 1,
+    "itemLevel": 55,
+    "binds": "Binds when picked up",
+    "requiredLevel": 45,
+    "tooltip": "Major Mana Draught\nItem Level 55\nBinds when picked up\nUnique (10)\nRequires Level 45\nUse: Restores 1120 mana. This item may only be used in PvP Battlegrounds. (5 Min Cooldown)\nMax Stack: 10\nSell Price: 2 50"
+  },
+  {
+    "id": 17352,
+    "name": "Superior Mana Draught",
+    "slot": 0,
+    "icon": "inv_potion_81",
+    "quality": 1,
+    "itemLevel": 45,
+    "binds": "Binds when picked up",
+    "requiredLevel": 35,
+    "tooltip": "Superior Mana Draught\nItem Level 45\nBinds when picked up\nUnique (10)\nRequires Level 35\nUse: Restores 640 mana. This item may only be used in PvP Battlegrounds. (5 Min Cooldown)\nMax Stack: 10\nSell Price: 1 25"
+  },
+  {
+    "id": 18253,
+    "name": "Major Rejuvenation Potion",
+    "slot": 0,
+    "icon": "inv_potion_47",
+    "quality": 1,
+    "itemLevel": 60,
+    "requiredLevel": 50,
+    "tooltip": "Major Rejuvenation Potion\nItem Level 60\nRequires Level 50\nUse: Restores 1600 mana and health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 15"
+  },
+  {
+    "id": 18839,
+    "name": "Combat Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_39",
+    "quality": 1,
+    "itemLevel": 45,
+    "binds": "Binds when picked up",
+    "requiredLevel": 35,
+    "tooltip": "Combat Healing Potion\nItem Level 45\nBinds when picked up\nUnique (5)\nRequires Level 35\nUse: Restores 800 health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 50"
+  },
+  {
+    "id": 18841,
+    "name": "Combat Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_81",
+    "quality": 1,
+    "itemLevel": 51,
+    "binds": "Binds when picked up",
+    "requiredLevel": 41,
+    "tooltip": "Combat Mana Potion\nItem Level 51\nBinds when picked up\nUnique (5)\nRequires Level 41\nUse: Restores 1200 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 75"
+  },
+  {
+    "id": 20002,
+    "name": "Greater Dreamless Sleep Potion",
+    "slot": 0,
+    "icon": "inv_potion_83",
+    "quality": 1,
+    "itemLevel": 60,
+    "requiredLevel": 55,
+    "tooltip": "Greater Dreamless Sleep Potion\nItem Level 60\nRequires Level 55\nUse: Puts the imbiber in a dreamless sleep for 12 sec. During that time the imbiber heals 2100 health and 2100 mana. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 10"
+  },
+  {
+    "id": 20008,
+    "name": "Living Action Potion",
+    "slot": 0,
+    "icon": "inv_potion_07",
+    "quality": 1,
+    "itemLevel": 57,
+    "requiredLevel": 47,
+    "tooltip": "Living Action Potion\nItem Level 57\nRequires Level 47\nUse: Makes you immune to Stun and Movement Impairing effects for the next 5 sec. Also removes existing Stun and Movement Impairing effects. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 6"
+  },
+  {
+    "id": 23578,
+    "name": "Diet McWeaksauce",
+    "slot": 0,
+    "icon": "inv_potion_76",
+    "quality": 1,
+    "itemLevel": 59,
+    "requiredLevel": 49,
+    "tooltip": "Diet McWeaksauce\nItem Level 59\nRequires Level 49\nUse: Restores 1800 mana. (2 Min Cooldown)\n&quot;Food for the Mind&quot;\nMax Stack: 10"
+  },
+  {
+    "id": 23579,
+    "name": "The McWeaksauce Classic",
+    "slot": 0,
+    "icon": "inv_potion_54",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 45,
+    "tooltip": "The McWeaksauce Classic\nItem Level 55\nRequires Level 45\nUse: Restores 1400 health. (2 Min Cooldown)\n&quot;The Original.&quot;\nMax Stack: 10"
+  },
+  {
+    "id": 241650,
+    "name": "Major Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_40",
+    "quality": 1,
+    "itemLevel": 70,
+    "requiredLevel": 60,
+    "tooltip": "Major Discolored Healing Potion\nItem Level 70\nRequires Level 60\nUse: Restores 2800 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 25"
+  },
+  {
+    "id": 247239,
+    "name": "Lesser Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_36",
+    "quality": 1,
+    "itemLevel": 13,
+    "requiredLevel": 3,
+    "tooltip": "Lesser Discolored Healing Potion\nItem Level 13\nRequires Level 3\nUse: Restores 320 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 25"
+  },
+  {
+    "id": 247240,
+    "name": "Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_37",
+    "quality": 1,
+    "itemLevel": 22,
+    "requiredLevel": 12,
+    "tooltip": "Discolored Healing Potion\nItem Level 22\nRequires Level 12\nUse: Restores 640 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 75"
+  },
+  {
+    "id": 247241,
+    "name": "Greater Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_38",
+    "quality": 1,
+    "itemLevel": 31,
+    "requiredLevel": 21,
+    "tooltip": "Greater Discolored Healing Potion\nItem Level 31\nRequires Level 21\nUse: Restores 1040 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 25"
+  },
+  {
+    "id": 247242,
+    "name": "Superior Discolored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_39",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Superior Discolored Healing Potion\nItem Level 45\nRequires Level 35\nUse: Restores 1600 health instantly, however you also suffer 75% of that amount over time.\nThe symptoms of this effect can manifest as either a 6 sec poison or a 12 sec disease. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 2 50"
+  },
+  {
+    "id": 250932,
+    "name": "Minor Spellblasting Potion",
+    "slot": 0,
+    "icon": "trade_alchemy_dpotion_d14",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 5,
+    "tooltip": "Minor Spellblasting Potion\nItem Level 45\nRequires Level 5\nUse: Increases your Spell Damage by 6 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 6 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Minor Spellblasting Potion",
+        "icon": "trade_alchemy_dpotion_d14",
+        "spellPower": 6,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250933,
+    "name": "Lesser Spellblasting Potion",
+    "slot": 0,
+    "icon": "inv_misc_potionsetc",
+    "quality": 1,
+    "itemLevel": 5,
+    "requiredLevel": 15,
+    "tooltip": "Lesser Spellblasting Potion\nItem Level 5\nRequires Level 15\nUse: Increases your Spell Damage by 9 for 30 sec.\nMax Stack: 20\nSell Price: 25",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 9 for 30 sec. Max Stack: 20 Sell Price: 25",
+        "name": "Lesser Spellblasting Potion",
+        "icon": "inv_misc_potionsetc",
+        "spellPower": 9,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250934,
+    "name": "Spellblasting Potion",
+    "slot": 0,
+    "icon": "inv_potiond_2",
+    "quality": 1,
+    "itemLevel": 5,
+    "requiredLevel": 25,
+    "tooltip": "Spellblasting Potion\nItem Level 5\nRequires Level 25\nUse: Increases your Spell Damage by 14 for 30 sec.\nMax Stack: 20\nSell Price: 25",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 14 for 30 sec. Max Stack: 20 Sell Price: 25",
+        "name": "Spellblasting Potion",
+        "icon": "inv_potiond_2",
+        "spellPower": 14,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250935,
+    "name": "Greater Spellblasting Potion",
+    "slot": 0,
+    "icon": "inv_potionf_4",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 35,
+    "tooltip": "Greater Spellblasting Potion\nItem Level 55\nRequires Level 35\nUse: Increases your Spell Damage by 20 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 20 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Greater Spellblasting Potion",
+        "icon": "inv_potionf_4",
+        "spellPower": 20,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250936,
+    "name": "Superior Spellblasting Potion",
+    "slot": 0,
+    "icon": "inv_misc_potiona2",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 45,
+    "tooltip": "Superior Spellblasting Potion\nItem Level 55\nRequires Level 45\nUse: Increases your Spell Damage by 28 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 28 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Superior Spellblasting Potion",
+        "icon": "inv_misc_potiona2",
+        "spellPower": 28,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250937,
+    "name": "Major Spellblasting Potion",
+    "slot": 0,
+    "icon": "inv_potione_4",
+    "quality": 1,
+    "itemLevel": 5,
+    "requiredLevel": 55,
+    "tooltip": "Major Spellblasting Potion\nItem Level 5\nRequires Level 55\nUse: Increases your Spell Damage by 40 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Spell Damage by 40 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Major Spellblasting Potion",
+        "icon": "inv_potione_4",
+        "spellPower": 40,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250938,
+    "name": "Minor Frenzy Potion",
+    "slot": 0,
+    "icon": "trade_alchemy_dpotion_d12",
+    "quality": 1,
+    "itemLevel": 25,
+    "requiredLevel": 5,
+    "tooltip": "Minor Frenzy Potion\nItem Level 25\nRequires Level 5\nUse: Increases your Attack Power by 6 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 6 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Minor Frenzy Potion",
+        "icon": "trade_alchemy_dpotion_d12",
+        "attackPower": 6,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250939,
+    "name": "Lesser Frenzy Potion",
+    "slot": 0,
+    "icon": "inv_misc_potionsetf",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 15,
+    "tooltip": "Lesser Frenzy Potion\nItem Level 45\nRequires Level 15\nUse: Increases your Attack Power by 9 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 9 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Lesser Frenzy Potion",
+        "icon": "inv_misc_potionsetf",
+        "attackPower": 9,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250940,
+    "name": "Frenzy Potion",
+    "slot": 0,
+    "icon": "inv_potiond_3",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 25,
+    "tooltip": "Frenzy Potion\nItem Level 55\nRequires Level 25\nUse: Increases your Attack Power by 14 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 14 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Frenzy Potion",
+        "icon": "inv_potiond_3",
+        "attackPower": 14,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250941,
+    "name": "Greater Frenzy Potion",
+    "slot": 0,
+    "icon": "inv_potionf_1",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Greater Frenzy Potion\nItem Level 45\nRequires Level 35\nUse: Increases your Attack Power by 20 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 20 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Greater Frenzy Potion",
+        "icon": "inv_potionf_1",
+        "attackPower": 20,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250942,
+    "name": "Superior Frenzy Potion",
+    "slot": 0,
+    "icon": "inv_misc_potiona6",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 45,
+    "tooltip": "Superior Frenzy Potion\nItem Level 55\nRequires Level 45\nUse: Increases your Attack Power by 28 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 28 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Superior Frenzy Potion",
+        "icon": "inv_misc_potiona6",
+        "attackPower": 28,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250943,
+    "name": "Major Frenzy Potion",
+    "slot": 0,
+    "icon": "inv_potione_6",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 55,
+    "tooltip": "Major Frenzy Potion\nItem Level 55\nRequires Level 55\nUse: Increases your Attack Power by 40 for 30 sec.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases your Attack Power by 40 for 30 sec. Max Stack: 20 Sell Price: 1",
+        "name": "Major Frenzy Potion",
+        "icon": "inv_potione_6",
+        "attackPower": 40,
+        "duration": 30,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250944,
+    "name": "Minor Mender's Potion",
+    "slot": 0,
+    "icon": "trade_alchemy_dpotion_d13",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 5,
+    "tooltip": "Minor Mender's Potion\nItem Level 55\nRequires Level 5\nUse: Increases your healing done by up to 8 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250945,
+    "name": "Lesser Mender's Potion",
+    "slot": 0,
+    "icon": "inv_misc_potionsete",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 15,
+    "tooltip": "Lesser Mender's Potion\nItem Level 55\nRequires Level 15\nUse: Increases your healing done by up to 14 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250946,
+    "name": "Mender's Potion",
+    "slot": 0,
+    "icon": "inv_potiond_6",
+    "quality": 1,
+    "itemLevel": 5,
+    "requiredLevel": 25,
+    "tooltip": "Mender's Potion\nItem Level 5\nRequires Level 25\nUse: Increases your healing done by up to 28 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250947,
+    "name": "Greater Mender's Potion",
+    "slot": 0,
+    "icon": "inv_potionf_3",
+    "quality": 1,
+    "itemLevel": 25,
+    "requiredLevel": 35,
+    "tooltip": "Greater Mender's Potion\nItem Level 25\nRequires Level 35\nUse: Increases your healing done by up to 38 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250948,
+    "name": "Superior Mender's Potion",
+    "slot": 0,
+    "icon": "inv_misc_potiona3",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 45,
+    "tooltip": "Superior Mender's Potion\nItem Level 55\nRequires Level 45\nUse: Increases your healing done by up to 50 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250949,
+    "name": "Major Mender's Potion",
+    "slot": 0,
+    "icon": "inv_potione_2",
+    "quality": 1,
+    "itemLevel": 25,
+    "requiredLevel": 55,
+    "tooltip": "Major Mender's Potion\nItem Level 25\nRequires Level 55\nUse: Increases your healing done by up to 75 for 30 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250950,
+    "name": "Potion of Venomous Blood",
+    "slot": 0,
+    "icon": "inv_potion_19",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 30,
+    "tooltip": "Potion of Venomous Blood\nItem Level 55\nRequires Level 30\nUse: Gain 10 doses of Venomous Blood. Whenever you suffer Bleed damage, one dose is spread to a nearby enemy within 8 yds. Lasts up to 20 sec.\nVenomous Blood deals 325 Nature damage per dose when it expires.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250951,
+    "name": "Caustic Smog Potion",
+    "slot": 0,
+    "icon": "trade_alchemy_dpotion_c26",
+    "quality": 1,
+    "itemLevel": 5,
+    "requiredLevel": 45,
+    "tooltip": "Caustic Smog Potion\nItem Level 5\nRequires Level 45\nUse: Throw a fragile concoction at the target area, revealing a cloud of Caustic Smog for 12 sec. Enemies standing within the cloud suffer 300 Nature damage every 1 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250952,
+    "name": "Disorienting Smog Potion",
+    "slot": 0,
+    "icon": "trade_alchemy_dpotion_c24",
+    "quality": 1,
+    "itemLevel": 25,
+    "requiredLevel": 45,
+    "tooltip": "Disorienting Smog Potion\nItem Level 25\nRequires Level 45\nUse: Throw a fragile concoction at the target area, revealing a cloud of Disorienting Smog for 8 sec. Enemies standing within the cloud have their Hit Chance reduced by 10%. Ineffective against targets above level 10.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250953,
+    "name": "Dragonfire Potion",
+    "slot": 0,
+    "icon": "inv_potion_33",
+    "quality": 1,
+    "itemLevel": 45,
+    "requiredLevel": 35,
+    "tooltip": "Dragonfire Potion\nItem Level 45\nRequires Level 35\nUse: Unleash a belch of dragonfire, dealing 450 Fire damage instantly in a narrow cone in front of you. Affected targets will suffer 125 additional damage every 2 sec for 8 sec.\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 250954,
+    "name": "Potion of Elemental Siphoning",
+    "slot": 0,
+    "icon": "inv_alchemy_80_potion02blue",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 40,
+    "tooltip": "Potion of Elemental Siphoning\nItem Level 55\nRequires Level 40\nUse: Increases Spell Damage by 265 against Elementals. Lasts 2 min.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Spell Damage by 265 against Elementals. Lasts 2 min. Max Stack: 20 Sell Price: 1",
+        "name": "Potion of Elemental Siphoning",
+        "icon": "inv_alchemy_80_potion02blue",
+        "spellPower": 265,
+        "duration": 120,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 250955,
+    "name": "Potion of Beast Culling",
+    "slot": 0,
+    "icon": "inv_alchemy_80_potion02yellow",
+    "quality": 1,
+    "itemLevel": 55,
+    "requiredLevel": 40,
+    "tooltip": "Potion of Beast Culling\nItem Level 55\nRequires Level 40\nUse: Increases Spell Damage by 108 and Attack Power by 185 against Beasts. Lasts 2 min.\nMax Stack: 20\nSell Price: 1",
+    "effects": [
+      {
+        "kind": "use",
+        "text": "Use: Increases Spell Damage by 108 and Attack Power by 185 against Beasts. Lasts 2 min. Max Stack: 20 Sell Price: 1",
+        "name": "Potion of Beast Culling",
+        "icon": "inv_alchemy_80_potion02yellow",
+        "attackPower": 185,
+        "spellPower": 108,
+        "duration": 120,
+        "cooldown": 120
+      }
+    ]
+  },
+  {
+    "id": 274935,
+    "name": "Tessa's Tonic",
+    "slot": 0,
+    "icon": "inv_potion_46",
+    "quality": 1,
+    "itemLevel": 45,
+    "binds": "Binds when picked up",
+    "requiredLevel": 35,
+    "tooltip": "Tessa's Tonic\nItem Level 45\nBinds when picked up\nRequires Level 35\nUse: Restores 800 mana and health. (2 Min Cooldown)\nMax Stack: 5\nSell Price: 1 50"
+  },
+  {
+    "id": 281234,
+    "name": "Potion of Winterspring Shrouding",
+    "slot": 0,
+    "icon": "inv_potion_15",
+    "quality": 1,
+    "itemLevel": 1,
+    "binds": "Binds when picked up",
+    "tooltip": "Potion of Winterspring Shrouding\nItem Level 1\nBinds when picked up\nUse: Causes the imbiber to be less detectable by creatures in Winterspring for 10 min. Only functions in Winterspring. (10 Sec Cooldown)\nMax Stack: 5"
+  },
+  {
+    "id": 282011,
+    "name": "Restored Healing Potion",
+    "slot": 0,
+    "icon": "inv_potion_14",
+    "quality": 1,
+    "itemLevel": 60,
+    "binds": "Binds when picked up",
+    "tooltip": "Restored Healing Potion\nItem Level 60\nBinds when picked up\nUse: Restores 30% health. (2 Min Cooldown)\nMax Stack: 20\nSell Price: 1"
+  },
+  {
+    "id": 282013,
+    "name": "Restored Mana Potion",
+    "slot": 0,
+    "icon": "inv_potion_17",
+    "quality": 1,
+    "itemLevel": 60,
+    "binds": "Binds when picked up",
+    "tooltip": "Restored Mana Potion\nItem Level 60\nBinds when picked up\nUse: Restores 20% mana. (2 Min Cooldown)\nMax Stack: 20\nSell Price: 1"
+  }
+]

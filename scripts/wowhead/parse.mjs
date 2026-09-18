@@ -4,8 +4,9 @@ export function stripHtml(html) {
   }
   return String(html)
     .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(div|p|h\d|tr|li|br)\b/gi, '\n<$1')
     .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|tr|div|li|h\d)>/gi, '\n')
+    .replace(/<\/(p|tr|div|li|h\d|td|th|table)>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
@@ -88,10 +89,11 @@ export function extractGearPlannerItems(dbContents, itemKey) {
       continue
     }
     const dbName = trimmed.slice(1, nameEnd)
-    if (itemKey && dbName !== itemKey && !dbName.endsWith('.item')) {
-      continue
-    }
-    if (!dbName.includes('gearPlanner') || !dbName.endsWith('.item')) {
+    if (itemKey) {
+      if (dbName !== itemKey) {
+        continue
+      }
+    } else if (!dbName.includes('gearPlanner') || !dbName.endsWith('.item')) {
       continue
     }
     const commaIdx = trimmed.indexOf(',')
@@ -100,10 +102,34 @@ export function extractGearPlannerItems(dbContents, itemKey) {
     }
     let payload = trimmed.slice(commaIdx + 1).trim()
     payload = payload.replace(/\)\s*;?\s*$/, '')
-    const parsed = parseLooseJson(payload)
-    Object.assign(items, parsed)
+    try {
+      Object.assign(items, parseLooseJson(payload))
+    } catch {
+      try {
+        Object.assign(items, parseWowheadJs(payload))
+      } catch {
+        continue
+      }
+    }
   }
   return items
+}
+
+/** Script src Wowhead injects into /forever/gear-planner even when the React UI throws. */
+export function extractGearPlannerDumpUrls(html) {
+  const urls = []
+  const re = /https:\/\/nether\.wowhead\.com\/[^\s"'<>]*\/data\/gear-planner\?[^\s"'<>]+/gi
+  for (const match of String(html).matchAll(re)) {
+    urls.push(match[0].replace(/&amp;/g, '&'))
+  }
+  return [...new Set(urls)]
+}
+
+export function isForeverTooltipPayload(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) || data.error) {
+    return false
+  }
+  return Boolean(data.name || data.tooltip)
 }
 
 export function extractListviewItems(html) {
@@ -216,6 +242,17 @@ export function extractTalentCalcDump(dbContents, pageKey) {
   return found?.data || { talents: {}, trees: {} }
 }
 
+function talentRankTexts(row) {
+  const desc = row.descriptions || {}
+  const max = talentMaxPoints(row)
+  const out = []
+  for (let i = 1; i <= max; i++) {
+    const text = desc[i] ?? desc[String(i)] ?? ''
+    out.push(String(text).replace(/<[^>]+>/g, '').trim())
+  }
+  return out
+}
+
 export function talentTreesFromDump(dump, backgroundTemplate) {
   const out = {}
   const talents = dump.talents || {}
@@ -236,6 +273,7 @@ export function talentTreesFromDump(dump, backgroundTemplate) {
           },
           spellIds: [id],
           maxPoints: talentMaxPoints(row),
+          ranks: talentRankTexts(row),
           _id: id,
           _requires: Array.isArray(row.requires) ? row.requires : [],
         }
@@ -361,41 +399,101 @@ function intStat(text, re) {
   return m ? Number(m[1]) : 0
 }
 
+function parseDurationSeconds(body) {
+  const forMin = body.match(/\b(?:lasts|for)\s+(\d+(?:\.\d+)?)\s*min(?:ute)?s?\b/i)
+  if (forMin) {
+    return Number(forMin[1]) * 60
+  }
+  const forSec = body.match(/\b(?:lasts|for)\s+(\d+(?:\.\d+)?)\s*sec(?:ond)?s?\b/i)
+  if (forSec) {
+    return Number(forSec[1])
+  }
+  return 0
+}
+
+function parseRage(body) {
+  const range = body.match(/rage by (\d+)\s*to\s*(\d+)/i)
+  if (range) {
+    return (Number(range[1]) + Number(range[2])) / 2
+  }
+  return intStat(body, /rage by (\d+)/i)
+}
+
+function parseNamedStat(body, labels) {
+  const name = labels.join('|')
+  const patterns = [
+    new RegExp(`(?:increases?|grants?|gives?)(?: your)? (?:${name}) by (\\d+)`, 'i'),
+    new RegExp(`(?:increases?|grants?|gives?)(?: your)? (\\d+)\\s+(?:${name})`, 'i'),
+    new RegExp(`\\+\\s*(\\d+)\\s+(?:${name})`, 'i'),
+  ]
+  for (const re of patterns) {
+    const n = intStat(body, re)
+    if (n) {
+      return n
+    }
+  }
+  return 0
+}
+
+function parseUseClauses(text) {
+  const clauses = []
+  const useRe = /(?:On\s+)?Use:\s*([\s\S]*?)(?:\(([^)]*Cooldown)\)|$)/gi
+  let match
+  while ((match = useRe.exec(text))) {
+    clauses.push({
+      body: match[1].replace(/\s+/g, ' ').trim(),
+      cooldownRaw: match[2] || '',
+    })
+  }
+  if (!clauses.length) {
+    const loose = text.match(/on use[:,]?\s+([\s\S]+?)(?:\(([^)]*Cooldown)\)|$)/i)
+    if (loose) {
+      clauses.push({
+        body: loose[1].replace(/\s+/g, ' ').trim(),
+        cooldownRaw: loose[2] || '',
+      })
+    }
+  }
+  return clauses
+}
+
 export function parseItemEffects(tooltip) {
   const text = ` ${stripHtml(tooltip || '')} `
   const effects = []
-  const useRe = /Use:\s*([\s\S]*?)(?:\(([^)]*Cooldown)\)|$)/gi
-  let match
-  while ((match = useRe.exec(text))) {
-    const body = match[1].replace(/\s+/g, ' ').trim()
-    const cooldown = parseCooldown(match[2] || '')
-    const duration =
-      intStat(body, /(?:lasts|for)\s+(\d+)\s+sec/i) || intStat(body, /(\d+)\s+sec(?:ond)?s?/i)
+  for (const clause of parseUseClauses(text)) {
+    const body = clause.body
+    const cooldown = parseCooldown(clause.cooldownRaw)
+    const duration = parseDurationSeconds(body)
     const ap =
-      intStat(body, /attack power by (\d+)/i) ||
-      intStat(body, /melee and ranged attack power by (\d+)/i)
+      intStat(body, /(?:melee and ranged )?attack power by (\d+)/i) ||
+      intStat(body, /(\d+) (?:melee and ranged )?attack power/i)
     const spellPower =
       intStat(body, /damage and healing done by magical spells and effects by up to (\d+)/i) ||
       intStat(body, /spell damage(?: taken)? by up to (\d+)/i) ||
-      intStat(body, /magical spells and effects by up to (\d+)/i)
+      intStat(body, /magical spells and effects by up to (\d+)/i) ||
+      intStat(body, /(?:your )?spell damage by (?:up to )?(\d+)/i)
     const haste =
       intStat(body, /(?:attack speed|casting speed|haste) by (\d+)%/i) / 100
     const crit = intStat(body, /critical strike chance by (\d+)%/i) / 100
-    const strength = intStat(body, /Strength by (\d+)/i)
+    const strength = parseNamedStat(body, ['strength'])
+    const agility = parseNamedStat(body, ['agility'])
     const armorIgnore =
       intStat(body, /ignore (\d+) of your target's armor/i) ||
       intStat(body, /(\d+) armor ignore/i) * (intStat(body, /stacking up to (\d+)/i) || 1)
     const stackAP = intStat(body, /Increases attack power by (\d+) every/i)
     const interval = intStat(body, /every (\d+) sec/i)
+    const rage = parseRage(body)
     effects.push({
       kind: 'use',
-      text: `Use: ${body}${match[2] ? ` (${match[2]})` : ''}`.replace(/\s+/g, ' ').trim(),
+      text: `Use: ${body}${clause.cooldownRaw ? ` (${clause.cooldownRaw})` : ''}`.replace(/\s+/g, ' ').trim(),
       attackPower: ap,
       spellPower,
       haste,
       crit,
       strength,
+      agility,
       armorIgnore,
+      rage,
       duration: duration || (stackAP ? 20 : 0),
       cooldown,
       stackAP,
@@ -436,9 +534,11 @@ export function parseItemEffects(tooltip) {
     effect.haste ||
     effect.crit ||
     effect.strength ||
+    effect.agility ||
     effect.armorIgnore ||
     effect.extraAttack ||
-    effect.stackAP,
+    effect.stackAP ||
+    effect.rage,
   )
 }
 
@@ -529,10 +629,16 @@ export function parseItemTooltip(raw) {
     intStat(staticText, /damage done by Holy spells and effects by up to (\d+)/i)
 
   let classMask = 0
-  const req = padded.match(/Requires ((?:Warrior|Paladin|Hunter|Rogue|Priest|Shaman|Mage|Warlock|Druid)(?:, (?:Warrior|Paladin|Hunter|Rogue|Priest|Shaman|Mage|Warlock|Druid))*)/)
+  const classNames = 'Warrior|Paladin|Hunter|Rogue|Priest|Shaman|Mage|Warlock|Druid'
+  const classList = new RegExp(
+    `(?:Classes:\\s*|Requires )((?:${classNames})(?:\\s*,\\s*(?:${classNames}))*)`,
+    'i',
+  )
+  const req = padded.match(classList)
   if (req) {
-    for (const name of req[1].split(/,\s*/)) {
-      classMask |= CLASS_BITS[name] || 0
+    for (const name of req[1].split(/\s*,\s*/)) {
+      const key = name.replace(/^\w/, (c) => c.toUpperCase())
+      classMask |= CLASS_BITS[name] || CLASS_BITS[key] || 0
     }
   }
 
@@ -890,7 +996,13 @@ export function catalogItemFromParsed(item) {
   if (item.effects?.length) {
     out.effects = item.effects.map((effect) => {
       const next = { kind: effect.kind, text: effect.text }
-      for (const key of ['attackPower', 'spellPower', 'haste', 'crit', 'strength', 'armorIgnore', 'duration', 'cooldown', 'chance', 'extraAttack', 'stackAP', 'interval']) {
+      if (item.name) {
+        next.name = item.name
+      }
+      if (item.icon) {
+        next.icon = item.icon
+      }
+      for (const key of ['attackPower', 'spellPower', 'haste', 'crit', 'strength', 'agility', 'armorIgnore', 'rage', 'duration', 'cooldown', 'chance', 'extraAttack', 'stackAP', 'interval']) {
         if (effect[key]) {
           next[key] = effect[key]
         }
@@ -969,5 +1081,304 @@ export function applySpellToAbility(ability, spell, openerKeepCd = true) {
   if (spell.gain) {
     next.gain = spell.gain
   }
+  if (spell.tooltip) {
+    next.tooltip = spell.tooltip
+  }
   return next
+}
+
+const ENCHANT_SLOT_NAME = [
+  [/Enchant 2H Weapon/i, { slots: [15], twoHandOnly: true }],
+  [/Enchant Weapon/i, { slots: [15, 16], weapon: true }],
+  [/Enchant Bracer/i, { slots: [6] }],
+  [/Enchant Chest/i, { slots: [5] }],
+  [/Enchant Cloak/i, { slots: [4] }],
+  [/Enchant Boots/i, { slots: [10] }],
+  [/Enchant Gloves/i, { slots: [7] }],
+  [/Enchant Shield/i, { slots: [16], shieldOnly: true }],
+  [/Enchant Off-Hand/i, { slots: [16], offHandOnly: true }],
+  [/Enchant Necklace|Enchant Neck/i, { slots: [2] }],
+]
+
+function enchantSlotsFromText(name, useText) {
+  const blob = `${name} ${useText}`
+  for (const [re, info] of ENCHANT_SLOT_NAME) {
+    if (re.test(name)) {
+      return { ...info }
+    }
+  }
+  if (/leg or head|head or leg|head slot item|leg slot/i.test(useText)) {
+    return { slots: [1, 9] }
+  }
+  if (/shoulder/i.test(useText)) {
+    return { slots: [3] }
+  }
+  if (/\b2h weapon\b|two-hand/i.test(useText) && /enchant/i.test(blob)) {
+    return { slots: [15], twoHandOnly: true }
+  }
+  if (/melee weapon/i.test(useText)) {
+    return { slots: [15, 16], weapon: true }
+  }
+  if (/chest armor|piece of chest/i.test(useText)) {
+    return { slots: [5] }
+  }
+  if (/bracer/i.test(useText)) {
+    return { slots: [6] }
+  }
+  if (/cloak/i.test(useText)) {
+    return { slots: [4] }
+  }
+  if (/boots|boot /i.test(useText)) {
+    return { slots: [10] }
+  }
+  if (/gloves/i.test(useText)) {
+    return { slots: [7] }
+  }
+  if (/shield/i.test(useText)) {
+    return { slots: [16], shieldOnly: true }
+  }
+  if (/off-hand|off hand/i.test(useText)) {
+    return { slots: [16], offHandOnly: true }
+  }
+  if (/necklace|neck item/i.test(useText)) {
+    return { slots: [2] }
+  }
+  if (/bow|gun|crossbow|ranged weapon|scope/i.test(blob)) {
+    return { slots: [17], ranged: true }
+  }
+  if (/sharp weapon|weightstone|mace/i.test(blob)) {
+    return { slots: [15, 16], weapon: true }
+  }
+  if (/wizard oil|mana oil|weapon oil/i.test(blob)) {
+    return { slots: [15, 16], weapon: true }
+  }
+  return { slots: [] }
+}
+
+function enchantUseText(tooltip) {
+  const match = tooltip.match(/Use:\s*([\s\S]+)/i)
+  if (!match) {
+    return tooltip.replace(/\s+/g, ' ').trim()
+  }
+  return match[1]
+    .replace(/\nMax Stack[\s\S]*$/i, '')
+    .replace(/\nSell Price[\s\S]*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function enchantIsProc(name, useText) {
+  return /crusader|lifestealing|fiery weapon|unholy weapon|icy chill|demonslaying|grand crusader|grand sorcerer|grand arcanist|grand inquisitor|dismantle|insight|recovery|revelation/i.test(
+    `${name} ${useText}`,
+  ) && /often when attacking|chance on hit|for \d+ sec|heals for|proc/i.test(useText)
+}
+
+export function parseEnchantment(raw, kind = 'permanent') {
+  const tooltip = stripHtml(raw.tooltip || '')
+  const useText = enchantUseText(tooltip)
+  const name = raw.name || ''
+  const slotInfo = enchantSlotsFromText(name, useText)
+  const proc = enchantIsProc(name, useText)
+  const staticText = proc ? '' : useText
+
+  const allStats = intStat(staticText, /\+(\d+) to all stats/i) || intStat(staticText, /\+(\d+) all stats/i)
+  const spirit =
+    allStats ||
+    intStat(staticText, /\+(\d+) Spirit/i) ||
+    intStat(staticText, /grant \+(\d+) spirit/i) ||
+    intStat(staticText, /adds? (\d+) to Spirit/i)
+  const intellect =
+    allStats ||
+    intStat(staticText, /\+(\d+) Intellect/i) ||
+    intStat(staticText, /grant \+(\d+) intellect/i) ||
+    intStat(staticText, /adds? (\d+) to Intellect/i)
+  const stamina =
+    allStats ||
+    intStat(staticText, /\+(\d+) Stamina/i) ||
+    intStat(staticText, /grant \+(\d+) stamina/i) ||
+    intStat(staticText, /adds? (\d+) to Stamina/i)
+  const agility =
+    allStats ||
+    intStat(staticText, /\+(\d+) Agility/i) ||
+    intStat(staticText, /grant \+(\d+) agility/i) ||
+    intStat(staticText, /increases? Agility by (\d+)/i) ||
+    intStat(staticText, /adds? (\d+) to Agility/i)
+  const strength =
+    allStats ||
+    intStat(staticText, /\+(\d+) Strength/i) ||
+    intStat(staticText, /grant \+(\d+) strength/i) ||
+    intStat(staticText, /increases? Strength by (\d+)/i) ||
+    intStat(staticText, /adds? (\d+) to Strength/i)
+  const attackPower =
+    intStat(staticText, /\+(\d+) Attack Power/i) || intStat(staticText, /(\d+) attack power/i)
+  const spellPower =
+    intStat(staticText, /spell power by (\d+)/i) ||
+    intStat(staticText, /\+(\d+) [Ss]pell [Pp]ower/) ||
+    intStat(staticText, /damage and healing done by magical spells and effects by up to (\d+)/i) ||
+    intStat(staticText, /damage done by magical spells and effects by up to (\d+)/i)
+  const healingPower = intStat(staticText, /healing power by (\d+)/i) || intStat(staticText, /\+(\d+) healing/i)
+  const critChance =
+    (intStat(staticText, /critical strike(?: chance)? by (\d+)%/i) ||
+      intStat(staticText, /critical chance on a melee weapon by (\d+)%/i) ||
+      intStat(staticText, /(\d+)% crit/i)) / 100
+  const hitChance = intStat(staticText, /chance to hit by (\d+)%/i) / 100
+  const spellHitChance = intStat(staticText, /chance to hit with spells by (\d+)%/i) / 100
+  const spellCritChance = intStat(staticText, /critical strike with spells by (\d+)%/i) / 100
+  const haste = intStat(staticText, /(\d+)% haste/i) / 100
+  const weaponDamage =
+    intStat(staticText, /weapon damage by (\d+)/i) ||
+    intStat(staticText, /sharp weapon damage by (\d+)/i) ||
+    intStat(staticText, /damage of a blunt weapon by (\d+)/i) ||
+    intStat(staticText, /blunt weapon damage by (\d+)/i) ||
+    intStat(staticText, /grant \+(\d+) damage/i) ||
+    intStat(staticText, /\+(\d+) to weapon damage/i)
+  const mp5 = intStat(staticText, /(\d+) mana per 5/i)
+
+  const dash = name.lastIndexOf(' - ')
+  const effectName = dash >= 0 ? name.slice(dash + 3).trim() : name
+  const labels = []
+  if (allStats) {
+    labels.push(`+${allStats} All Stats`)
+  } else {
+    if (strength) {
+      labels.push(`+${strength} Strength`)
+    }
+    if (agility) {
+      labels.push(`+${agility} Agility`)
+    }
+    if (stamina && !allStats) {
+      labels.push(`+${stamina} Stamina`)
+    }
+    if (intellect) {
+      labels.push(`+${intellect} Intellect`)
+    }
+    if (spirit) {
+      labels.push(`+${spirit} Spirit`)
+    }
+  }
+  if (attackPower) {
+    labels.push(`+${attackPower} AP`)
+  }
+  if (spellPower) {
+    labels.push(`+${spellPower} Spell Power`)
+  }
+  if (healingPower) {
+    labels.push(`+${healingPower} Healing`)
+  }
+  if (weaponDamage) {
+    labels.push(`+${weaponDamage} Damage`)
+  }
+  if (critChance) {
+    labels.push(`+${Math.round(critChance * 100)}% Crit`)
+  }
+  if (hitChance) {
+    labels.push(`+${Math.round(hitChance * 100)}% Hit`)
+  }
+  if (haste) {
+    labels.push(`+${Math.round(haste * 100)}% Haste`)
+  }
+  if (mp5) {
+    labels.push(`+${mp5} Mp5`)
+  }
+
+  return {
+    id: Number(raw.id) || 0,
+    name,
+    icon: raw.icon || 'inv_misc_enchantedscroll',
+    quality: Number(raw.quality) || 0,
+    kind,
+    slots: slotInfo.slots || [],
+    twoHandOnly: Boolean(slotInfo.twoHandOnly),
+    shieldOnly: Boolean(slotInfo.shieldOnly),
+    offHandOnly: Boolean(slotInfo.offHandOnly),
+    weapon: Boolean(slotInfo.weapon),
+    ranged: Boolean(slotInfo.ranged),
+    proc,
+    effectName,
+    effectLabel: labels.length ? labels.join(', ') : effectName,
+    useText,
+    tooltip,
+    strength,
+    agility,
+    stamina,
+    intellect,
+    spirit,
+    attackPower,
+    spellPower,
+    healingPower,
+    critChance,
+    hitChance,
+    spellCritChance,
+    spellHitChance,
+    haste,
+    weaponDamage,
+    mp5,
+  }
+}
+
+export function catalogEnchantFromParsed(item) {
+  const out = {
+    id: item.id,
+    name: item.name,
+    icon: item.icon,
+    quality: item.quality,
+    kind: item.kind,
+    slots: item.slots,
+    effectName: item.effectName,
+    effectLabel: item.effectLabel,
+    useText: item.useText,
+  }
+  for (const key of [
+    'twoHandOnly',
+    'shieldOnly',
+    'offHandOnly',
+    'weapon',
+    'ranged',
+    'proc',
+    'strength',
+    'agility',
+    'stamina',
+    'intellect',
+    'spirit',
+    'attackPower',
+    'spellPower',
+    'healingPower',
+    'critChance',
+    'hitChance',
+    'spellCritChance',
+    'spellHitChance',
+    'haste',
+    'weaponDamage',
+    'mp5',
+  ]) {
+    if (item[key]) {
+      out[key] = item[key]
+    }
+  }
+  return out
+}
+
+export function keepEnchantment(parsed) {
+  const name = parsed.name || ''
+  if (!name || /\[PH\]|\[DEP\]|\[DNT\]/i.test(name)) {
+    return false
+  }
+  if (/^(Formula|Recipe|Pattern|Plans|Schematic|Template):/i.test(name)) {
+    return false
+  }
+  if (/Rune of |Spell Notes|Prophecy of|Epiphany|Memory of |Echo of /i.test(name)) {
+    return false
+  }
+  if (/Bauble|Nightcrawler|Fish Attractor|Fish Lens|Flesh Eating Worm|Bait|Trollshine/i.test(name)) {
+    return false
+  }
+  if (parsed.kind === 'temporary') {
+    return /Sharpening Stone|Weightstone|Wizard Oil|Mana Oil|Frost Oil|Shadow Oil/i.test(name)
+  }
+  if (/^Enchant /.test(name)) {
+    return (parsed.slots || []).length > 0
+  }
+  return /Arcanum|Zandalar Signet|Presence of Might|Syncretist's Sigil|Death's Embrace|Falcon's Call|Vodouisant|Presence of Sight|Hoodoo Hex|Prophetic Aura|Animist's Caress|of the Scourge|Mantle of the Dawn|Scope|Savage Guard|Ice Guard|Shadow Guard/i.test(
+    name,
+  )
 }

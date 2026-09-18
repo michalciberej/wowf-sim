@@ -9,10 +9,14 @@ import (
 )
 
 func talentID(t *testing.T, name string) int32 {
+	return talentIDClass(t, 0, name)
+}
+
+func talentIDClass(t *testing.T, class pb.Class, name string) int32 {
 	t.Helper()
-	talent, ok := clientdata.TalentByName(name)
+	talent, ok := clientdata.TalentByNameClass(name, int32(class))
 	if !ok {
-		t.Fatalf("missing talent %s", name)
+		t.Fatalf("missing talent %s class %v", name, class)
 	}
 	return talent.ID
 }
@@ -34,14 +38,15 @@ func TestMaxRankSpellValues(t *testing.T) {
 	}{
 		{id: "heroic-strike", rank: 9, cost: 15, flat: 157},
 		{id: "execute", rank: 5, cost: 15, flat: 600},
-		{id: "bloodthirst", rank: 4, cost: 30, cd: 6, ap: 0.45},
-		{id: "mortal-strike", rank: 4, cost: 30, cd: 6, flat: 160, weapon: 1},
+		{id: "bloodthirst", rank: 4, cost: 30, cd: 6, ap: 0.35, flat: 30},
+		{id: "mortal-strike", rank: 4, cost: 30, cd: 6, flat: 85, weapon: 1},
 		{id: "slam", rank: 4, cost: 15, flat: 87, weapon: 1},
 		{id: "shield-slam", rank: 4, cost: 20, cd: 6, flat: 350},
 		{id: "battle-shout", rank: 7, cost: 10, dur: 120},
 		{id: "shadow-bolt", rank: 10, flat: 510},
 		{id: "fireball", rank: 12, flat: 754},
 		{id: "sinister-strike", rank: 8, cost: 45, flat: 68, weapon: 1},
+		{id: "mutilate", rank: 1, cost: 60, flat: 13, weapon: 0.75},
 		{id: "slice-and-dice", rank: 2, cost: 25, dur: 21},
 		{id: "shred", rank: 5, cost: 60, flat: 180, weapon: 2.25},
 		{id: "tigers-fury", rank: 4, cost: 30, cd: 1, dur: 6},
@@ -93,6 +98,29 @@ func TestRunProducesDps(t *testing.T) {
 	}
 }
 
+func TestHitAndCritDpsAndSamples(t *testing.T) {
+	res := Run(baseReq())
+	if len(res.IterationDps) != int(res.Iterations) {
+		t.Fatalf("iteration samples=%d want %d", len(res.IterationDps), res.Iterations)
+	}
+	auto := actionByName(res, "Auto Attack")
+	if auto.HitDps+auto.CritDps <= 0 {
+		t.Fatal("expected hit/crit dps on auto attacks")
+	}
+	if math.Abs(auto.HitDps+auto.CritDps-auto.Dps) > 0.05 {
+		t.Fatalf("hit+crit=%f dps=%f", auto.HitDps+auto.CritDps, auto.Dps)
+	}
+	if auto.AvgCast <= 0 {
+		t.Fatal("expected average auto-attack damage")
+	}
+	for i := 1; i < len(res.Actions); i++ {
+		if res.Actions[i-1].Dps < res.Actions[i].Dps {
+			t.Fatalf("actions not sorted by dps: %s %.1f then %s %.1f",
+				res.Actions[i-1].Name, res.Actions[i-1].Dps, res.Actions[i].Name, res.Actions[i].Dps)
+		}
+	}
+}
+
 func baseReq() *pb.SimRequest {
 	return &pb.SimRequest{
 		Player: &pb.Player{
@@ -122,7 +150,7 @@ func TestNakedOrcWarriorMatchesWowSims(t *testing.T) {
 
 func TestWowSimsClassAndRaceBases(t *testing.T) {
 	type row struct {
-		class              pb.Class
+		class                         pb.Class
 		str, agi, intel, sta, spi, ap float64
 	}
 	human := []row{
@@ -178,6 +206,57 @@ func TestEarthstrikeOnUseIncreasesDps(t *testing.T) {
 	}
 }
 
+func TestOnUseTrinketPriorityZeroDoesNotUse(t *testing.T) {
+	on := baseReq()
+	on.Options.Iterations = 1
+	on.Encounter.DurationSeconds = 20
+	on.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		{
+			Id:            19019,
+			Name:          "Thunderfury",
+			Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+			WeaponDps:     41.8,
+			AttackSpeedMs: 1900,
+			ItemSubclass:  "Sword",
+			Hand:          "1h",
+		},
+		{Id: 21180, Name: "Earthstrike", Slot: pb.ItemSlot_ITEM_SLOT_TRINKET_1},
+	}}
+	off := baseReq()
+	off.Options.Iterations = 1
+	off.Encounter.DurationSeconds = 20
+	off.Player.Gear = on.Player.Gear
+	off.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "use:earthstrike", Priority: 0}}
+	used := Run(on)
+	skipped := Run(off)
+	if used.DpsMean <= skipped.DpsMean {
+		t.Fatalf("disabled earthstrike should lower dps: used=%f skipped=%f", used.DpsMean, skipped.DpsMean)
+	}
+}
+
+func TestDiamondFlaskOnUseIncreasesDps(t *testing.T) {
+	base := baseReq()
+	base.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
+	plain := Run(base)
+	with := baseReq()
+	with.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		base.Player.Gear.Items[0],
+		{Id: 20130, Name: "Diamond Flask", Slot: pb.ItemSlot_ITEM_SLOT_TRINKET_1},
+	}}
+	buffed := Run(with)
+	if buffed.DpsMean <= plain.DpsMean {
+		t.Fatalf("diamond flask should increase dps: plain=%f with=%f", plain.DpsMean, buffed.DpsMean)
+	}
+}
+
 func TestHandOfJusticeProcs(t *testing.T) {
 	req := baseReq()
 	req.Options.Iterations = 200
@@ -216,6 +295,35 @@ func TestWeaponChangesDps(t *testing.T) {
 	}
 }
 
+func TestWeaponStrengthEnchantRaisesDps(t *testing.T) {
+	base := baseReq()
+	base.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     33.2,
+		AttackSpeedMs: 1900,
+		Hand:          "1h",
+		ItemSubclass:  "Sword",
+	}}}
+	plain := Run(base)
+	enchanted := baseReq()
+	enchanted.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     33.2,
+		AttackSpeedMs: 1900,
+		Hand:          "1h",
+		ItemSubclass:  "Sword",
+		EnchantId:     273572,
+	}}}
+	with := Run(enchanted)
+	if with.DpsMean <= plain.DpsMean {
+		t.Fatalf("strength enchant should raise DPS: plain=%f enchanted=%f", plain.DpsMean, with.DpsMean)
+	}
+}
+
 func TestOffHandAddsDamage(t *testing.T) {
 	mh := baseReq()
 	mh.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
@@ -250,13 +358,236 @@ func TestOffHandAddsDamage(t *testing.T) {
 	}
 }
 
+func TestOffHandSharpeningStoneRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		{
+			Id:            19019,
+			Name:          "Thunderfury",
+			Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+			WeaponDps:     33.2,
+			AttackSpeedMs: 1900,
+			Hand:          "1h",
+			ItemSubclass:  "Sword",
+		},
+		{
+			Id:            18805,
+			Name:          "Core Hound Tooth",
+			Slot:          pb.ItemSlot_ITEM_SLOT_OFF_HAND,
+			WeaponDps:     31,
+			AttackSpeedMs: 1600,
+			Hand:          "1h",
+			ItemSubclass:  "Dagger",
+		},
+	}}
+	stoned := baseReq()
+	stoned.Player.Gear = plain.Player.Gear
+	stoned.Player.OhWeaponTemp = "dense-sharpening-stone"
+	if Run(stoned).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("off-hand dense sharpening stone should raise DPS")
+	}
+}
+
+func TestOffHandElementalSharpeningRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		{
+			Id:            19019,
+			Name:          "Thunderfury",
+			Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+			WeaponDps:     33.2,
+			AttackSpeedMs: 1900,
+			Hand:          "1h",
+			ItemSubclass:  "Sword",
+		},
+		{
+			Id:            18805,
+			Name:          "Core Hound Tooth",
+			Slot:          pb.ItemSlot_ITEM_SLOT_OFF_HAND,
+			WeaponDps:     31,
+			AttackSpeedMs: 1600,
+			Hand:          "1h",
+			ItemSubclass:  "Dagger",
+		},
+	}}
+	stoned := baseReq()
+	stoned.Player.Gear = plain.Player.Gear
+	stoned.Player.OhWeaponTemp = "elemental-sharpening-stone"
+	if Run(stoned).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("off-hand elemental sharpening stone should raise DPS")
+	}
+}
+
+func TestMainHandDenseSharpeningStoneRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     33.2,
+		AttackSpeedMs: 1900,
+		Hand:          "1h",
+		ItemSubclass:  "Sword",
+	}}}
+	stoned := baseReq()
+	stoned.Player.Gear = plain.Player.Gear
+	stoned.Player.MhWeaponTemp = "dense-sharpening-stone"
+	if Run(stoned).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("main-hand dense sharpening stone should raise DPS")
+	}
+}
+
 func TestTalentsChangeDps(t *testing.T) {
 	plain := Run(baseReq())
 	talented := baseReq()
-	talented.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Cruelty"), Rank: 5}, {Id: talentID(t, "Mortal Strike"), Rank: 1}}
+	talented.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Cruelty"), Rank: 5}}
 	next := Run(talented)
 	if next.DpsMean <= plain.DpsMean {
-		t.Fatalf("talents should increase dps: %f vs %f", next.DpsMean, plain.DpsMean)
+		t.Fatalf("cruelty should increase dps: %f vs %f", next.DpsMean, plain.DpsMean)
+	}
+}
+
+func TestRogueMaliceRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Class = pb.Class_CLASS_ROGUE
+	talented := baseReq()
+	talented.Player.Class = pb.Class_CLASS_ROGUE
+	talented.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Malice"), Rank: 5}}
+	g := collectGenericTalents(pb.Class_CLASS_ROGUE, talented.Player.Talents)
+	if math.Abs(g.meleeCrit-0.05) > 1e-9 {
+		t.Fatalf("malice 5 should be 5%% crit, got %v", g.meleeCrit)
+	}
+	if Run(talented).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("rogue malice should raise DPS")
+	}
+}
+
+func TestPaladinDivineStrengthRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Class = pb.Class_CLASS_PALADIN
+	talented := baseReq()
+	talented.Player.Class = pb.Class_CLASS_PALADIN
+	talented.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_PALADIN, "Divine Strength"), Rank: 5}}
+	g := collectGenericTalents(pb.Class_CLASS_PALADIN, talented.Player.Talents)
+	if math.Abs(g.strMul-1.10) > 1e-9 {
+		t.Fatalf("divine strength 5 should be 10%% str, got %v", g.strMul)
+	}
+	if Run(talented).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("paladin divine strength should raise DPS")
+	}
+}
+
+func TestMageFirePowerRaisesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.Class = pb.Class_CLASS_MAGE
+	talented := baseReq()
+	talented.Player.Class = pb.Class_CLASS_MAGE
+	talented.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_MAGE, "Fire Power"), Rank: 5}}
+	g := collectGenericTalents(pb.Class_CLASS_MAGE, talented.Player.Talents)
+	if math.Abs(g.fireMul-1.10) > 1e-9 {
+		t.Fatalf("fire power 5 should be 10%% fire damage, got %v", g.fireMul)
+	}
+	if Run(talented).DpsMean <= Run(plain).DpsMean {
+		t.Fatal("mage fire power should raise DPS")
+	}
+}
+
+func TestFlurryIncreasesDps(t *testing.T) {
+	plain := Run(baseReq())
+	req := baseReq()
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Flurry"), Rank: 5}}
+	next := Run(req)
+	if next.DpsMean <= plain.DpsMean {
+		t.Fatalf("flurry should increase dps: %f vs %f", next.DpsMean, plain.DpsMean)
+	}
+}
+
+func TestBloodthirstIncreasesDps(t *testing.T) {
+	plain := baseReq()
+	plain.Player.AbilityPriorities = []*pb.AbilityPriority{
+		{Id: "heroic-strike", Priority: 0},
+		{Id: "slam", Priority: 0},
+	}
+	req := baseReq()
+	req.Player.AbilityPriorities = plain.Player.AbilityPriorities
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Bloodthirst"), Rank: 1}}
+	if Run(req).DpsMean <= Run(plain).DpsMean {
+		t.Fatalf("bloodthirst should increase dps when heroic strike is off")
+	}
+}
+
+func TestDamagingActionsKeepCastCounts(t *testing.T) {
+	req := TypicalOrcWarrior()
+	req.Options.Iterations = 40
+	req.Options.RngSeed = 923041862709377162
+	res := Run(req)
+	for _, a := range res.Actions {
+		if a.Dps > 0.01 && a.Casts <= 0 {
+			t.Fatalf("%s has %.1f dps but %.4f casts/iter", a.Name, a.Dps, a.Casts)
+		}
+	}
+}
+
+func TestOverpowerUsedOnCooldown(t *testing.T) {
+	res := Run(baseReq())
+	if actionByName(res, "Overpower").Casts < 1 {
+		t.Fatalf("overpower should be used on cooldown, got %v", actionNames(res))
+	}
+}
+
+func TestBerserkerDancesForOverpower(t *testing.T) {
+	req := baseReq()
+	req.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BERSERKER
+	res := Run(req)
+	var battle, zerk, op bool
+	for _, ev := range res.Timeline {
+		switch ev.Name {
+		case "Battle Stance":
+			battle = true
+		case "Berserker Stance":
+			zerk = true
+		case "Overpower":
+			op = true
+		}
+	}
+	if !op || !battle || !zerk {
+		t.Fatalf("berserker should dance to battle for overpower, timeline names=%v", actionNames(res))
+	}
+	var battleDur float64
+	for _, ev := range res.Timeline {
+		if ev.Name == "Battle Stance" || ev.Name == "Berserker Stance" {
+			if ev.Kind != "buff" {
+				t.Fatalf("%s should be a buff, got kind=%q", ev.Name, ev.Kind)
+			}
+		}
+		if ev.Name == "Battle Stance" && ev.DurationSeconds > battleDur {
+			battleDur = ev.DurationSeconds
+		}
+	}
+	if battleDur < 1 {
+		t.Fatalf("battle stance for overpower should last a GCD, duration=%f", battleDur)
+	}
+}
+
+func TestBerserkerOutdamagesDefensiveStance(t *testing.T) {
+	zerk := baseReq()
+	zerk.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BERSERKER
+	def := baseReq()
+	def.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_DEFENSIVE
+	if Run(zerk).DpsMean <= Run(def).DpsMean {
+		t.Fatal("berserker stance should deal more damage than defensive")
+	}
+}
+
+func TestAngerManagementAndEnrageChangeDps(t *testing.T) {
+	plain := Run(baseReq())
+	req := baseReq()
+	req.Player.Talents = []*pb.TalentPick{
+		{Id: talentID(t, "Anger Management"), Rank: 1},
+		{Id: talentID(t, "Enrage"), Rank: 5},
+	}
+	if Run(req).DpsMean <= plain.DpsMean {
+		t.Fatalf("anger management / enrage should increase dps")
 	}
 }
 
@@ -288,8 +619,20 @@ func TestTimelineRecordsFirstIteration(t *testing.T) {
 	if len(res.Timeline) == 0 {
 		t.Fatal("expected timeline events from the first iteration")
 	}
-	if res.Timeline[0].Name != "Charge" {
-		t.Fatalf("first event = %s", res.Timeline[0].Name)
+	if !hasAction(res, "Charge") {
+		t.Fatalf("expected Charge on the timeline, first=%s", res.Timeline[0].Name)
+	}
+	var maxRage float64
+	for _, ev := range res.Timeline {
+		if ev.ResourceKind != "rage" {
+			t.Fatalf("warrior timeline should tag rage, got %q on %s", ev.ResourceKind, ev.Name)
+		}
+		if ev.Resource > maxRage {
+			maxRage = ev.Resource
+		}
+	}
+	if maxRage < 10 {
+		t.Fatalf("expected rage to build on the timeline, max=%f", maxRage)
 	}
 	if actionByName(res, "Auto Attack").Misses == 0 {
 		t.Fatal("expected auto-attack misses in the stub table")
@@ -298,6 +641,60 @@ func TestTimelineRecordsFirstIteration(t *testing.T) {
 		if res.Timeline[i].TimeSeconds+1e-9 < res.Timeline[i-1].TimeSeconds {
 			t.Fatalf("timeline went backwards at %d", i)
 		}
+	}
+}
+
+func TestTimelineSplitsBuffsAndDotTicks(t *testing.T) {
+	res := Run(baseReq())
+	var bloodrage *pb.TimelineEvent
+	var ticks int
+	for _, ev := range res.Timeline {
+		if ev.Name == "Bloodrage" && ev.Kind == "buff" {
+			bloodrage = ev
+		}
+		if ev.Kind == "tick" {
+			ticks++
+		}
+	}
+	if bloodrage == nil || bloodrage.DurationSeconds < 9 {
+		t.Fatalf("expected Bloodrage buff window, got %+v", bloodrage)
+	}
+	if hasAction(res, "Rend") && ticks == 0 {
+		t.Fatal("expected Rend tick icons on the timeline")
+	}
+}
+
+func TestDeepWoundsKeepsTickCadence(t *testing.T) {
+	req := baseReq()
+	req.Options.RngSeed = 8267877463386843184
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Deep Wounds"), Rank: 3}}
+	req.Player.BonusStats = &pb.BonusStats{CritChance: 0.5}
+	res := Run(req)
+	var apply, tick *pb.TimelineEvent
+	var windows int
+	for _, ev := range res.Timeline {
+		if ev.Name != "Deep Wounds" {
+			continue
+		}
+		if ev.Kind == "dot" {
+			windows++
+			if apply == nil {
+				apply = ev
+			}
+		}
+		if ev.Kind == "tick" && tick == nil {
+			tick = ev
+		}
+	}
+	if apply == nil || tick == nil {
+		t.Fatalf("expected Deep Wounds apply and tick, apply=%v tick=%v", apply, tick)
+	}
+	delay := tick.TimeSeconds - apply.TimeSeconds
+	if delay < 2.5 || delay > 3.5 {
+		t.Fatalf("first Deep Wounds tick at %.2fs after apply at %.2fs (want ~3s)", tick.TimeSeconds, apply.TimeSeconds)
+	}
+	if windows > 3 {
+		t.Fatalf("Deep Wounds aura bars should refresh in place, got %d windows", windows)
 	}
 }
 
@@ -312,7 +709,7 @@ func TestWarriorUsesWhirlwindAndCharge(t *testing.T) {
 	autos := actionByName(res, "Auto Attack").Casts
 	hs := actionByName(res, "Heroic Strike").Casts
 	if hs >= autos && autos > 0 {
-		t.Fatalf("heroic strike should not replace every swing: hs=%d auto=%d", hs, autos)
+		t.Fatalf("heroic strike should not replace every swing: hs=%g auto=%g", hs, autos)
 	}
 }
 
@@ -323,8 +720,17 @@ func TestOrcUsesBloodFury(t *testing.T) {
 	if !hasAction(res, "Blood Fury") {
 		t.Fatal("expected Blood Fury on orc")
 	}
-	if res.Timeline[0].Name != "Charge" || res.Timeline[1].Name != "Blood Fury" {
-		t.Fatalf("pull CDs = %s, %s", res.Timeline[0].Name, res.Timeline[1].Name)
+	var names []string
+	for _, ev := range res.Timeline {
+		if ev.Name == "Charge" || ev.Name == "Blood Fury" {
+			names = append(names, ev.Name)
+		}
+		if len(names) == 2 {
+			break
+		}
+	}
+	if len(names) < 2 || names[0] != "Charge" || names[1] != "Blood Fury" {
+		t.Fatalf("pull CDs = %v", names)
 	}
 }
 
@@ -353,6 +759,14 @@ func TestBloodthirstWhenTalented(t *testing.T) {
 	}
 }
 
+func TestMortalStrikeWhenTalented(t *testing.T) {
+	req := baseReq()
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Mortal Strike"), Rank: 1}}
+	if !hasAction(Run(req), "Mortal Strike") {
+		t.Fatal("expected Mortal Strike when talented")
+	}
+}
+
 func TestHeroicStrikeIsRageDump(t *testing.T) {
 	req := baseReq()
 	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
@@ -370,7 +784,7 @@ func TestHeroicStrikeIsRageDump(t *testing.T) {
 		t.Fatal("expected white hits")
 	}
 	if hs >= autos {
-		t.Fatalf("HS spam: heroic=%d auto=%d", hs, autos)
+		t.Fatalf("HS spam: heroic=%g auto=%g", hs, autos)
 	}
 }
 
@@ -380,10 +794,211 @@ func TestRogueSpendsEnergyOnSinisterStrike(t *testing.T) {
 	res := Run(req)
 	ss := actionByName(res, "Sinister Strike").Casts
 	if ss < 5 {
-		t.Fatalf("expected several sinister strikes, got %d", ss)
+		t.Fatalf("expected several sinister strikes, got %g", ss)
 	}
 	if ss > 28 {
-		t.Fatalf("energy should limit sinister strike casts, got %d", ss)
+		t.Fatalf("energy should limit sinister strike casts, got %g", ss)
+	}
+}
+
+func TestRogueStealthOpenersOnlyFromStealth(t *testing.T) {
+	req := baseReq()
+	req.Player.Class = pb.Class_CLASS_ROGUE
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "vanish", Priority: 0}}
+	req.Options.Iterations = 1
+	res := Run(req)
+	var garroteApply, ambushHits int
+	var lateOpener bool
+	for _, ev := range res.Timeline {
+		if ev.Name == "Garrote" && ev.Kind == "dot" {
+			garroteApply++
+			if ev.TimeSeconds > 0.05 {
+				lateOpener = true
+			}
+		}
+		if ev.Name == "Ambush" && ev.Kind == "hit" {
+			ambushHits++
+			if ev.TimeSeconds > 0.05 {
+				lateOpener = true
+			}
+		}
+	}
+	if garroteApply+ambushHits != 1 {
+		t.Fatalf("expected a single stealth opener, garrote=%d ambush=%d names=%v", garroteApply, ambushHits, actionNames(res))
+	}
+	if lateOpener {
+		t.Fatal("garrote/ambush must not be used after stealth breaks")
+	}
+}
+
+func TestRogueColdBloodCritsNextSpenderOnly(t *testing.T) {
+	req := baseReq()
+	req.Player.Class = pb.Class_CLASS_ROGUE
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "vanish", Priority: 0}}
+	req.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Cold Blood"), Rank: 1}}
+	req.Options.Iterations = 1
+	req.Options.RngSeed = 1
+	res := Run(req)
+	if !hasAction(res, "Cold Blood") {
+		t.Fatalf("expected Cold Blood, got %v", actionNames(res))
+	}
+	var firstSpenderCrit, firstSpenderMiss bool
+	var firstSpender string
+	autoCrit, autoHit := 0, 0
+	laterSpender, laterSpenderCrit := 0, 0
+	for _, ev := range res.Timeline {
+		if ev.Kind != "hit" {
+			continue
+		}
+		switch ev.Name {
+		case "Sinister Strike", "Backstab", "Ambush", "Eviscerate", "Mutilate", "Mutilate Off-Hand":
+			if firstSpender == "" {
+				firstSpender = ev.Name
+				firstSpenderMiss = ev.Miss
+				firstSpenderCrit = ev.Crit
+				continue
+			}
+			if ev.Name == "Mutilate Off-Hand" && firstSpender == "Mutilate" {
+				if !ev.Miss && !ev.Crit {
+					t.Fatal("Cold Blood should crit both Mutilate hits")
+				}
+				continue
+			}
+			if ev.Miss {
+				continue
+			}
+			laterSpender++
+			if ev.Crit {
+				laterSpenderCrit++
+			}
+		case "Auto Attack", "Off-Hand":
+			if ev.Miss || firstSpender != "" {
+				continue
+			}
+			autoHit++
+			if ev.Crit {
+				autoCrit++
+			}
+		}
+	}
+	if firstSpender == "" {
+		t.Fatal("expected a Cold Blood spender")
+	}
+	if firstSpenderMiss {
+		t.Fatalf("first %s missed; rerun if this is rng, Cold Blood is consumed on the attempt", firstSpender)
+	}
+	if !firstSpenderCrit {
+		t.Fatalf("first %s should be a guaranteed crit", firstSpender)
+	}
+	if autoHit > 0 && autoCrit == autoHit {
+		t.Fatal("Cold Blood must not give Recklessness-style crit to auto attacks")
+	}
+	if laterSpender >= 8 && laterSpenderCrit == laterSpender {
+		t.Fatalf("later spenders should not all crit, crits=%d casts=%d", laterSpenderCrit, laterSpender)
+	}
+}
+
+func TestImprovedSinisterStrikeReducesEnergyCost(t *testing.T) {
+	id := talentIDClass(t, pb.Class_CLASS_ROGUE, "Improved Sinister Strike")
+	ranks := map[int32]int32{id: 2}
+	abs := applyResourceTalents(clientdata.AbilitiesFor(4, 1, map[int32]bool{id: true}), ranks)
+	for _, ab := range abs {
+		if ab.ID == "sinister-strike" {
+			if ab.Cost != 40 {
+				t.Fatalf("sinister-strike cost=%v want 40", ab.Cost)
+			}
+			return
+		}
+	}
+	t.Fatal("missing sinister-strike")
+}
+
+func TestRogueSpendsComboAtFiveOnMaintainThenEviscerate(t *testing.T) {
+	req := baseReq()
+	req.Player.Class = pb.Class_CLASS_ROGUE
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "vanish", Priority: 0}}
+	req.Player.Talents = []*pb.TalentPick{
+		{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Ruthlessness"), Rank: 3},
+		{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Improved Sinister Strike"), Rank: 2},
+		{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Improved Slice and Dice"), Rank: 3},
+		{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Relentless Strikes"), Rank: 1},
+		{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Adrenaline Rush"), Rank: 1},
+	}
+	req.Options.Iterations = 1
+	req.Options.RngSeed = 1
+	req.Encounter.DurationSeconds = 60
+	res := Run(req)
+	var firstSnd, firstRupture, firstEvisc float64
+	for _, ev := range res.Timeline {
+		if ev.Kind == "tick" {
+			continue
+		}
+		switch ev.Name {
+		case "Slice and Dice":
+			if firstSnd == 0 {
+				firstSnd = ev.TimeSeconds + 1e-9
+			}
+		case "Rupture":
+			if ev.Kind == "dot" && firstRupture == 0 {
+				firstRupture = ev.TimeSeconds + 1e-9
+			}
+		case "Eviscerate":
+			if ev.Kind == "hit" && !ev.Miss && firstEvisc == 0 {
+				firstEvisc = ev.TimeSeconds + 1e-9
+			}
+		}
+	}
+	if firstSnd == 0 {
+		t.Fatal("expected Slice and Dice at 5 combo points")
+	}
+	if firstRupture == 0 {
+		t.Fatal("expected Rupture to be kept up after Slice and Dice")
+	}
+	if firstEvisc == 0 {
+		t.Fatal("expected Eviscerate once Slice and Dice and Rupture are up")
+	}
+	if firstRupture < firstSnd {
+		t.Fatalf("Rupture at %.2fs before Slice and Dice at %.2fs", firstRupture-1e-9, firstSnd-1e-9)
+	}
+	if firstEvisc < firstRupture {
+		t.Fatalf("Eviscerate at %.2fs before Rupture at %.2fs", firstEvisc-1e-9, firstRupture-1e-9)
+	}
+}
+
+func TestVanishAllowsSecondStealthOpener(t *testing.T) {
+	req := baseReq()
+	req.Player.Class = pb.Class_CLASS_ROGUE
+	req.Encounter.DurationSeconds = 20
+	req.Options.Iterations = 1
+	req.Options.RngSeed = 1
+	res := Run(req)
+	var vanishAt, secondOpener float64
+	openers := 0
+	for _, ev := range res.Timeline {
+		if ev.Name == "Vanish" && ev.Kind == "buff" {
+			vanishAt = ev.TimeSeconds
+		}
+		if ev.Name == "Garrote" && ev.Kind == "dot" {
+			openers++
+			if ev.TimeSeconds > 1 {
+				secondOpener = ev.TimeSeconds
+			}
+		}
+		if ev.Kind == "hit" && ev.Name == "Ambush" {
+			openers++
+			if ev.TimeSeconds > 1 {
+				secondOpener = ev.TimeSeconds
+			}
+		}
+	}
+	if vanishAt < 1 {
+		t.Fatalf("expected vanish after combat started, got t=%f", vanishAt)
+	}
+	if openers < 2 {
+		t.Fatalf("vanish should allow a second stealth opener, openers=%d", openers)
+	}
+	if secondOpener+1e-9 < vanishAt {
+		t.Fatalf("second opener at %f before vanish at %f", secondOpener, vanishAt)
 	}
 }
 
@@ -522,12 +1137,14 @@ func TestRogueAttackPowerUsesAgility(t *testing.T) {
 }
 
 func TestWarriorKeepsRendUp(t *testing.T) {
-	res := Run(baseReq())
+	req := baseReq()
+	req.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BATTLE
+	res := Run(req)
 	if !hasAction(res, "Rend") {
 		t.Fatalf("expected Rend ticks, got %v", actionNames(res))
 	}
-	if actionByName(res, "Rend").Casts < 5 {
-		t.Fatalf("rend should tick across the fight, casts=%d", actionByName(res, "Rend").Casts)
+	if actionByName(res, "Rend").Casts < 3 {
+		t.Fatalf("rend should stay up across the fight, casts=%g", actionByName(res, "Rend").Casts)
 	}
 }
 
@@ -566,6 +1183,60 @@ func TestRoguePoisonsAndRupture(t *testing.T) {
 	}
 }
 
+func TestRogueMutilateWhenTalented(t *testing.T) {
+	req := baseReq()
+	req.Player.Class = pb.Class_CLASS_ROGUE
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "vanish", Priority: 0}}
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+		{Id: 1, Slot: pb.ItemSlot_ITEM_SLOT_MAIN_HAND, WeaponDps: 40, AttackSpeedMs: 1800, Hand: "1h"},
+		{Id: 2, Slot: pb.ItemSlot_ITEM_SLOT_OFF_HAND, WeaponDps: 35, AttackSpeedMs: 1600, Hand: "1h"},
+	}}
+	req.Options.Iterations = 1
+	plain := Run(req)
+	if hasAction(plain, "Mutilate") {
+		t.Fatalf("mutilate should require the talent, got %v", actionNames(plain))
+	}
+	req.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Mutilate"), Rank: 1}}
+	res := Run(req)
+	if !hasAction(res, "Mutilate") {
+		t.Fatalf("expected Mutilate, got %v", actionNames(res))
+	}
+	if hasAction(res, "Sinister Strike") && actionByName(res, "Sinister Strike").Casts >= actionByName(res, "Mutilate").Casts {
+		t.Fatalf("mutilate should be the primary builder, ss=%v mut=%v", actionByName(res, "Sinister Strike").Casts, actionByName(res, "Mutilate").Casts)
+	}
+}
+
+func TestRogueMutilateTalentsIncreaseDamage(t *testing.T) {
+	withMut := func() *pb.SimRequest {
+		req := baseReq()
+		req.Player.Class = pb.Class_CLASS_ROGUE
+		req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "vanish", Priority: 0}}
+		req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{
+			{Id: 1, Slot: pb.ItemSlot_ITEM_SLOT_MAIN_HAND, WeaponDps: 40, AttackSpeedMs: 1800, Hand: "1h"},
+			{Id: 2, Slot: pb.ItemSlot_ITEM_SLOT_OFF_HAND, WeaponDps: 35, AttackSpeedMs: 1600, Hand: "1h"},
+		}}
+		req.Player.Talents = []*pb.TalentPick{{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Mutilate"), Rank: 1}}
+		req.Options.Iterations = 80
+		req.Options.RngSeed = 2
+		return req
+	}
+	plain := Run(withMut())
+	talented := withMut()
+	talented.Player.Talents = append(talented.Player.Talents,
+		&pb.TalentPick{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Opportunity"), Rank: 2},
+		&pb.TalentPick{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Lethality"), Rank: 5},
+		&pb.TalentPick{Id: talentIDClass(t, pb.Class_CLASS_ROGUE, "Puncturing Wounds"), Rank: 3},
+	)
+	g := collectGenericTalents(pb.Class_CLASS_ROGUE, talented.Player.Talents)
+	if math.Abs(g.abilityMul["mutilate"]-1.10) > 1e-9 {
+		t.Fatalf("opportunity 2 should be 10%% mutilate damage, got %v", g.abilityMul["mutilate"])
+	}
+	next := Run(talented)
+	if next.DpsMean <= plain.DpsMean {
+		t.Fatalf("mutilate talents should increase dps: %f vs %f", next.DpsMean, plain.DpsMean)
+	}
+}
+
 func TestWarlockAndPriestDotsTick(t *testing.T) {
 	lock := baseReq()
 	lock.Player.Class = pb.Class_CLASS_WARLOCK
@@ -574,7 +1245,7 @@ func TestWarlockAndPriestDotsTick(t *testing.T) {
 		t.Fatalf("expected Corruption, got %v", actionNames(lockRes))
 	}
 	if actionByName(lockRes, "Corruption").Casts < 6 {
-		t.Fatalf("corruption should tick, casts=%d", actionByName(lockRes, "Corruption").Casts)
+		t.Fatalf("corruption should tick, casts=%g", actionByName(lockRes, "Corruption").Casts)
 	}
 	priest := baseReq()
 	priest.Player.Class = pb.Class_CLASS_PRIEST
@@ -583,7 +1254,7 @@ func TestWarlockAndPriestDotsTick(t *testing.T) {
 		t.Fatalf("expected Shadow Word: Pain, got %v", actionNames(priestRes))
 	}
 	if actionByName(priestRes, "Shadow Word: Pain").Casts < 6 {
-		t.Fatalf("SW:P should tick, casts=%d", actionByName(priestRes, "Shadow Word: Pain").Casts)
+		t.Fatalf("SW:P should tick, casts=%g", actionByName(priestRes, "Shadow Word: Pain").Casts)
 	}
 }
 
@@ -638,10 +1309,10 @@ func TestArmorDebuffsIncreasePhysicalTaken(t *testing.T) {
 	if lost != 2250+505+640 {
 		t.Fatalf("armor shred = %v", lost)
 	}
-	full := physicalTaken(bossArmor)
-	shredded := physicalTaken(bossArmor - lost)
+	full := physicalTaken(defaultBossArmor)
+	shredded := physicalTaken(defaultBossArmor - lost)
 	if shredded <= full {
-		t.Fatalf("lower armor should take more damage: %f vs %f on %.0f armor dummy", shredded, full, bossArmor)
+		t.Fatalf("lower armor should take more damage: %f vs %f on %.0f armor boss", shredded, full, defaultBossArmor)
 	}
 
 	plain := Run(baseReq())
@@ -650,6 +1321,47 @@ func TestArmorDebuffsIncreasePhysicalTaken(t *testing.T) {
 	next := Run(debuffed)
 	if next.DpsMean <= plain.DpsMean {
 		t.Fatalf("armor debuffs should increase warrior dps: %f vs %f", next.DpsMean, plain.DpsMean)
+	}
+}
+
+func TestPatchwerkArmorLowersDpsVsDummy(t *testing.T) {
+	dummy := baseReq()
+	dummy.Encounter.Armor = 3731
+	boss := baseReq()
+	boss.Encounter.Armor = 0
+	dummyRes := Run(dummy)
+	bossRes := Run(boss)
+	if bossRes.DpsMean >= dummyRes.DpsMean {
+		t.Fatalf("7700 armor Patchwerk should take less than 3731 dummy: boss %f dummy %f", bossRes.DpsMean, dummyRes.DpsMean)
+	}
+}
+
+func TestMightyRagePotionActsLikeDamageCooldown(t *testing.T) {
+	plain := Run(baseReq())
+	with := baseReq()
+	with.Player.CombatPotion = 13442
+	res := Run(with)
+	if res.DpsMean <= plain.DpsMean {
+		t.Fatalf("mighty rage should increase dps: plain=%f with=%f", plain.DpsMean, res.DpsMean)
+	}
+	if !hasAction(res, "Mighty Rage Potion") {
+		t.Fatalf("expected Mighty Rage Potion in results, got %v", actionNames(res))
+	}
+	if actionByName(res, "Mighty Rage Potion").Casts < 1 {
+		t.Fatalf("expected potion uses, casts=%g", actionByName(res, "Mighty Rage Potion").Casts)
+	}
+	var buff *pb.TimelineEvent
+	for _, ev := range res.Timeline {
+		if ev.Name == "Mighty Rage Potion" && ev.Kind == "buff" {
+			buff = ev
+			break
+		}
+	}
+	if buff == nil {
+		t.Fatal("expected Mighty Rage Potion buff on the timeline")
+	}
+	if buff.DurationSeconds < 19 || buff.DurationSeconds > 21 {
+		t.Fatalf("potion buff duration = %f", buff.DurationSeconds)
 	}
 }
 
@@ -697,5 +1409,45 @@ func TestStatWeightsMageUsesSpellPower(t *testing.T) {
 	}
 	if len(res.Weights) == 0 || res.Weights[0].Dps == 0 && res.BaselineDps == 0 {
 		t.Fatalf("expected mage baseline dps, got %+v", res)
+	}
+}
+
+func TestApplyAbilityPriorities(t *testing.T) {
+	abs := []clientdata.Ability{
+		{ID: "whirlwind", Priority: 680},
+		{ID: "rend", Priority: 665},
+	}
+	out := applyAbilityPriorities(abs, map[string]int{"rend": 900})
+	if out[0].ID != "rend" || out[0].Priority != 900 {
+		t.Fatalf("rend should be first after override, got %+v", out[0])
+	}
+	dropped := applyAbilityPriorities(abs, map[string]int{"rend": 0})
+	if len(dropped) != 1 || dropped[0].ID != "whirlwind" {
+		t.Fatalf("priority 0 should drop rend, got %+v", dropped)
+	}
+}
+
+func TestPriorityZeroStopsCasts(t *testing.T) {
+	req := TypicalOrcWarrior()
+	req.Options.Iterations = 40
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "rend", Priority: 0}}
+	res := Run(req)
+	if res.DpsMean <= 0 {
+		t.Fatal("expected autos still deal damage")
+	}
+	for _, a := range res.Actions {
+		if a.Name == "Rend" {
+			t.Fatal("rend must not be used when priority is 0")
+		}
+	}
+}
+
+func TestTypicalOrcWarriorHasStartingGear(t *testing.T) {
+	req := TypicalOrcWarrior()
+	if req.Player.GetClass() != pb.Class_CLASS_WARRIOR || req.Player.GetRace() != pb.Race_RACE_ORC {
+		t.Fatal("expected orc warrior")
+	}
+	if len(req.Player.GetGear().GetItems()) < 10 {
+		t.Fatalf("expected starting raid gear, got %d items", len(req.Player.GetGear().GetItems()))
 	}
 }

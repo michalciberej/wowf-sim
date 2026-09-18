@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { expand } from './parse.mjs'
+import { expand, extractGearPlannerDumpUrls, isForeverTooltipPayload } from './parse.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 
@@ -34,16 +34,31 @@ export async function fetchText(url, endpoints) {
   return res.text()
 }
 
+function tooltipFromJson(raw, url) {
+  const data = JSON.parse(raw)
+  if (!isForeverTooltipPayload(data)) {
+    const err = new Error(`GET ${url} -> empty Forever tooltip`)
+    err.status = 404
+    throw err
+  }
+  return data
+}
+
 export async function cachedJson(kind, id, url, endpoints) {
   const dest = tooltipPath(kind, id)
   if (existsSync(dest)) {
-    return JSON.parse(readFileSync(dest, 'utf8'))
+    try {
+      return tooltipFromJson(readFileSync(dest, 'utf8'), url)
+    } catch {
+      // Cached error payloads or truncated files are refetched.
+    }
   }
   const text = await fetchText(url, endpoints)
+  const data = tooltipFromJson(text, url)
   mkdirSync(dirname(dest), { recursive: true })
   writeFileSync(dest, text)
   await sleep(endpoints.requestDelayMs || 50)
-  return JSON.parse(text)
+  return data
 }
 
 export async function cachedText(relPath, url, endpoints, force = false) {
@@ -76,6 +91,25 @@ export function cacheRel(endpoints, relPath) {
 
 export function gearPlannerUrl(endpoints) {
   return expand(endpoints.gearPlanner, endpoints)
+}
+
+export async function gearPlannerDumpUrls(endpoints, flags = {}) {
+  const urls = []
+  const pageUrl = `${endpoints.www}/${endpoints.path}/gear-planner`
+  try {
+    const html = await cachedText(
+      cacheRel(endpoints, 'gear-planner.html'),
+      pageUrl,
+      endpoints,
+      flags.force,
+    )
+    urls.push(...extractGearPlannerDumpUrls(html))
+  } catch (err) {
+    console.warn('gear planner page', err.message)
+  }
+  urls.push(gearPlannerUrl(endpoints))
+  urls.push(`${endpoints.origin}/${endpoints.path}/data/gear-planner`)
+  return [...new Set(urls.filter(Boolean))]
 }
 
 export function gearPlannerItemKey(endpoints) {

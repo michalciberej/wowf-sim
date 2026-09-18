@@ -1,0 +1,12 @@
+[
+  {
+    "id": 20130,
+    "name": "Diamond Flask",
+    "slot": 13,
+    "icon": "inv_drink_01",
+    "quality": 3,
+    "itemLevel": 52,
+    "classMask": 1,
+    "unique": true
+  }
+]
