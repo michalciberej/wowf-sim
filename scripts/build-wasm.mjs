@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const publicDir = join(root, 'web', 'public')
-mkdirSync(publicDir, { recursive: true })
+const wasmDir = join(root, 'web', 'src', 'wasm')
+mkdirSync(wasmDir, { recursive: true })
 
 const goroot = spawnSync('go', ['env', 'GOROOT'], { encoding: 'utf8' })
 if (goroot.status !== 0) {
@@ -20,7 +20,7 @@ const wasmExecCandidates = [
 ]
 const wasmExec = wasmExecCandidates.find((candidate) => {
   try {
-    copyFileSync(candidate, join(publicDir, 'wasm_exec.js'))
+    copyFileSync(candidate, join(wasmDir, 'wasm_exec.js'))
     return true
   } catch {
     return false
@@ -33,7 +33,7 @@ if (!wasmExec) {
 
 const build = spawnSync(
   'go',
-  ['build', '-o', join(publicDir, 'wowfsim.wasm'), './cmd/wasm'],
+  ['build', '-o', join(wasmDir, 'wowfsim.wasm'), './cmd/wasm'],
   {
     cwd: join(root, 'engine'),
     stdio: 'inherit',

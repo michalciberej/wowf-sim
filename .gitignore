@@ -9,7 +9,9 @@ engine/bin/
 *.test
 *.out
 
-# WASM build artifacts (copied into web/public on build)
+# WASM build artifacts (hashed into web/dist by Vite)
+web/src/wasm/wowfsim.wasm
+web/src/wasm/wasm_exec.js
 web/public/wowfsim.wasm
 web/public/wasm_exec.js
 

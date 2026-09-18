@@ -1,7 +1,9 @@
 import { fromBinary, toBinary } from '@bufbuild/protobuf'
-import { SimRequestSchema, SimResultSchema, type SimResult } from '../gen/wowfsim/sim_pb.ts'
+import { SimRequestSchema, SimResultSchema, StatWeightsResultSchema, type SimResult } from '../gen/wowfsim/sim_pb.ts'
 import { idleBetweenChunks, iterationChunkSize, mergeSimResults } from './merge.ts'
 import type { SimWorkerRequest, SimWorkerResponse } from './protocol.ts'
+import wasmExecSrc from '../wasm/wasm_exec.js?raw'
+import wasmUrl from '../wasm/wowfsim.wasm?url'
 
 declare const self: DedicatedWorkerGlobalScope
 
@@ -13,28 +15,36 @@ function post(msg: SimWorkerResponse) {
 
 function api() {
   const g = globalThis as typeof globalThis & {
-    wowfSimRun: (input: Uint8Array) => Uint8Array
-    wowfSimStatWeights: (input: Uint8Array) => Uint8Array
+    wowfSimRun: (input: Uint8Array) => unknown
+    wowfSimStatWeights: (input: Uint8Array) => unknown
   }
   return g
 }
 
+function engineBytes(out: unknown, what: string): Uint8Array {
+  if (out instanceof Uint8Array) {
+    return out
+  }
+  if (out instanceof ArrayBuffer) {
+    return new Uint8Array(out)
+  }
+  if (out instanceof Error) {
+    throw out
+  }
+  if (typeof out === 'object' && out && 'message' in out && !('byteLength' in out)) {
+    throw new Error(String((out as { message: unknown }).message))
+  }
+  throw new Error(`${what} was not binary protobuf data`)
+}
+
 async function boot() {
-  const base = import.meta.env.BASE_URL
-  const origin = self.location.origin
-  const wasmExec = await fetch(new URL(`${base}wasm_exec.js`, origin)).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Failed to load wasm_exec.js (${res.status})`)
-    }
-    return res.text()
-  })
-  new Function(wasmExec)()
+  new Function(wasmExecSrc)()
 
   const ready = new Promise<void>((resolve) => {
     ;(globalThis as typeof globalThis & { wowfSimReady: () => void }).wowfSimReady = () => resolve()
   })
 
-  const wasm = await fetch(new URL(`${base}wowfsim.wasm`, origin))
+  const wasm = await fetch(wasmUrl)
   if (!wasm.ok) {
     throw new Error(`Failed to load wowfsim.wasm (${wasm.status}). Build the engine first.`)
   }
@@ -46,7 +56,7 @@ async function boot() {
 }
 
 function runChunk(request: Uint8Array) {
-  return api().wowfSimRun(request)
+  return engineBytes(api().wowfSimRun(request), 'sim engine result')
 }
 
 async function runSimJob(id: number, requestBytes: Uint8Array) {
@@ -101,10 +111,11 @@ self.onmessage = (event: MessageEvent<SimWorkerRequest>) => {
   void (async () => {
     try {
       if (msg.kind === 'weights') {
-        const out = api().wowfSimStatWeights(msg.request)
+        const out = engineBytes(api().wowfSimStatWeights(msg.request), 'stat-weight engine result')
         if (currentId !== msg.id) {
           return
         }
+        fromBinary(StatWeightsResultSchema, out)
         post({ id: msg.id, kind: 'done', result: out })
         return
       }

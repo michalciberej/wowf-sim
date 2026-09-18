@@ -36,7 +36,7 @@ npm --prefix web install
 npm run dev
 ```
 
-That builds `web/public/wowfsim.wasm` and starts Vite at **http://localhost:5173**.
+That builds `web/src/wasm/wowfsim.wasm` and starts Vite at **http://localhost:5173**.
 
 ```
 npm test                 # Wowhead parser tests + Go engine tests
@@ -96,7 +96,7 @@ Stat weights (WowSims-style ±stat reruns, EP vs attack power or spell power) ar
 | Path | Why |
 | --- | --- |
 | `data/wowhead/` | local Wowhead cache |
-| `web/public/wowfsim.wasm` | rebuild with `npm run wasm` |
+| `web/src/wasm/wowfsim.wasm` | rebuild with `npm run wasm` |
 | `talent-trees/icon-cache.json` | local icon fetch cache |
 
 The baked `catalog.json` / `abilities.json` **are** meant to be committed so clones can run without scraping.
