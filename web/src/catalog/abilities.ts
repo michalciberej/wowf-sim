@@ -112,7 +112,7 @@ export function useTrinketAbilities(gearIds: Record<number, number> | undefined)
       out.push({
         id: abilityId,
         name: item.name,
-        icon: item.icon,
+        icon: item.icon ?? 'inv_misc_questionmark',
         gcd: false,
         kind: 'trinket',
         priority: TRINKET_USE_PRIORITY,

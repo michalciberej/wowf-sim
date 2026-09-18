@@ -93,7 +93,7 @@ export function potionUseAbility(item: CatalogItem | undefined): CatalogAbility 
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')}`,
     name: item.name,
-    icon: item.icon ?? effect.icon,
+    icon: item.icon ?? effect.icon ?? 'inv_misc_questionmark',
     gcd: false,
     kind: 'potion',
     priority: POTION_USE_PRIORITY,
