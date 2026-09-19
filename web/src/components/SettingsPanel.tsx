@@ -10,6 +10,8 @@ import {
 import { combatPotionsForClass } from '../catalog/potions.ts'
 import { BuffTooltip } from './BuffTooltip.tsx'
 import { ItemTooltip } from './ItemTooltip.tsx'
+import { EncounterModal } from './EncounterModal.tsx'
+import type { EncounterFoe } from '../persist.ts'
 
 const RACES: Array<{ value: Race; label: string }> = [
   { value: Race.ORC, label: 'Orc' },
@@ -38,6 +40,7 @@ type Props = {
   duration: number
   iterations: number
   rngSeed: number
+  encounterTargets: EncounterFoe[]
   selected: Record<string, boolean>
   onRace: (race: Race) => void
   onStance: (stance: WarriorStance) => void
@@ -47,6 +50,7 @@ type Props = {
   onDuration: (value: number) => void
   onIterations: (value: number) => void
   onRngSeed: (value: number) => void
+  onEncounterTargets: (next: EncounterFoe[]) => void
   onChange: (next: Record<string, boolean>) => void
 }
 
@@ -61,6 +65,7 @@ export function SettingsPanel({
   duration,
   iterations,
   rngSeed,
+  encounterTargets,
   selected,
   onRace,
   onStance,
@@ -70,10 +75,12 @@ export function SettingsPanel({
   onDuration,
   onIterations,
   onRngSeed,
+  onEncounterTargets,
   onChange,
 }: Props) {
   const potions = combatPotionsForClass(playerClass)
   const [hover, setHover] = useState<Hover | null>(null)
+  const [encounterOpen, setEncounterOpen] = useState(false)
   const mhItem = ITEMS.find((item) => item.id === (gearIds[ItemSlot.MAIN_HAND] ?? 0))
   const ohItem = ITEMS.find((item) => item.id === (gearIds[ItemSlot.OFF_HAND] ?? 0))
   const canOhStone = Boolean(mhItem?.hand !== '2h' && ohItem?.weaponDps && ohItem.hand !== '2h')
@@ -158,6 +165,16 @@ export function SettingsPanel({
                 onChange={(event) => onRngSeed(Number(event.target.value) || 0)}
               />
             </label>
+            <div className="encounter-advanced">
+              <p>
+                {encounterTargets.length === 1
+                  ? '1 target'
+                  : `${encounterTargets.length} targets`}
+              </p>
+              <button type="button" onClick={() => setEncounterOpen(true)}>
+                Advanced
+              </button>
+            </div>
           </div>
           <div className="settings-place">
             <h3>Player</h3>
@@ -257,6 +274,13 @@ export function SettingsPanel({
       </div>
       {hover?.kind === 'buff' ? <BuffTooltip buff={hover.buff} x={hover.x} y={hover.y} /> : null}
       {hover?.kind === 'potion' ? <ItemTooltip item={hover.item} x={hover.x} y={hover.y} /> : null}
+      {encounterOpen ? (
+        <EncounterModal
+          targets={encounterTargets}
+          onChange={onEncounterTargets}
+          onClose={() => setEncounterOpen(false)}
+        />
+      ) : null}
     </section>
   )
 }

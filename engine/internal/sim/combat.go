@@ -3,33 +3,51 @@ package sim
 import (
 	"math"
 	"math/rand"
+	"sort"
+	"strings"
 
 	pb "wowf-sim/engine/gen/wowfsim"
 	"wowf-sim/engine/internal/clientdata"
 )
 
 const (
-	gcdDuration    = 1.5
-	missChance     = 0.09
-	iconAuto       = "inv_sword_04"
-	iconOffHand    = "inv_weapon_shortblade_05"
-	maxResource    = 100.0
-	energyTickAmt  = 20.0
-	energyTickBase = 2.0
-	playerLevel    = 60.0
-	comboSpendAt   = 5
+	gcdDuration       = 1.5
+	missChance        = 0.09
+	iconAuto          = "inv_sword_04"
+	iconOffHand       = "inv_weapon_shortblade_05"
+	maxResource       = 100.0
+	energyTickAmt     = 20.0
+	energyTickBase    = 2.0
+	playerLevel       = 60.0
+	comboSpendAt      = 5
+	overpowerWindow   = 5.0
+	bossDefenseSkill  = 315.0
+	playerWeaponSkill = 300.0
+	bossLevelGap      = 3.0
+	normSpeedDagger   = 1.7
+	normSpeedOneHand  = 2.4
+	normSpeedTwoHand  = 3.3
+	normSpeedRanged   = 2.8
 )
 
 type actionAccum struct {
-	name, icon           string
-	dmg, hitDmg, critDmg float64
-	casts, crits, miss   int64
+	name, icon                string
+	dmg, hitDmg, critDmg      float64
+	casts, crits, miss, dodge int64
+	uptime                    float64
+	tracksUptime              bool
+}
+
+type auraSpan struct {
+	start, end float64
 }
 
 type combatBuff struct {
 	id, name, icon                                  string
 	expire                                          float64
 	dmg, haste, ap, crit, sp, str, agi, armorIgnore float64
+	apMul, spMul                                    float64
+	charges                                         int
 }
 
 type pendingCast struct {
@@ -46,6 +64,12 @@ type fight struct {
 	swingTimer, baseDPS, crit, attackPower float64
 	rng                                    *rand.Rand
 	ohDPS, ohTimer, ohAt                   float64
+	mhBonusDmg, ohBonusDmg, ohDwMul        float64
+	mhSubclass, ohSubclass                 string
+	hitGlanceMul                           float64
+	noDodge                                bool
+	dodgeUntil                             float64
+	lastDodge                              bool
 	hasOH, meleeAutos                      bool
 	spellPower, spellCrit, missSpell       float64
 	spellMul                               float64
@@ -89,6 +113,13 @@ type fight struct {
 	useOHMiss                              bool
 	mainStance, stance                     string
 	bossArmor                              float64
+	targets                                int
+	targetArmor                            []float64
+	castResource                           float64
+	castResourceT                          float64
+	castCost                               float64
+	castCostName                           string
+	auraSpans                              map[string][]auraSpan
 }
 
 type combatKit struct {
@@ -106,8 +137,12 @@ type combatKit struct {
 	armorLost, damageMul                                                 float64
 	maxRage, missOH, ohRageMul, swordProc                                float64
 	mhTwoHand                                                            bool
+	mhBonusDmg, ohBonusDmg, ohDwMul                                      float64
+	mhSubclass, ohSubclass                                               string
 	mainStance                                                           string
 	bossArmor                                                            float64
+	targets                                                              int
+	targetArmor                                                          []float64
 }
 
 func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[int32]int32, rng *rand.Rand, record bool) (damage float64, events []*pb.TimelineEvent, stats map[string]*actionAccum) {
@@ -187,6 +222,11 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		ohRageMul:    kit.ohRageMul,
 		swordProc:    kit.swordProc,
 		mhTwoHand:    kit.mhTwoHand,
+		mhBonusDmg:   kit.mhBonusDmg,
+		ohBonusDmg:   kit.ohBonusDmg,
+		ohDwMul:      kit.ohDwMul,
+		mhSubclass:   kit.mhSubclass,
+		ohSubclass:   kit.ohSubclass,
 		rng:          rng,
 		abilities:    applyAbilityPriorities(baseAbs, kit.abilityPrio),
 		executeAbs:   executeAbs,
@@ -201,6 +241,9 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		mainStance:   kit.mainStance,
 		stance:       kit.mainStance,
 		bossArmor:    kit.bossArmor,
+		targets:      kit.targets,
+		targetArmor:  append([]float64(nil), kit.targetArmor...),
+		auraSpans:    map[string][]auraSpan{},
 	}
 	if f.bossArmor <= 0 {
 		f.bossArmor = defaultBossArmor
@@ -224,6 +267,9 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 	}
 	if f.class == pb.Class_CLASS_ROGUE {
 		f.stealthed = true
+	}
+	if f.hasOH && f.ohDwMul <= 0 {
+		f.ohDwMul = 0.5
 	}
 	if f.meleeAutos {
 		f.swingAt = 0
@@ -325,6 +371,7 @@ func simulateFight(duration float64, kit combatKit, class pb.Class, ranks map[in
 		}
 		f.t = next
 	}
+	f.applyAuraUptime()
 	return f.totalDamage(), f.events, f.stats
 }
 
@@ -512,31 +559,45 @@ func (f *fight) currentAP() float64 {
 	if extraStr != 0 || extraAgi != 0 {
 		ap += meleeAPFromStats(f.class, extraStr, extraAgi)
 	}
-	return ap
-}
-
-func (f *fight) extraAP() float64 {
-	return f.currentAP() - f.attackPower
+	mul := 1.0
+	for _, b := range f.buffs {
+		if f.t < b.expire && b.apMul != 0 {
+			mul *= 1 + b.apMul
+		}
+	}
+	return ap * mul
 }
 
 func (f *fight) currentSP() float64 {
 	sp := f.spellPower
+	mul := 1.0
 	for _, b := range f.buffs {
 		if f.t < b.expire {
 			sp += b.sp
+			if b.spMul != 0 {
+				mul *= 1 + b.spMul
+			}
 		}
 	}
-	return sp
+	return sp * mul
 }
 
 func (f *fight) physicalMul() float64 {
+	return f.physicalMulAt(0)
+}
+
+func (f *fight) physicalMulAt(target int) float64 {
 	ignore := 0.0
 	for _, b := range f.buffs {
 		if f.t < b.expire {
 			ignore += b.armorIgnore
 		}
 	}
-	remain := f.bossArmor - f.armorLost - ignore
+	armor := f.bossArmor
+	if target >= 0 && target < len(f.targetArmor) {
+		armor = f.targetArmor[target]
+	}
+	remain := armor - f.armorLost - ignore
 	if remain < 0 {
 		remain = 0
 	}
@@ -550,14 +611,75 @@ func (f *fight) physicalMul() float64 {
 	return m
 }
 
+func normalizedWeaponSpeed(subclass string, twoHand bool) float64 {
+	s := strings.ToLower(subclass)
+	if strings.Contains(s, "dagger") {
+		return normSpeedDagger
+	}
+	if strings.Contains(s, "bow") || strings.Contains(s, "gun") || strings.Contains(s, "crossbow") || strings.Contains(s, "thrown") || strings.Contains(s, "wand") {
+		return normSpeedRanged
+	}
+	if twoHand || strings.Contains(s, "polearm") || strings.Contains(s, "staff") {
+		return normSpeedTwoHand
+	}
+	return normSpeedOneHand
+}
+
+func usesNormalizedWeapon(ab clientdata.Ability) bool {
+	if ab.DamageWeapon <= 0 || ab.Kind == "queue" {
+		return false
+	}
+	if ab.CastTime > 0 {
+		return false
+	}
+	return true
+}
+
+func (f *fight) mhWeaponHit(speed float64) float64 {
+	if speed <= 0 {
+		speed = f.swingTimer
+	}
+	return (f.baseDPS+f.currentAP()/14)*speed + f.mhBonusDmg
+}
+
 func (f *fight) mhSwing() float64 {
-	return (f.baseDPS + f.extraAP()/14) * f.swingTimer
+	return f.mhWeaponHit(f.swingTimer)
+}
+
+func (f *fight) mhNormalizedSwing() float64 {
+	return f.mhWeaponHit(normalizedWeaponSpeed(f.mhSubclass, f.mhTwoHand))
+}
+
+func (f *fight) ohWeaponHit(speed float64, white bool) float64 {
+	if !f.hasOH || speed <= 0 {
+		return 0
+	}
+	raw := (f.ohDPS+f.currentAP()/14)*speed + f.ohBonusDmg
+	if f.ohDwMul <= 0 {
+		return raw
+	}
+	if white {
+		return raw * f.ohDwMul
+	}
+	return raw * f.ohDwMul / 0.5
+}
+
+func (f *fight) ohSwing() float64 {
+	return f.ohWeaponHit(f.ohTimer, true)
+}
+
+func (f *fight) ohNormalizedSwing() float64 {
+	return f.ohWeaponHit(normalizedWeaponSpeed(f.ohSubclass, false), true)
 }
 
 func (f *fight) abilityDamage(ab clientdata.Ability, extraRage float64) float64 {
 	dmg := ab.DamageFlat
 	if ab.DamageWeapon > 0 {
-		dmg += f.mhSwing() * ab.DamageWeapon
+		swing := f.mhSwing()
+		if usesNormalizedWeapon(ab) {
+			swing = f.mhNormalizedSwing()
+		}
+		dmg += swing * ab.DamageWeapon
 	}
 	if ab.DamageAP > 0 {
 		dmg += f.currentAP() * ab.DamageAP
@@ -684,8 +806,17 @@ func (f *fight) canPay(ab clientdata.Ability) bool {
 	return f.payableRage(ab)+1e-9 >= ab.Cost
 }
 
+func (f *fight) snapshotCastResource() {
+	f.castResource = f.resource
+	f.castResourceT = f.t
+}
+
 func (f *fight) pay(ab clientdata.Ability) {
+	f.snapshotCastResource()
+	f.castCost = 0
+	f.castCostName = ab.Name
 	if ab.Resource == f.resourceKind && ab.Cost > 0 {
+		f.castCost = ab.Cost
 		f.addResource(-ab.Cost)
 	}
 	if ab.Gain > 0 && (ab.Resource == f.resourceKind || ab.Resource == "") {
@@ -711,11 +842,13 @@ func (f *fight) refreshBuff(next combatBuff) {
 		if f.buffs[i].id == next.id {
 			f.buffs[i] = next
 			f.recordAura("buff", next)
+			f.addAuraUptime(buffDisplayName(next), next.expire)
 			return
 		}
 	}
 	f.buffs = append(f.buffs, next)
 	f.recordAura("buff", next)
+	f.addAuraUptime(buffDisplayName(next), next.expire)
 }
 
 func (f *fight) tickResources() {
@@ -788,7 +921,7 @@ func (f *fight) applyPullBuffs() {
 		if ab.ID == "seal-of-the-crusader" && hasCommand {
 			continue
 		}
-		if ab.BuffDamage == 0 && ab.BuffHaste == 0 && ab.BuffAP == 0 && ab.BuffCrit == 0 {
+		if ab.BuffDamage == 0 && ab.BuffHaste == 0 && ab.BuffAP == 0 && ab.BuffCrit == 0 && ab.BuffAPMul == 0 && ab.BuffSPMul == 0 {
 			continue
 		}
 		f.refreshBuff(combatBuff{
@@ -799,6 +932,8 @@ func (f *fight) applyPullBuffs() {
 			dmg:    ab.BuffDamage,
 			haste:  ab.BuffHaste,
 			ap:     ab.BuffAP,
+			apMul:  ab.BuffAPMul,
+			spMul:  ab.BuffSPMul,
 			crit:   ab.BuffCrit,
 			str:    ab.BuffStr,
 			agi:    ab.BuffAgi,
@@ -808,6 +943,9 @@ func (f *fight) applyPullBuffs() {
 
 func (f *fight) usable(ab clientdata.Ability) bool {
 	if ab.SkipRotation {
+		return false
+	}
+	if !f.procOK(ab) {
 		return false
 	}
 	if !f.phaseOK(ab) {
@@ -823,6 +961,9 @@ func (f *fight) usable(ab clientdata.Ability) bool {
 		return false
 	}
 	if ab.MinTargets > 1 && f.targetCount() < ab.MinTargets {
+		return false
+	}
+	if ab.ID == "sweeping-strikes" && f.targetCount() < 2 {
 		return false
 	}
 	if ab.Kind == "opener" && ab.ID == "pyroblast" && f.t > 0.05 {
@@ -865,6 +1006,27 @@ func (f *fight) usable(ab clientdata.Ability) bool {
 		return false
 	}
 	return true
+}
+
+func needsDodgeProc(ab clientdata.Ability) bool {
+	if ab.RequiresProc == "dodge" {
+		return true
+	}
+	return ab.ID == "overpower"
+}
+
+func (f *fight) procOK(ab clientdata.Ability) bool {
+	if !needsDodgeProc(ab) {
+		return true
+	}
+	return f.t < f.dodgeUntil
+}
+
+func (f *fight) noteDodge() {
+	until := f.t + overpowerWindow
+	if until > f.dodgeUntil {
+		f.dodgeUntil = until
+	}
 }
 
 func (f *fight) comboFinisherReady(ab clientdata.Ability) bool {
@@ -949,6 +1111,9 @@ func (f *fight) soonestHigherPriorityReady(ab clientdata.Ability) (float64, bool
 			continue
 		}
 		if !f.phaseOK(other) {
+			continue
+		}
+		if !f.procOK(other) {
 			continue
 		}
 		found = true
@@ -1086,6 +1251,17 @@ func (f *fight) useItems() {
 	}
 }
 
+func gcdCooldown(ab clientdata.Ability) bool {
+	if !ab.GCD || ab.Kind == "strike" || ab.Kind == "queue" || ab.Kind == "dot" {
+		return false
+	}
+	switch ab.Kind {
+	case "buff", "opener", "potion", "trinket", "use":
+		return true
+	}
+	return ab.Duration > 0 && ab.Cooldown > 0
+}
+
 func (f *fight) pickGCD() *clientdata.Ability {
 	if ab := f.pickComboFinisher(); ab != nil {
 		return ab
@@ -1094,8 +1270,18 @@ func (f *fight) pickGCD() *clientdata.Ability {
 		return nil
 	}
 	rot := f.rotation()
+	if ab := f.pickGCDFrom(rot, true); ab != nil {
+		return ab
+	}
+	return f.pickGCDFrom(rot, false)
+}
+
+func (f *fight) pickGCDFrom(rot []clientdata.Ability, cooldowns bool) *clientdata.Ability {
 	for i := range rot {
 		ab := &rot[i]
+		if gcdCooldown(*ab) != cooldowns {
+			continue
+		}
 		if !inRotation(*ab) || !ab.GCD || ab.Kind == "queue" || ab.ConsumeCombo || !f.ready(*ab) || !f.canPay(*ab) {
 			continue
 		}
@@ -1129,6 +1315,9 @@ func (f *fight) nextGCDReady() float64 {
 			continue
 		}
 		if !f.phaseOK(ab) || f.waitForBlocks(ab) {
+			continue
+		}
+		if needsDodgeProc(ab) && !f.procOK(ab) {
 			continue
 		}
 		if requiresStealth(ab) && !f.stealthed {
@@ -1231,7 +1420,76 @@ func (f *fight) queueAbility() *clientdata.Ability {
 }
 
 func (f *fight) targetCount() int {
-	return 1
+	if f.targets < 1 {
+		return 1
+	}
+	return f.targets
+}
+
+func (f *fight) extraTargetHits(ab clientdata.Ability) int {
+	cap := ab.MaxTargets
+	if cap <= 0 {
+		cap = 1
+	}
+	n := f.targetCount()
+	if n > cap {
+		n = cap
+	}
+	if n < 1 {
+		n = 1
+	}
+	return n - 1
+}
+
+func abilityCopiesSweeping(id string) bool {
+	switch id {
+	case "whirlwind", "cleave", "sweeping-strikes":
+		return false
+	default:
+		return true
+	}
+}
+
+func (f *fight) hitExtraTargets(ab clientdata.Ability, raw float64, spell bool, critMul float64) {
+	extra := f.extraTargetHits(ab)
+	for i := 0; i < extra; i++ {
+		dmg, crit, miss := f.rollAt(raw, true, spell, critMul, i+1)
+		f.recordHitExtra(ab.Name, ab.Icon, dmg, crit, miss)
+		if !miss && !spell {
+			f.onPhysicalHit(crit, false)
+		}
+	}
+}
+
+func (f *fight) setBuffCharges(id string, n int) {
+	for i := range f.buffs {
+		if f.buffs[i].id == id && f.t < f.buffs[i].expire {
+			f.buffs[i].charges = n
+			return
+		}
+	}
+}
+
+func (f *fight) maybeSweeping(raw float64, yellow bool, critMul float64) {
+	if raw <= 0 || f.targetCount() < 2 {
+		return
+	}
+	for i := range f.buffs {
+		b := &f.buffs[i]
+		if b.id != "sweeping-strikes" || f.t >= b.expire || b.charges <= 0 {
+			continue
+		}
+		b.charges--
+		if b.charges <= 0 {
+			b.expire = f.t
+		}
+		dmg, crit, miss := f.rollAt(raw, yellow, false, critMul, 1)
+		f.recordHitExtra("Sweeping Strikes", "ability_rogue_slicedice", dmg, crit, miss)
+		if !miss {
+			f.onPhysicalHit(crit, false)
+		}
+		return
+	}
 }
 
 func (f *fight) rageNeedAbove(ab clientdata.Ability) float64 {
@@ -1250,6 +1508,9 @@ func (f *fight) rageNeedAbove(ab clientdata.Ability) float64 {
 			continue
 		}
 		if !f.phaseOK(other) {
+			continue
+		}
+		if !f.procOK(other) {
 			continue
 		}
 		if f.cds[other.ID] > f.t+gcdDuration {
@@ -1276,6 +1537,9 @@ func (f *fight) starvesHigher(ab clientdata.Ability) bool {
 		if other.Kind != "strike" && other.Kind != "buff" && other.Kind != "queue" {
 			continue
 		}
+		if other.DumpRage || other.ID == "execute" {
+			continue
+		}
 		if other.ConsumeCombo && !f.comboFinisherReady(other) {
 			continue
 		}
@@ -1283,6 +1547,9 @@ func (f *fight) starvesHigher(ab clientdata.Ability) bool {
 			continue
 		}
 		if !f.phaseOK(other) {
+			continue
+		}
+		if !f.procOK(other) {
 			continue
 		}
 		need := other.Cost
@@ -1329,15 +1596,22 @@ func (f *fight) autoAttack() {
 		if bonus == 0 && hs.Damage > 0 {
 			bonus = white * hs.Damage
 		}
-		dmg, crit, miss := f.roll(white+bonus, true, false, f.critMultiplier(*hs, false, true))
+		raw := white + bonus
+		critMul := f.critMultiplier(*hs, false, true)
+		dmg, crit, miss := f.roll(raw, true, false, critMul)
 		f.recordHit(hs.Name, hs.Icon, dmg, crit, miss)
 		if !miss {
 			f.onPhysicalHit(crit, false)
 			f.maybeWindfury()
 		}
+		f.hitExtraTargets(*hs, raw, false, critMul)
+		if abilityCopiesSweeping(hs.ID) {
+			f.maybeSweeping(raw, true, critMul)
+		}
 		return
 	}
 	dmg, crit, miss := f.roll(white, false, false, 2)
+	f.snapshotCastResource()
 	if !miss {
 		f.onPhysicalHit(crit, false)
 		f.maybeWindfury()
@@ -1346,13 +1620,15 @@ func (f *fight) autoAttack() {
 		f.addResource(rageFromWhite(dmg, f.swingTimer, crit))
 	}
 	f.recordHit("Auto Attack", iconAuto, dmg, crit, miss)
+	f.maybeSweeping(white, false, 2)
 }
 
 func (f *fight) offHandAttack() {
-	white := f.ohDPS * f.ohTimer
+	white := f.ohSwing()
 	f.useOHMiss = true
 	dmg, crit, miss := f.roll(white, false, false, 2)
 	f.useOHMiss = false
+	f.snapshotCastResource()
 	if !miss {
 		f.onPhysicalHit(crit, true)
 	}
@@ -1373,6 +1649,7 @@ func (f *fight) maybeWindfury() {
 		if !miss {
 			f.onPhysicalHit(crit, false)
 		}
+		f.maybeSweeping(raw, false, 2)
 	}
 }
 
@@ -1502,10 +1779,15 @@ func (f *fight) resolveAbility(ab clientdata.Ability, extraRage float64, combo i
 			dmg:    ab.BuffDamage,
 			haste:  ab.BuffHaste,
 			ap:     ab.BuffAP,
+			apMul:  ab.BuffAPMul,
+			spMul:  ab.BuffSPMul,
 			crit:   ab.BuffCrit,
 			str:    ab.BuffStr,
 			agi:    ab.BuffAgi,
 		})
+		if ab.ID == "sweeping-strikes" {
+			f.setBuffCharges(ab.ID, 5)
+		}
 	}
 	if ab.ConsumeCombo {
 		f.combo = 0
@@ -1566,9 +1848,13 @@ func (f *fight) resolveAbility(ab clientdata.Ability, extraRage float64, combo i
 	}
 	if ab.ID == "overpower" {
 		f.pendingCritBonus = 0.25 * float64(f.named("Improved Overpower"))
+		f.noDodge = true
+		f.dodgeUntil = 0
 	}
 	f.pendingCritBonus += f.consumeColdBlood(ab.ID)
-	dmg, crit, miss := f.roll(raw, true, spell, f.critMultiplier(ab, spell, true))
+	critMul := f.critMultiplier(ab, spell, true)
+	dmg, crit, miss := f.roll(raw, true, spell, critMul)
+	f.noDodge = false
 	f.recordHit(ab.Name, ab.Icon, dmg, crit, miss)
 	if !miss {
 		f.addCombo(ab.ComboGen)
@@ -1579,17 +1865,20 @@ func (f *fight) resolveAbility(ab clientdata.Ability, extraRage float64, combo i
 	if !miss && !spell {
 		f.onPhysicalHit(crit, false)
 	}
-	if ab.ID == "whirlwind" && !miss {
-		f.ragingBlowsOH()
+	if !spell {
+		f.hitExtraTargets(ab, raw, spell, critMul)
+	}
+	if ab.ID == "whirlwind" {
+		f.ragingBlowsOH(ab)
+	}
+	if !spell && abilityCopiesSweeping(ab.ID) {
+		f.maybeSweeping(raw, true, critMul)
 	}
 	f.maybeImprovedShadowBolt(ab, crit)
 }
 
 func (f *fight) ohSpecialSwing() float64 {
-	if !f.hasOH || f.ohTimer <= 0 {
-		return 0
-	}
-	return f.ohDPS * f.ohTimer / 0.5
+	return f.ohWeaponHit(normalizedWeaponSpeed(f.ohSubclass, false), false)
 }
 
 func (f *fight) targetPoisoned() bool {
@@ -1637,7 +1926,7 @@ func (f *fight) castMutilate(ab clientdata.Ability) {
 		f.onPhysicalHit(crit, offHand)
 		return crit, true
 	}
-	mhRaw := (f.mhSwing()*ab.DamageWeapon + ab.DamageFlat) * f.talentMul(ab.ID) * poisonMul
+	mhRaw := (f.mhNormalizedSwing()*ab.DamageWeapon + ab.DamageFlat) * f.talentMul(ab.ID) * poisonMul
 	mhCrit, connected := strike(mhRaw, ab.Name, false)
 	ohCrit := false
 	if f.hasOH {
@@ -1657,11 +1946,56 @@ func (f *fight) castMutilate(ab clientdata.Ability) {
 	}
 }
 
-func (f *fight) hitCheck(yellow, spell bool) (crit, miss bool) {
-	missP := f.missWhite
+func (f *fight) dodgeChance() float64 {
+	return 0.05 + (bossDefenseSkill-playerWeaponSkill)*0.001
+}
+
+func (f *fight) glanceChance() float64 {
+	return 0.10 + (bossDefenseSkill-playerWeaponSkill)*0.02
+}
+
+func (f *fight) glanceMultiplier() float64 {
+	diff := bossDefenseSkill - playerWeaponSkill
+	low := math.Max(0.01, math.Min(0.91, 1.3-0.05*diff))
+	high := math.Max(0.2, math.Min(0.99, 1.2-0.03*diff))
+	if f.rng == nil {
+		return (low + high) / 2
+	}
+	return low + f.rng.Float64()*(high-low)
+}
+
+func (f *fight) meleeCritOnTable() float64 {
+	c := f.critChance() - 0.01*bossLevelGap
+	if c < 0 {
+		return 0
+	}
+	return c
+}
+
+func (f *fight) attackOutcome(yellow, spell bool) (crit, miss bool, glanceMul float64) {
+	glanceMul = 1
+	f.lastDodge = false
+	roll := 0.0
+	if f.rng != nil {
+		roll = f.rng.Float64()
+	}
 	if spell {
-		missP = f.missSpell
-	} else if yellow {
+		missP := f.missSpell
+		if missP < 0 {
+			missP = 0
+		}
+		if roll < missP {
+			return false, true, 1
+		}
+		critP := f.spellCritChance() + f.pendingCritBonus
+		f.pendingCritBonus = 0
+		if f.rng != nil && f.rng.Float64() < critP {
+			return true, false, 1
+		}
+		return false, false, 1
+	}
+	missP := f.missWhite
+	if yellow {
 		missP = f.missYellow
 	} else if f.useOHMiss && f.missOH > 0 {
 		missP = f.missOH
@@ -1669,22 +2003,51 @@ func (f *fight) hitCheck(yellow, spell bool) (crit, miss bool) {
 	if missP < 0 {
 		missP = 0
 	}
-	if f.rng.Float64() < missP {
-		return false, true
+	dodgeP := 0.0
+	if !f.noDodge {
+		dodgeP = f.dodgeChance()
 	}
-	critP := f.critChance()
-	if spell {
-		critP = f.spellCritChance()
+	glanceP := 0.0
+	if !yellow {
+		glanceP = f.glanceChance()
 	}
-	critP += f.pendingCritBonus
+	critP := f.meleeCritOnTable() + f.pendingCritBonus
 	f.pendingCritBonus = 0
-	if f.rng.Float64() < critP {
-		return true, false
+	if critP < 0 {
+		critP = 0
 	}
-	return false, false
+	if roll < missP {
+		return false, true, 1
+	}
+	roll -= missP
+	if roll < dodgeP {
+		f.noteDodge()
+		f.lastDodge = true
+		return false, true, 1
+	}
+	roll -= dodgeP
+	if roll < glanceP {
+		return false, false, f.glanceMultiplier()
+	}
+	roll -= glanceP
+	if roll < critP {
+		return true, false, 1
+	}
+	return false, false, 1
+}
+
+func (f *fight) hitCheck(yellow, spell bool) (crit, miss bool) {
+	var glanceMul float64
+	crit, miss, glanceMul = f.attackOutcome(yellow, spell)
+	f.hitGlanceMul = glanceMul
+	return crit, miss
 }
 
 func (f *fight) roll(raw float64, yellow, spell bool, critMul float64) (dmg float64, crit, miss bool) {
+	return f.rollAt(raw, yellow, spell, critMul, 0)
+}
+
+func (f *fight) rollAt(raw float64, yellow, spell bool, critMul float64, target int) (dmg float64, crit, miss bool) {
 	crit, miss = f.hitCheck(yellow, spell)
 	if miss {
 		return 0, false, true
@@ -1694,8 +2057,11 @@ func (f *fight) roll(raw float64, yellow, spell bool, critMul float64) (dmg floa
 		if f.spellMul > 0 {
 			dmg *= f.spellMul
 		}
-	} else if mul := f.physicalMul(); mul > 0 {
+	} else if mul := f.physicalMulAt(target); mul > 0 {
 		dmg *= mul
+	}
+	if f.hitGlanceMul > 0 && f.hitGlanceMul != 1 {
+		dmg *= f.hitGlanceMul
 	}
 	if crit {
 		if critMul <= 0 {
@@ -1780,15 +2146,25 @@ func (f *fight) procItems() {
 }
 
 func (f *fight) accumulate(name, icon string, dmg float64, crit, miss bool) {
+	f.accumulateHit(name, icon, dmg, crit, miss, true)
+}
+
+func (f *fight) accumulateHit(name, icon string, dmg float64, crit, miss bool, countCast bool) {
 	acc := f.stats[name]
 	if acc == nil {
 		acc = &actionAccum{name: name, icon: icon}
 		f.stats[name] = acc
 	}
-	acc.casts++
+	if countCast {
+		acc.casts++
+	}
 	acc.dmg += dmg
 	if miss {
-		acc.miss++
+		if f.lastDodge {
+			acc.dodge++
+		} else {
+			acc.miss++
+		}
 	} else if crit {
 		acc.crits++
 		acc.critDmg += dmg
@@ -1797,9 +2173,72 @@ func (f *fight) accumulate(name, icon string, dmg float64, crit, miss bool) {
 	}
 }
 
+func (f *fight) recordHit(name, icon string, dmg float64, crit, miss bool) {
+	f.accumulateHit(name, icon, dmg, crit, miss, true)
+	f.emitTimeline("hit", name, icon, dmg, crit, miss, 0)
+}
+
+func (f *fight) recordHitExtra(name, icon string, dmg float64, crit, miss bool) {
+	f.accumulateHit(name, icon, dmg, crit, miss, false)
+	if f.mergeLastHit(name, dmg, crit, miss) {
+		return
+	}
+	f.emitTimeline("hit", name, icon, dmg, crit, miss, 0)
+}
+
+func (f *fight) mergeLastHit(name string, dmg float64, crit, miss bool) bool {
+	if !f.record || len(f.events) == 0 {
+		return false
+	}
+	ev := f.events[len(f.events)-1]
+	if ev.Name != name || ev.Kind != "hit" || ev.TimeSeconds+1e-9 < f.t || f.t+1e-9 < ev.TimeSeconds {
+		return false
+	}
+	ev.Damage += dmg
+	if ev.TargetHits < 1 {
+		ev.TargetHits = 1
+	}
+	ev.TargetHits++
+	ev.HitDamage = append(ev.HitDamage, dmg)
+	ev.HitCrit = append(ev.HitCrit, crit)
+	ev.HitMiss = append(ev.HitMiss, miss)
+	if crit {
+		ev.Crit = true
+	}
+	if !miss {
+		ev.Miss = false
+	}
+	ev.Resource = f.resource
+	return true
+}
+
 func (f *fight) emitTimeline(kind, name, icon string, dmg float64, crit, miss bool, duration float64) {
 	if !f.record || len(f.events) >= f.eventCap {
 		return
+	}
+	before := f.resource
+	if f.castResourceT == f.t {
+		before = f.castResource
+	}
+	hits := int32(0)
+	var hitDmg []float64
+	var hitCrit, hitMiss []bool
+	if kind == "hit" || kind == "tick" {
+		hits = 1
+		hitDmg = []float64{dmg}
+		hitCrit = []bool{crit}
+		hitMiss = []bool{miss}
+	}
+	cost := 0.0
+	if name == f.castCostName {
+		cost = f.castCost
+	}
+	gain := 0.0
+	if kind != "resource" {
+		gain = f.resource - before + cost
+		if gain < 0 {
+			gain = 0
+		}
 	}
 	f.events = append(f.events, &pb.TimelineEvent{
 		TimeSeconds:     f.t,
@@ -1810,14 +2249,16 @@ func (f *fight) emitTimeline(kind, name, icon string, dmg float64, crit, miss bo
 		Icon:            icon,
 		ResourceKind:    f.resourceKind,
 		Resource:        f.resource,
+		ResourceBefore:  before,
+		TargetHits:      hits,
+		ResourceCost:    cost,
+		ResourceGain:    gain,
+		HitDamage:       hitDmg,
+		HitCrit:         hitCrit,
+		HitMiss:         hitMiss,
 		Kind:            kind,
 		DurationSeconds: duration,
 	})
-}
-
-func (f *fight) recordHit(name, icon string, dmg float64, crit, miss bool) {
-	f.accumulate(name, icon, dmg, crit, miss)
-	f.emitTimeline("hit", name, icon, dmg, crit, miss, 0)
 }
 
 func (f *fight) recordTick(name, icon string, dmg float64) {
@@ -1825,9 +2266,80 @@ func (f *fight) recordTick(name, icon string, dmg float64) {
 	f.emitTimeline("tick", name, icon, dmg, false, false, 0)
 }
 
+func buffDisplayName(buff combatBuff) string {
+	if buff.name != "" {
+		return buff.name
+	}
+	return buff.id
+}
+
+func (f *fight) addAuraUptime(name string, expire float64) {
+	if name == "" {
+		return
+	}
+	start := f.t
+	end := expire
+	if start < 0 {
+		start = 0
+	}
+	if end > f.end {
+		end = f.end
+	}
+	if end <= start+1e-9 {
+		return
+	}
+	if f.auraSpans == nil {
+		f.auraSpans = map[string][]auraSpan{}
+	}
+	f.auraSpans[name] = append(f.auraSpans[name], auraSpan{start: start, end: end})
+}
+
+func (f *fight) applyAuraUptime() {
+	for name, spans := range f.auraSpans {
+		acc := f.stats[name]
+		if acc == nil {
+			continue
+		}
+		acc.tracksUptime = true
+		acc.uptime = coveredSeconds(spans)
+	}
+}
+
+func coveredSeconds(spans []auraSpan) float64 {
+	if len(spans) == 0 {
+		return 0
+	}
+	sort.Slice(spans, func(i, j int) bool {
+		return spans[i].start < spans[j].start
+	})
+	cur := spans[0]
+	total := 0.0
+	for i := 1; i < len(spans); i++ {
+		next := spans[i]
+		if next.start <= cur.end {
+			if next.end > cur.end {
+				cur.end = next.end
+			}
+			continue
+		}
+		total += cur.end - cur.start
+		cur = next
+	}
+	total += cur.end - cur.start
+	if total < 0 {
+		return 0
+	}
+	return total
+}
+
 func (f *fight) recordAura(kind string, buff combatBuff) {
 	duration := buff.expire - f.t
-	if duration <= 0 || buff.expire > f.end+1 {
+	if duration <= 0 {
+		return
+	}
+	// Pull auras use expire = end+3600. Real CDs may extend a few seconds past
+	// the kill and still need a clipped bar on the timeline.
+	if buff.expire > f.end+60 {
 		return
 	}
 	name := buff.name

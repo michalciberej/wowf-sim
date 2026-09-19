@@ -84,11 +84,12 @@ func applyWarriorAbilityTalents(ab clientdata.Ability, ranks map[int32]int32) cl
 	case "berserker-rage":
 		ab.Gain += 5 * float64(talentRank(ranks, "Improved Berserker Rage"))
 	case "cleave":
+		ab.Cost -= float64(talentRank(ranks, "Improved Cleave"))
 		if talentRank(ranks, "Raging Blows") > 0 {
 			ab.Cost -= 2
-			if ab.Cost < 1 {
-				ab.Cost = 1
-			}
+		}
+		if ab.Cost < 1 {
+			ab.Cost = 1
 		}
 	}
 	off := float64(talentRank(ranks, "Focused Rage"))
@@ -306,17 +307,22 @@ func (f *fight) nextWarriorEvent() float64 {
 	return next
 }
 
-func (f *fight) ragingBlowsOH() {
+func (f *fight) ragingBlowsOH(ww clientdata.Ability) {
 	if !f.hasOH || f.named("Raging Blows") <= 0 {
 		return
 	}
-	raw := f.ohDPS * f.ohTimer
+	raw := f.ohNormalizedSwing()
 	if raw <= 0 {
 		return
 	}
-	dmg, crit, miss := f.roll(raw, true, false, 2)
-	f.recordHit("Whirlwind Off-Hand", "ability_whirlwind", dmg, crit, miss)
+	oh := ww
+	oh.Name = "Whirlwind Off-Hand"
+	oh.Icon = "ability_whirlwind"
+	critMul := 2.0
+	dmg, crit, miss := f.roll(raw, true, false, critMul)
+	f.recordHit(oh.Name, oh.Icon, dmg, crit, miss)
 	if !miss {
 		f.onPhysicalHit(crit, true)
 	}
+	f.hitExtraTargets(oh, raw, false, critMul)
 }

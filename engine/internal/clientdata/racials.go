@@ -21,6 +21,8 @@ type Racial struct {
 	BuffDamage      float64 `json:"buffDamage"`
 	BuffHaste       float64 `json:"buffHaste"`
 	BuffAP          float64 `json:"buffAP"`
+	BuffAPMul       float64 `json:"buffAPMul"`
+	BuffSPMul       float64 `json:"buffSPMul"`
 	BuffCrit        float64 `json:"buffCrit"`
 	HealthMul       float64 `json:"healthMul"`
 	HitChance       float64 `json:"hitChance"`

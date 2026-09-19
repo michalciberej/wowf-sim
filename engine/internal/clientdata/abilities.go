@@ -36,6 +36,8 @@ type Ability struct {
 	BuffDamage        float64 `json:"buffDamage"`
 	BuffHaste         float64 `json:"buffHaste"`
 	BuffAP            float64 `json:"buffAP"`
+	BuffAPMul         float64 `json:"buffAPMul"`
+	BuffSPMul         float64 `json:"buffSPMul"`
 	BuffCrit          float64 `json:"buffCrit"`
 	BuffStr           float64 `json:"buffStr"`
 	BuffAgi           float64 `json:"buffAgi"`
@@ -48,6 +50,7 @@ type Ability struct {
 	HealthAbove       float64 `json:"healthAbove"`
 	WaitForReadyAbove float64 `json:"waitForReadyAbove"`
 	MinTargets        int     `json:"minTargets"`
+	MaxTargets        int     `json:"maxTargets"`
 	ComboMin          int     `json:"comboMin"`
 	ComboGen          int     `json:"comboGen"`
 	ConsumeCombo      bool    `json:"consumeCombo"`

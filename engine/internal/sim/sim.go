@@ -54,6 +54,11 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 			tot.casts += acc.casts
 			tot.crits += acc.crits
 			tot.miss += acc.miss
+			tot.dodge += acc.dodge
+			tot.uptime += acc.uptime
+			if acc.tracksUptime {
+				tot.tracksUptime = true
+			}
 		}
 		dps := dmg / duration
 		samples = append(samples, dps)
@@ -82,15 +87,18 @@ func Run(req *pb.SimRequest) *pb.SimResult {
 			avgCast = acc.dmg / float64(acc.casts)
 		}
 		actions = append(actions, &pb.ActionMetric{
-			Name:    acc.name,
-			Dps:     acc.dmg / dur / iter,
-			Casts:   float64(acc.casts) / iter,
-			Crits:   float64(acc.crits) / iter,
-			Misses:  float64(acc.miss) / iter,
-			Icon:    acc.icon,
-			HitDps:  acc.hitDmg / dur / iter,
-			CritDps: acc.critDmg / dur / iter,
-			AvgCast: avgCast,
+			Name:         acc.name,
+			Dps:          acc.dmg / dur / iter,
+			Casts:        float64(acc.casts) / iter,
+			Crits:        float64(acc.crits) / iter,
+			Misses:       float64(acc.miss) / iter,
+			Dodges:       float64(acc.dodge) / iter,
+			Icon:         acc.icon,
+			HitDps:       acc.hitDmg / dur / iter,
+			CritDps:      acc.critDmg / dur / iter,
+			AvgCast:      avgCast,
+			TracksUptime: acc.tracksUptime,
+			Uptime:       acc.uptime / dur / iter,
 		})
 	}
 	sort.SliceStable(actions, func(i, j int) bool {
@@ -254,16 +262,9 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 	gearSpellCrit += raid.spellCrit
 
 	ap := (gearAP + raid.ap + classAP + selfClassAP(player.GetClass(), ranks, player.GetRaidBuffs())) * raid.apMul
+	mhBonusTotal := mhBonusDmg + raid.weaponDamage
 	if meleeAutos {
 		ap += attackPowerFromStats(player.GetClass(), str, agi) * raid.apMul
-		baseDPS += ap / 14
-		bonusSwing := mhBonusDmg + raid.weaponDamage
-		if bonusSwing > 0 && swingTimer > 0 {
-			baseDPS += bonusSwing / swingTimer
-		}
-		if ohBonusDmg > 0 && ohSpeed > 0 {
-			ohWeapon += ohBonusDmg / ohSpeed
-		}
 		if gearHaste > 0 {
 			swingTimer *= 1 - gearHaste
 			if ohSpeed > 0 {
@@ -274,6 +275,8 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 		baseDPS = 0
 		ap = 0
 		ohWeapon = 0
+		mhBonusTotal = 0
+		ohBonusDmg = 0
 	}
 
 	meleeCrit := meleeCritChance(player.GetClass(), agi, gearCrit)
@@ -297,7 +300,7 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 		}
 	}
 	w := warriorPassivesFor(player, ranks, mhTwoHand, mainHandSubclass(player), bossArmor)
-	talMul := g.damageMul * w.damageMul
+	talMul := g.damageMul
 	talHaste := g.hasteMul
 	hitChance += w.hit + g.hit
 	spellHit += g.spellHit
@@ -309,7 +312,7 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 	if !meleeAutos {
 		spellMul *= talMul
 	}
-	weaponMul := g.weaponMul(mhTwoHand)
+	weaponMul := g.weaponMul(mhTwoHand) * w.damageMul
 
 	dwMul := 0.5
 	ohTalentDmg := g.ohDmg
@@ -326,7 +329,7 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 	hasOH := meleeAutos && !mhTwoHand && ohWeapon > 0 && ohSpeed > 0
 	ohDPS := 0.0
 	if hasOH {
-		ohDPS = (ohWeapon + ap/14) * raceMul * talMul * dwMul
+		ohDPS = ohWeapon * raceMul * talMul
 		ohSpeed *= raceHaste * talHaste
 	}
 
@@ -426,14 +429,30 @@ func buildModel(player *pb.Player, enc *pb.Encounter) combatKit {
 		ohRageMul:   w.ohRageMul,
 		swordProc:   w.swordProc,
 		mhTwoHand:   mhTwoHand,
+		mhBonusDmg:  mhBonusTotal,
+		ohBonusDmg:  ohBonusDmg,
+		ohDwMul:     dwMul,
+		mhSubclass:  mainHandSubclass(player),
+		ohSubclass:  offHandSubclass(player),
 		mainStance:  warriorMainStance(player),
 		bossArmor:   bossArmor,
+		targets:     encounterTargetCount(enc),
+		targetArmor: encounterTargetArmors(enc),
 	}
 }
 
 func mainHandSubclass(player *pb.Player) string {
 	for _, item := range player.GetGear().GetItems() {
 		if item.GetSlot() == pb.ItemSlot_ITEM_SLOT_MAIN_HAND {
+			return item.GetItemSubclass()
+		}
+	}
+	return ""
+}
+
+func offHandSubclass(player *pb.Player) string {
+	for _, item := range player.GetGear().GetItems() {
+		if item.GetSlot() == pb.ItemSlot_ITEM_SLOT_OFF_HAND {
 			return item.GetItemSubclass()
 		}
 	}

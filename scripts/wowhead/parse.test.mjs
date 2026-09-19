@@ -271,7 +271,9 @@ test('parseSpellTooltip reads Forever Blood Fury, Berserking, and Elunes Light',
   })
   assert.equal(fury.cooldown, 120)
   assert.equal(fury.duration, 15)
-  assert.equal(fury.buffDamage, 0.1)
+  assert.equal(fury.buffAPMul, 0.1)
+  assert.equal(fury.buffSPMul, 0.1)
+  assert.equal(fury.buffDamage || 0, 0)
   const zerk = parseSpellTooltip({
     id: 20554,
     name: 'Berserking',
@@ -322,7 +324,8 @@ test('catalogRacialFromParsed maps Wowhead race bits including Skyborne', () => 
   assert.equal(orc.race, 2)
   assert.equal(orc.passive, false)
   assert.equal(orc.cooldown, 120)
-  assert.equal(orc.buffDamage, 0.1)
+  assert.equal(orc.buffAPMul, 0.1)
+  assert.equal(orc.buffSPMul, 0.1)
   const sky = catalogRacialFromParsed(
     parseSpellTooltip({
       id: 1259710,

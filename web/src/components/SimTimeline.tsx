@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { MouseEvent, PointerEvent } from 'react'
 import type { SimResult, TimelineEvent } from '../gen/wowfsim/sim_pb.ts'
 import { iconUrl } from '../catalog/era.ts'
-import type { CatalogAbility } from '../catalog/abilities.ts'
+import { abilityForActionName, type CatalogAbility } from '../catalog/abilities.ts'
 import { SpellHover, SpellTooltip } from './SpellTooltip.tsx'
 
 const PX_PER_SEC = 28
@@ -26,9 +26,10 @@ type Lane = {
 type Props = {
   result: SimResult
   durationSeconds: number
+  embedded?: boolean
 }
 
-export function SimTimeline({ result, durationSeconds }: Props) {
+export function SimTimeline({ result, durationSeconds, embedded }: Props) {
   const events = result.timeline ?? []
   const end = Math.max(durationSeconds, durationFrom(result), 1)
   const trackPx = Math.max(MIN_TRACK, Math.round(end * PX_PER_SEC))
@@ -47,6 +48,7 @@ export function SimTimeline({ result, durationSeconds }: Props) {
   const kind = events.find((event) => event.resourceKind)?.resourceKind ?? ''
   const ticks = axisTicks(end)
   const [hover, setHover] = useState<{ ability: CatalogAbility; x: number; y: number } | null>(null)
+  const [eventHover, setEventHover] = useState<{ event: TimelineEvent; x: number; y: number } | null>(null)
   const [panning, setPanning] = useState(false)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ pointerId: number; startX: number; startLeft: number; moved: boolean } | null>(
@@ -101,14 +103,20 @@ export function SimTimeline({ result, durationSeconds }: Props) {
   }
 
   return (
-    <section className="timeline-frame">
-      <header className="talent-frame-head">
-        <h2>Timeline</h2>
-        <p>
-          First iteration · {events.length} events · {end.toFixed(0)}s · drag
-          to pan
+    <section className={embedded ? 'timeline-embed' : 'timeline-frame'}>
+      {embedded ? (
+        <p className="dps-meta">
+          First iteration · {events.length} events · {end.toFixed(0)}s · drag to pan
         </p>
-      </header>
+      ) : (
+        <header className="talent-frame-head">
+          <h2>Timeline</h2>
+          <p>
+            First iteration · {events.length} events · {end.toFixed(0)}s · drag
+            to pan
+          </p>
+        </header>
+      )}
       <div
         className={`wcl${panning ? ' panning' : ''}`}
         onPointerDown={onPointerDown}
@@ -186,11 +194,28 @@ export function SimTimeline({ result, durationSeconds }: Props) {
               </svg>
             </div>
           ) : null}
-          <LaneTracks title="Damage" lanes={damage} end={end} trackPx={trackPx} showTicks />
-          <LaneTracks title="Buffs" lanes={buffs} end={end} trackPx={trackPx} showTicks={false} />
+          <LaneTracks
+            title="Damage"
+            lanes={damage}
+            end={end}
+            trackPx={trackPx}
+            showTicks
+            onEventHover={(event, x, y) => setEventHover({ event, x, y })}
+            onEventLeave={() => setEventHover(null)}
+          />
+          <LaneTracks
+            title="Buffs"
+            lanes={buffs}
+            end={end}
+            trackPx={trackPx}
+            showTicks={false}
+            onEventHover={(event, x, y) => setEventHover({ event, x, y })}
+            onEventLeave={() => setEventHover(null)}
+          />
         </div>
       </div>
       {hover ? <SpellTooltip ability={hover.ability} x={hover.x} y={hover.y} /> : null}
+      {eventHover ? <EventTooltip event={eventHover.event} x={eventHover.x} y={eventHover.y} /> : null}
     </section>
   )
 }
@@ -236,12 +261,16 @@ function LaneTracks({
   end,
   trackPx,
   showTicks,
+  onEventHover,
+  onEventLeave,
 }: {
   title: string
   lanes: Lane[]
   end: number
   trackPx: number
   showTicks: boolean
+  onEventHover: (event: TimelineEvent, x: number, y: number) => void
+  onEventLeave: () => void
 }) {
   if (!lanes.length) {
     return null
@@ -262,8 +291,10 @@ function LaneTracks({
                   <span
                     key={`aura-${event.timeSeconds}-${index}`}
                     className={`wcl-aura ${event.kind}`}
-                    title={castTitle(event)}
                     style={{ left: `${left}px`, width: `${Math.max(3, right - left)}px` }}
+                    onMouseEnter={(ev) => onEventHover(event, ev.clientX, ev.clientY)}
+                    onMouseMove={(ev) => onEventHover(event, ev.clientX, ev.clientY)}
+                    onMouseLeave={onEventLeave}
                   >
                     {isCast ? null : (
                       <img
@@ -286,7 +317,9 @@ function LaneTracks({
                 src={iconUrl(event.icon || lane.icon)}
                 alt=""
                 draggable={false}
-                title={castTitle(event)}
+                onMouseEnter={(ev) => onEventHover(event, ev.clientX, ev.clientY)}
+                onMouseMove={(ev) => onEventHover(event, ev.clientX, ev.clientY)}
+                onMouseLeave={onEventLeave}
                 style={{
                   left: `${laneX(event.timeSeconds, end, trackPx)}px`,
                 }}
@@ -319,7 +352,11 @@ function groupLanes(events: TimelineEvent[], iconByName: Map<string, string>) {
   const buffs: Lane[] = []
   for (const name of order) {
     const laneEvents = byName.get(name) ?? []
-    const lane = { name, icon: iconByName.get(name) ?? laneEvents[0]?.icon ?? '', events: laneEvents }
+    const lane = {
+      name,
+      icon: iconByName.get(name) ?? laneEvents[0]?.icon ?? '',
+      events: collapseHits(laneEvents),
+    }
     if (isBuffLane(laneEvents)) {
       buffs.push(lane)
     } else {
@@ -341,27 +378,211 @@ function isPointEvent(event: TimelineEvent) {
   return event.kind === 'hit' || event.kind === 'tick' || event.kind === ''
 }
 
-function kindLabel(kind: string) {
-  return kind === 'rage' ? 'Rage' : kind === 'energy' ? 'Energy' : kind
+function cloneEvent(event: TimelineEvent): TimelineEvent {
+  return {
+    $typeName: 'wowfsim.TimelineEvent',
+    timeSeconds: event.timeSeconds,
+    name: event.name,
+    damage: event.damage,
+    crit: event.crit,
+    miss: event.miss,
+    icon: event.icon,
+    resourceKind: event.resourceKind,
+    resource: event.resource,
+    kind: event.kind,
+    durationSeconds: event.durationSeconds,
+    resourceBefore: event.resourceBefore,
+    targetHits: event.targetHits,
+    resourceCost: event.resourceCost,
+    resourceGain: event.resourceGain,
+    hitDamage: event.hitDamage ? [...event.hitDamage] : [],
+    hitCrit: event.hitCrit ? [...event.hitCrit] : [],
+    hitMiss: event.hitMiss ? [...event.hitMiss] : [],
+  }
 }
 
-function castTitle(event: TimelineEvent) {
-  const bits = [
-    `${event.timeSeconds.toFixed(2)}s`,
-    event.name,
-    event.kind === 'buff' || event.kind === 'dot'
-      ? `${event.durationSeconds.toFixed(1)}s duration`
-      : '',
-    event.kind === 'cast' ? `${event.durationSeconds.toFixed(2)}s cast` : '',
-    event.kind === 'tick' ? 'tick' : '',
-    event.crit ? 'crit' : '',
-    event.miss ? 'miss' : '',
-    event.damage ? event.damage.toFixed(0) : '',
+function collapseHits(events: TimelineEvent[]) {
+  const out: TimelineEvent[] = []
+  for (const event of events) {
+    const prev = out[out.length - 1]
+    if (
+      prev &&
+      isPointEvent(event) &&
+      isPointEvent(prev) &&
+      prev.name === event.name &&
+      Math.abs(prev.timeSeconds - event.timeSeconds) < 1e-6
+    ) {
+      prev.damage += event.damage
+      prev.targetHits = Math.max(prev.targetHits || 1, 1) + Math.max(event.targetHits || 1, 1)
+      prev.crit = prev.crit || event.crit
+      prev.miss = prev.miss && event.miss
+      prev.hitDamage = [...(prev.hitDamage ?? []), ...(event.hitDamage ?? [])]
+      prev.hitCrit = [...(prev.hitCrit ?? []), ...(event.hitCrit ?? [])]
+      prev.hitMiss = [...(prev.hitMiss ?? []), ...(event.hitMiss ?? [])]
+      continue
+    }
+    out.push(cloneEvent(event))
+  }
+  return out
+}
+
+function EventTooltip({ event, x, y }: { event: TimelineEvent; x: number; y: number }) {
+  const left = Math.min(x + 16, window.innerWidth - 260)
+  const top = Math.min(y + 12, window.innerHeight - 200)
+  const lines = eventTooltipLines(event)
+  return (
+    <div className="wow-tooltip wcl-event-tip" style={{ left, top }} role="tooltip">
+      {lines.map((line) => (
+        <p key={line.kind} className={line.className}>
+          {line.text}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function fmt(value: number, digits: number) {
+  return Number.isFinite(value) ? value.toFixed(digits) : '0'
+}
+
+function eventTooltipLines(event: TimelineEvent) {
+  const lines: { kind: string; className: string; text: string }[] = [
+    { kind: 'name', className: 'wow-tooltip-name', text: event.name || 'Unknown' },
+    { kind: 'time', className: 'wow-tooltip-slot', text: eventMetaLine(event) },
   ]
   if (event.resourceKind) {
-    bits.push(`${Math.round(event.resource)} ${kindLabel(event.resourceKind).toLowerCase()}`)
+    const rage = Math.round(event.resourceBefore || 0)
+    lines.push({
+      kind: 'rage',
+      className: 'wow-tooltip-stat',
+      text: `${kindLabel(event.resourceKind)} at cast: ${rage}`,
+    })
   }
-  return bits.filter(Boolean).join(' ')
+  const costLine = eventCostLine(event)
+  if (costLine) {
+    lines.push({
+      kind: 'cost',
+      className: 'wow-tooltip-slot',
+      text: costLine,
+    })
+  }
+  const gainLine = eventGainLine(event)
+  if (gainLine) {
+    lines.push({
+      kind: 'gain',
+      className: 'wow-tooltip-stat',
+      text: gainLine,
+    })
+  }
+  if (event.kind === 'buff' || event.kind === 'dot') {
+    lines.push({
+      kind: 'dur',
+      className: 'wow-tooltip-equip',
+      text: `${fmt(event.durationSeconds, 1)}s duration`,
+    })
+  }
+  if (event.kind === 'cast') {
+    lines.push({
+      kind: 'cast',
+      className: 'wow-tooltip-equip',
+      text: `${fmt(event.durationSeconds, 2)}s cast`,
+    })
+  }
+  const damageLines = eventDamageLines(event)
+  damageLines.forEach((line, index) => {
+    lines.push({
+      kind: `dmg-${index}`,
+      className: line.className,
+      text: line.text,
+    })
+  })
+  return lines
+}
+
+function eventCostLine(event: TimelineEvent) {
+  if (/off-hand$/i.test(event.name) || event.kind === 'tick' || event.kind === 'buff') {
+    return ''
+  }
+  if (event.resourceCost > 0) {
+    const kind = event.resourceKind ? kindLabel(event.resourceKind) : 'Rage'
+    return `Cost: ${Math.round(event.resourceCost)} ${kind}`
+  }
+  const ability = abilityForActionName(event.name)
+  if (!ability?.cost || !ability.resource) {
+    return ''
+  }
+  return `Cost: ${ability.cost} ${ability.resource}`
+}
+
+function eventGainLine(event: TimelineEvent) {
+  if (event.kind === 'tick' || event.kind === 'resource') {
+    return ''
+  }
+  if (!(event.resourceGain > 0.5) || !event.resourceKind) {
+    return ''
+  }
+  return `Generated: ${Math.round(event.resourceGain)} ${kindLabel(event.resourceKind)}`
+}
+
+function eventMetaLine(event: TimelineEvent) {
+  const bits = [fmt(event.timeSeconds, 2) + 's']
+  if (event.kind === 'tick') {
+    bits.push('tick')
+  }
+  const hits = event.hitDamage?.length || event.targetHits || 0
+  if (hits > 1) {
+    bits.push(`${hits} targets`)
+  } else if (event.miss) {
+    bits.push('miss')
+  } else if (event.crit) {
+    bits.push('crit')
+  }
+  return bits.join(' · ')
+}
+
+function eventDamageLines(event: TimelineEvent) {
+  const hits = event.hitDamage ?? []
+  if (hits.length > 1) {
+    const lines: { className: string; text: string }[] = [
+      {
+        className: 'wow-tooltip-equip',
+        text: `${fmt(event.damage, 0)} combined (${hits.length} targets)`,
+      },
+    ]
+    hits.forEach((dmg, i) => {
+      const miss = event.hitMiss?.[i]
+      const crit = event.hitCrit?.[i]
+      let text = `Target ${i + 1}: ${fmt(dmg, 0)}`
+      let className = 'wow-tooltip-bind'
+      if (miss) {
+        text = `Target ${i + 1}: Miss`
+      } else if (crit) {
+        text = `Target ${i + 1}: ${fmt(dmg, 0)} crit`
+        className = 'wow-tooltip-use'
+      }
+      lines.push({ className, text })
+    })
+    return lines
+  }
+  if (event.miss && !(event.damage > 0)) {
+    return [{ className: 'wow-tooltip-bind', text: 'Miss' }]
+  }
+  if (!(event.damage > 0) && event.targetHits <= 1) {
+    return []
+  }
+  if (event.miss) {
+    return [{ className: 'wow-tooltip-bind', text: 'Miss' }]
+  }
+  return [
+    {
+      className: event.crit ? 'wow-tooltip-use' : 'wow-tooltip-equip',
+      text: fmt(event.damage, 0),
+    },
+  ]
+}
+
+function kindLabel(kind: string) {
+  return kind === 'rage' ? 'Rage' : kind === 'energy' ? 'Energy' : kind
 }
 
 function resourceCap(events: TimelineEvent[]) {

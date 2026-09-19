@@ -2,6 +2,7 @@ package sim
 
 import (
 	"math"
+	"math/rand"
 	"testing"
 
 	pb "wowf-sim/engine/gen/wowfsim"
@@ -702,15 +703,61 @@ func TestDamagingActionsKeepCastCounts(t *testing.T) {
 
 func TestOverpowerUsedOnCooldown(t *testing.T) {
 	req := baseReq()
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
 	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "overpower", Priority: 670}}
 	res := Run(req)
-	if actionByName(res, "Overpower").Casts < 1 {
-		t.Fatalf("overpower should be used on cooldown, got %v", actionNames(res))
+	if actionByName(res, "Overpower").Casts < 0.3 {
+		t.Fatalf("overpower should fire after dodges, got %v", actionNames(res))
+	}
+}
+
+func TestOverpowerRequiresDodge(t *testing.T) {
+	op := clientdata.Ability{ID: "overpower", Kind: "strike", Priority: 900, GCD: true, RequiresProc: "dodge"}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", Priority: 400, GCD: true}
+	f := &fight{abilities: []clientdata.Ability{op, slam}, cds: map[string]float64{}, t: 1, end: 60}
+	if got := f.pickGCD(); got == nil || got.ID != "slam" {
+		t.Fatalf("without a dodge want slam, got %#v", got)
+	}
+	f.dodgeUntil = 6
+	if got := f.pickGCD(); got == nil || got.ID != "overpower" {
+		t.Fatalf("after dodge want overpower, got %#v", got)
+	}
+}
+
+func TestBloodFuryMultipliesAttackPowerAndSpellPower(t *testing.T) {
+	f := &fight{attackPower: 1000, spellPower: 200, t: 1, end: 60}
+	f.refreshBuff(combatBuff{id: "blood-fury", name: "Blood Fury", expire: 16, apMul: 0.1, spMul: 0.1})
+	if got := f.currentAP(); math.Abs(got-1100) > 1e-6 {
+		t.Fatalf("blood fury AP=%v want 1100", got)
+	}
+	if got := f.currentSP(); math.Abs(got-220) > 1e-6 {
+		t.Fatalf("blood fury SP=%v want 220", got)
+	}
+	if f.dmgMul() != 1 {
+		t.Fatalf("blood fury must not be a damage%% aura, dmgMul=%v", f.dmgMul())
 	}
 }
 
 func TestBerserkerDancesForOverpower(t *testing.T) {
 	req := baseReq()
+	req.Encounter.DurationSeconds = 180
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
 	req.Player.Stance = pb.WarriorStance_WARRIOR_STANCE_BERSERKER
 	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "overpower", Priority: 670}}
 	res := Run(req)
@@ -808,6 +855,21 @@ func TestTimelineRecordsFirstIteration(t *testing.T) {
 	}
 	if maxRage < 10 {
 		t.Fatalf("expected rage to build on the timeline, max=%f", maxRage)
+	}
+	var chargeGain, autoGain float64
+	for _, ev := range res.Timeline {
+		if ev.Name == "Charge" && ev.ResourceGain > chargeGain {
+			chargeGain = ev.ResourceGain
+		}
+		if ev.Name == "Auto Attack" && !ev.Miss && ev.ResourceGain > autoGain {
+			autoGain = ev.ResourceGain
+		}
+	}
+	if chargeGain < 10 {
+		t.Fatalf("charge should generate rage, got %f", chargeGain)
+	}
+	if autoGain < 1 {
+		t.Fatalf("auto attacks should generate rage, got %f", autoGain)
 	}
 	if actionByName(res, "Auto Attack").Misses == 0 {
 		t.Fatal("expected auto-attack misses in the stub table")
@@ -982,6 +1044,51 @@ func TestDeathWishWhenTalented(t *testing.T) {
 	res := Run(req)
 	if !hasAction(res, "Death Wish") {
 		t.Fatal("expected Death Wish when talented")
+	}
+}
+
+func TestBuffDotUptimeAndStrikesAreNA(t *testing.T) {
+	req := baseReq()
+	req.Options.Iterations = 80
+	req.Player.Talents = []*pb.TalentPick{
+		{Id: talentID(t, "Death Wish"), Rank: 1},
+		{Id: talentID(t, "Bloodthirst"), Rank: 1},
+		{Id: talentID(t, "Deep Wounds"), Rank: 3},
+		{Id: talentID(t, "Impale"), Rank: 2},
+	}
+	res := Run(req)
+	dw := actionByName(res, "Death Wish")
+	if !dw.TracksUptime {
+		t.Fatal("Death Wish should track uptime")
+	}
+	if dw.Uptime < 0.2 || dw.Uptime > 0.51 {
+		t.Fatalf("Death Wish uptime=%v want ~30s/60s", dw.Uptime)
+	}
+	br := actionByName(res, "Bloodrage")
+	if !br.TracksUptime {
+		t.Fatal("Bloodrage should track uptime")
+	}
+	if br.Uptime <= 0 {
+		t.Fatal("Bloodrage uptime should be > 0")
+	}
+	if charge := actionByName(res, "Charge"); charge.TracksUptime {
+		t.Fatal("Charge has no aura, uptime should be n/a")
+	}
+	if bt := actionByName(res, "Bloodthirst"); bt.Name == "Bloodthirst" && bt.TracksUptime {
+		t.Fatal("Bloodthirst is a strike, uptime should be n/a")
+	}
+	if auto := actionByName(res, "Auto Attack"); auto.TracksUptime {
+		t.Fatal("Auto Attack uptime should be n/a")
+	}
+	dot := actionByName(res, "Deep Wounds")
+	if dot.Name != "Deep Wounds" {
+		t.Fatal("expected Deep Wounds")
+	}
+	if !dot.TracksUptime {
+		t.Fatal("Deep Wounds should track uptime")
+	}
+	if dot.Uptime <= 0 {
+		t.Fatal("Deep Wounds uptime should be > 0")
 	}
 }
 
@@ -1239,6 +1346,15 @@ func TestVanishAllowsSecondStealthOpener(t *testing.T) {
 func TestExecuteUsedInExecutePhase(t *testing.T) {
 	req := baseReq()
 	req.Encounter.DurationSeconds = 60
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
 	res := Run(req)
 	if !hasAction(res, "Execute") {
 		t.Fatal("expected Execute in the last 20% of the fight")
@@ -1270,6 +1386,133 @@ func TestExecuteDamageIsBasePlusExtraRage(t *testing.T) {
 	got := f.abilityDamage(ab, 75)
 	if got != 1725 {
 		t.Fatalf("execute raw=%v want 1725 (600 + 15*75 extra rage after cost)", got)
+	}
+}
+
+func TestNormalizedYellowsUseWeaponSpeedTable(t *testing.T) {
+	ww := clientdata.Ability{ID: "whirlwind", Kind: "strike", DamageWeapon: 1}
+	ms := clientdata.Ability{ID: "mortal-strike", Kind: "strike", DamageWeapon: 1, DamageFlat: 160}
+	slam := clientdata.Ability{ID: "slam", Kind: "strike", DamageWeapon: 1, CastTime: 1.5}
+	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", DamageFlat: 157}
+	f := &fight{baseDPS: 50, swingTimer: 1.9, mhSubclass: "Sword", attackPower: 1400}
+	// (50 + 1400/14) * speed = 150 * speed
+	if got := f.mhSwing(); math.Abs(got-285) > 1e-6 {
+		t.Fatalf("actual swing=%v want 285", got)
+	}
+	if got := f.abilityDamage(slam, 0); math.Abs(got-285) > 1e-6 {
+		t.Fatalf("slam should use real speed, got %v", got)
+	}
+	if got := f.abilityDamage(ww, 0); math.Abs(got-360) > 1e-6 {
+		t.Fatalf("whirlwind should normalize to 2.4, got %v", got)
+	}
+	if got := f.abilityDamage(ms, 0); math.Abs(got-520) > 1e-6 {
+		t.Fatalf("mortal strike want 360+160, got %v", got)
+	}
+	if got := f.abilityDamage(hs, 0); got != 157 {
+		t.Fatalf("heroic strike bonus is flat, got %v", got)
+	}
+}
+
+func TestOffHandSwingUsesBuffAttackPower(t *testing.T) {
+	f := &fight{
+		ohDPS: 40, ohTimer: 1.5, ohDwMul: 0.5, hasOH: true, attackPower: 1400,
+	}
+	// (40+100)*1.5 * 0.5 = 105
+	if got := f.ohSwing(); math.Abs(got-105) > 1e-6 {
+		t.Fatalf("oh swing=%v want 105", got)
+	}
+	f.buffs = []combatBuff{{ap: 140, expire: 10}}
+	if got := f.ohSwing(); math.Abs(got-112.5) > 1e-6 {
+		t.Fatalf("oh swing with +140 AP=%v want 112.5", got)
+	}
+}
+
+func TestTwoHandSpecMultipliesPhysicalHits(t *testing.T) {
+	f := &fight{weaponMul: 1.03, damageMul: 1, bossArmor: 0}
+	if got := f.physicalMulAt(0); math.Abs(got-1.03) > 1e-9 {
+		t.Fatalf("2H spec physical mul=%v want 1.03", got)
+	}
+}
+
+func TestMeleeAttackTableHasDodgeAndGlancing(t *testing.T) {
+	if math.Abs((&fight{}).dodgeChance()-0.065) > 1e-9 {
+		t.Fatalf("dodge=%v want 6.5%%", (&fight{}).dodgeChance())
+	}
+	if math.Abs((&fight{}).glanceChance()-0.40) > 1e-9 {
+		t.Fatalf("glance=%v want 40%%", (&fight{}).glanceChance())
+	}
+	f := &fight{
+		rng: rand.New(rand.NewSource(1)), missWhite: 0.09, missYellow: 0.09, crit: 0.20,
+	}
+	var glance, miss int
+	const n = 8000
+	for i := 0; i < n; i++ {
+		crit, isMiss, mul := f.attackOutcome(false, false)
+		if isMiss {
+			miss++
+			continue
+		}
+		if !crit && mul < 1 {
+			glance++
+		}
+	}
+	glanceRate := float64(glance) / n
+	missRate := float64(miss) / n
+	if glanceRate < 0.32 || glanceRate > 0.48 {
+		t.Fatalf("white glance rate=%v want ~40%%", glanceRate)
+	}
+	if missRate < 0.12 || missRate > 0.20 {
+		t.Fatalf("white miss+dodge rate=%v want ~15.5%%", missRate)
+	}
+	f.noDodge = true
+	_, dodged, _ := f.attackOutcome(true, false)
+	_ = dodged
+	var yellowMiss int
+	for i := 0; i < n; i++ {
+		_, isMiss, mul := f.attackOutcome(true, false)
+		if isMiss {
+			yellowMiss++
+		}
+		if mul != 1 {
+			t.Fatal("yellow hits must not glance")
+		}
+	}
+	if float64(yellowMiss)/n > 0.12 {
+		t.Fatalf("overpower-style yellows with noDodge miss=%v want ~9%%", float64(yellowMiss)/n)
+	}
+}
+
+func TestActionMetricsSplitMissAndDodge(t *testing.T) {
+	req := baseReq()
+	req.Encounter.DurationSeconds = 60
+	req.Options.Iterations = 40
+	res := Run(req)
+	var auto *pb.ActionMetric
+	for _, action := range res.Actions {
+		if action.Name == "Auto Attack" {
+			auto = action
+			break
+		}
+	}
+	if auto == nil {
+		t.Fatal("missing Auto Attack metrics")
+	}
+	if auto.Casts < 10 {
+		t.Fatalf("casts=%v", auto.Casts)
+	}
+	if auto.Misses < 0.2 {
+		t.Fatalf("misses=%v want some true misses", auto.Misses)
+	}
+	if auto.Dodges < 0.2 {
+		t.Fatalf("dodges=%v want some dodges", auto.Dodges)
+	}
+	missRate := auto.Misses / auto.Casts
+	dodgeRate := auto.Dodges / auto.Casts
+	if missRate < 0.03 || missRate > 0.16 {
+		t.Fatalf("miss rate=%v want ~white miss", missRate)
+	}
+	if dodgeRate < 0.03 || dodgeRate > 0.10 {
+		t.Fatalf("dodge rate=%v want ~6.5%%", dodgeRate)
 	}
 }
 
@@ -1850,6 +2093,80 @@ func TestExecuteRotationOverridesMain(t *testing.T) {
 	}
 }
 
+func TestDeathWishExecuteOnlyAppearsOnTimeline(t *testing.T) {
+	req := baseReq()
+	req.Options.Iterations = 1
+	req.Encounter.DurationSeconds = 60
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Death Wish"), Rank: 1}}
+	req.Player.Gear = &pb.Gear{Items: []*pb.EquippedItem{{
+		Id:            19019,
+		Name:          "Thunderfury",
+		Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+		WeaponDps:     41.8,
+		AttackSpeedMs: 1900,
+		ItemSubclass:  "Sword",
+		Hand:          "1h",
+	}}}
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "death-wish", Priority: 0}}
+	req.Player.ExecuteAbilityPriorities = []*pb.AbilityPriority{
+		{Id: "death-wish", Priority: 930},
+		{Id: "execute", Priority: 2000},
+	}
+	res := Run(req)
+	dw := actionByName(res, "Death Wish")
+	if dw.Casts < 1 {
+		t.Fatalf("execute-only death wish should cast, actions=%v", actionNames(res))
+	}
+	var at float64
+	for _, ev := range res.Timeline {
+		if ev.Name == "Death Wish" {
+			at = ev.TimeSeconds
+			break
+		}
+	}
+	if !timelineHas(res, "Death Wish") {
+		t.Fatal("expected Death Wish on the timeline")
+	}
+	if at < 47 {
+		t.Fatalf("death wish should wait for execute, t=%v", at)
+	}
+}
+
+func timelineHas(res *pb.SimResult, name string) bool {
+	for _, ev := range res.Timeline {
+		if ev.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func TestDeathWishCastsInExecuteWhenExecuteIsHigherPriority(t *testing.T) {
+	ex := clientdata.Ability{
+		ID: "execute", Kind: "strike", Priority: 2000, GCD: true, Cost: 15, Resource: "rage",
+		HealthBelow: 0.2, DumpRage: true,
+	}
+	dw := clientdata.Ability{
+		ID: "death-wish", Kind: "buff", Priority: 930, GCD: true, Cost: 10, Resource: "rage",
+		Duration: 30, Cooldown: 180, BuffDamage: 0.2,
+	}
+	f := &fight{
+		abilities:    []clientdata.Ability{ex, dw},
+		executeAbs:   []clientdata.Ability{ex, dw},
+		cds:          map[string]float64{},
+		resourceKind: "rage",
+		resource:     50,
+		end:          100,
+		t:            85,
+	}
+	if got := f.pickGCD(); got == nil || got.ID != "death-wish" {
+		t.Fatalf("execute-only death wish should fire before execute, got %#v", got)
+	}
+	if f.starvesHigher(dw) {
+		t.Fatal("execute dump should not reserve rage against death wish")
+	}
+}
+
 func TestHeroicStrikeQueuesInExecute(t *testing.T) {
 	hs := clientdata.Ability{ID: "heroic-strike", Kind: "queue", Priority: 400, Cost: 15, DumpAbove: 40, Resource: "rage"}
 	f := &fight{
@@ -1955,5 +2272,271 @@ func TestSlamDoesNotClipHigherHeroicStrike(t *testing.T) {
 	f.swingAt = 4
 	if !f.usable(slam) {
 		t.Fatal("improved slam may fill when the next heroic strike swing is after the cast")
+	}
+}
+
+func withTargets(req *pb.SimRequest, n int) *pb.SimRequest {
+	if req.Encounter == nil {
+		req.Encounter = &pb.Encounter{DurationSeconds: 60}
+	}
+	req.Encounter.Targets = nil
+	for i := 0; i < n; i++ {
+		name := "Boss"
+		if i > 0 {
+			name = "Add"
+		}
+		req.Encounter.Targets = append(req.Encounter.Targets, &pb.EncounterTarget{Name: name, Armor: 7700})
+	}
+	return req
+}
+
+func TestWhirlwindHitsCleaveTargets(t *testing.T) {
+	one := TypicalOrcWarrior()
+	one.Options.Iterations = 40
+	one.Encounter.DurationSeconds = 30
+	four := TypicalOrcWarrior()
+	four.Options.Iterations = 40
+	four.Options.RngSeed = one.Options.RngSeed
+	four.Encounter.DurationSeconds = 30
+	withTargets(four, 4)
+	ww1 := actionByName(Run(one), "Whirlwind")
+	ww4 := actionByName(Run(four), "Whirlwind")
+	if ww4.Dps <= ww1.Dps*1.5 {
+		t.Fatalf("whirlwind on 4 targets should deal more than on 1: 1t=%.1f 4t=%.1f", ww1.Dps, ww4.Dps)
+	}
+	if ww4.Casts > ww1.Casts*1.4 {
+		t.Fatalf("extra whirlwind targets should not count as extra casts: 1t=%.2f 4t=%.2f", ww1.Casts, ww4.Casts)
+	}
+}
+
+func TestCleaveRequiresTwoTargets(t *testing.T) {
+	one := baseReq()
+	one.Player.AbilityPriorities = []*pb.AbilityPriority{
+		{Id: "cleave", Priority: 900},
+		{Id: "heroic-strike", Priority: 0},
+	}
+	if actionByName(Run(one), "Cleave").Casts > 0 {
+		t.Fatal("cleave should not queue on a single target")
+	}
+	two := baseReq()
+	two.Player.AbilityPriorities = one.Player.AbilityPriorities
+	withTargets(two, 2)
+	if actionByName(Run(two), "Cleave").Dps <= 0 {
+		t.Fatal("cleave should hit when a second target is in the encounter")
+	}
+}
+
+func TestAddArmorAffectsCleaveDamage(t *testing.T) {
+	hard := baseReq()
+	hard.Options.Iterations = 80
+	hard.Encounter.DurationSeconds = 30
+	hard.Player.AbilityPriorities = []*pb.AbilityPriority{
+		{Id: "cleave", Priority: 900},
+		{Id: "heroic-strike", Priority: 0},
+	}
+	withTargets(hard, 2)
+	hard.Encounter.Targets[1].Armor = 7700
+
+	soft := baseReq()
+	soft.Options.Iterations = 80
+	soft.Options.RngSeed = hard.Options.RngSeed
+	soft.Encounter.DurationSeconds = 30
+	soft.Player.AbilityPriorities = hard.Player.AbilityPriorities
+	withTargets(soft, 2)
+	soft.Encounter.Targets[1].Armor = 3200
+
+	cHard := actionByName(Run(hard), "Cleave")
+	cSoft := actionByName(Run(soft), "Cleave")
+	if cSoft.Dps <= cHard.Dps*1.05 {
+		t.Fatalf("3200-armor add should take more cleave than 7700: hard=%.1f soft=%.1f", cHard.Dps, cSoft.Dps)
+	}
+}
+
+func TestImprovedCleaveReducesRageCost(t *testing.T) {
+	id := talentID(t, "Improved Cleave")
+	ab := clientdata.Ability{ID: "cleave", Name: "Cleave", Cost: 20, Resource: "rage"}
+	got := applyWarriorAbilityTalents(ab, map[int32]int32{id: 3})
+	if got.Cost != 17 {
+		t.Fatalf("improved cleave 3/3 should cost 17 rage, got %f", got.Cost)
+	}
+	rb := talentID(t, "Raging Blows")
+	both := applyWarriorAbilityTalents(ab, map[int32]int32{id: 3, rb: 1})
+	if both.Cost != 15 {
+		t.Fatalf("improved cleave + raging blows should cost 15 rage, got %f", both.Cost)
+	}
+}
+
+func TestSweepingStrikesHitsSecondTarget(t *testing.T) {
+	req := TypicalOrcWarrior()
+	req.Options.Iterations = 40
+	req.Encounter.DurationSeconds = 30
+	withTargets(req, 2)
+	req.Player.Talents = []*pb.TalentPick{{Id: talentID(t, "Sweeping Strikes"), Rank: 1}}
+	req.Player.AbilityPriorities = append(req.Player.AbilityPriorities, &pb.AbilityPriority{Id: "sweeping-strikes", Priority: 950})
+	res := Run(req)
+	if actionByName(res, "Sweeping Strikes").Dps <= 0 {
+		t.Fatalf("sweeping strikes should hit a second target, names=%v", actionNames(res))
+	}
+}
+
+func TestTimelineFoldsWhirlwindTargetsAndRageAtCast(t *testing.T) {
+	req := TypicalOrcWarrior()
+	req.Options.Iterations = 1
+	req.Encounter.DurationSeconds = 20
+	withTargets(req, 4)
+	res := Run(req)
+	var wwHits int
+	for _, ev := range res.Timeline {
+		if ev.Name != "Whirlwind" || ev.Kind != "hit" {
+			continue
+		}
+		wwHits++
+		if ev.TargetHits != 4 {
+			t.Fatalf("whirlwind timeline hit should fold 4 targets, got %d dmg=%.0f", ev.TargetHits, ev.Damage)
+		}
+		if ev.ResourceKind != "rage" {
+			t.Fatalf("whirlwind should record rage, got %q", ev.ResourceKind)
+		}
+		if ev.ResourceBefore <= ev.Resource {
+			t.Fatalf("rage at cast should be before spend, before=%f after=%f", ev.ResourceBefore, ev.Resource)
+		}
+		if ev.ResourceCost < 20 {
+			t.Fatalf("whirlwind should record rage cost, got %f", ev.ResourceCost)
+		}
+	}
+	if wwHits == 0 {
+		t.Fatal("expected whirlwind hits on the timeline")
+	}
+}
+
+func TestWhirlwindCritsEachTargetIndependently(t *testing.T) {
+	req := TypicalOrcWarrior()
+	req.Options.Iterations = 1
+	req.Encounter.DurationSeconds = 20
+	req.Player.AbilityPriorities = []*pb.AbilityPriority{{Id: "recklessness", Priority: 0}}
+	withTargets(req, 4)
+	res := Run(req)
+	var wwHits int
+	for _, ev := range res.Timeline {
+		if ev.Name != "Whirlwind" || ev.Kind != "hit" {
+			continue
+		}
+		wwHits++
+		if len(ev.HitCrit) != 4 || len(ev.HitMiss) != 4 || len(ev.HitDamage) != 4 {
+			t.Fatalf("whirlwind should store 4 independent rolls, crits=%d misses=%d dmg=%d", len(ev.HitCrit), len(ev.HitMiss), len(ev.HitDamage))
+		}
+	}
+	if wwHits == 0 {
+		t.Fatal("expected whirlwind hits on the timeline")
+	}
+
+	f := &fight{
+		rng:         rand.New(rand.NewSource(1)),
+		crit:        0.4,
+		damageMul:   1,
+		weaponMul:   1,
+		targetArmor: []float64{0, 0, 0, 0},
+	}
+	var crits [4]int
+	const n = 5000
+	for i := 0; i < n; i++ {
+		for tidx := 0; tidx < 4; tidx++ {
+			_, crit, _ := f.rollAt(100, true, false, 2, tidx)
+			if crit {
+				crits[tidx]++
+			}
+		}
+	}
+	if crits[0] == crits[1] && crits[1] == crits[2] && crits[2] == crits[3] {
+		t.Fatalf("identical crit counts %v; extra targets should roll independently", crits)
+	}
+	for tidx, c := range crits {
+		if c < n*3/10 || c > n*5/10 {
+			t.Fatalf("target %d crits=%d of %d, want about 40%%", tidx, c, n)
+		}
+	}
+}
+
+func withRagingBlows(t *testing.T, req *pb.SimRequest) *pb.SimRequest {
+	t.Helper()
+	req.Player.Talents = append(req.Player.Talents, &pb.TalentPick{Id: talentID(t, "Raging Blows"), Rank: 1})
+	if req.Player.Gear == nil {
+		req.Player.Gear = &pb.Gear{}
+	}
+	kept := make([]*pb.EquippedItem, 0, len(req.Player.Gear.Items))
+	for _, item := range req.Player.Gear.Items {
+		switch item.GetSlot() {
+		case pb.ItemSlot_ITEM_SLOT_MAIN_HAND, pb.ItemSlot_ITEM_SLOT_OFF_HAND:
+			continue
+		}
+		kept = append(kept, item)
+	}
+	req.Player.Gear.Items = append(kept,
+		&pb.EquippedItem{
+			Id:            1,
+			Name:          "Main Hand",
+			Slot:          pb.ItemSlot_ITEM_SLOT_MAIN_HAND,
+			WeaponDps:     50,
+			AttackSpeedMs: 2600,
+			ItemSubclass:  "Axe",
+			Hand:          "1h",
+		},
+		&pb.EquippedItem{
+			Id:            2,
+			Name:          "Off Hand",
+			Slot:          pb.ItemSlot_ITEM_SLOT_OFF_HAND,
+			WeaponDps:     40,
+			AttackSpeedMs: 1800,
+			ItemSubclass:  "Axe",
+			Hand:          "1h",
+		},
+	)
+	return req
+}
+
+func TestRagingBlowsWhirlwindOffHandHitsCleaveTargets(t *testing.T) {
+	one := withRagingBlows(t, TypicalOrcWarrior())
+	one.Options.Iterations = 40
+	one.Encounter.DurationSeconds = 30
+	four := withRagingBlows(t, TypicalOrcWarrior())
+	four.Options.Iterations = 40
+	four.Options.RngSeed = one.Options.RngSeed
+	four.Encounter.DurationSeconds = 30
+	withTargets(four, 4)
+	res1 := Run(one)
+	oh1 := actionByName(res1, "Whirlwind Off-Hand")
+	oh4 := actionByName(Run(four), "Whirlwind Off-Hand")
+	if oh1.Dps <= 0 {
+		t.Fatal("raging blows should make whirlwind hit with the off-hand")
+	}
+	if oh4.Dps <= oh1.Dps*1.5 {
+		t.Fatalf("whirlwind off-hand on 4 targets should deal more than on 1: 1t=%.1f 4t=%.1f", oh1.Dps, oh4.Dps)
+	}
+	if oh4.Casts > oh1.Casts*1.4 {
+		t.Fatalf("extra whirlwind off-hand targets should not count as extra casts: 1t=%.2f 4t=%.2f", oh1.Casts, oh4.Casts)
+	}
+}
+
+func TestTimelineFoldsWhirlwindOffHandTargets(t *testing.T) {
+	req := withRagingBlows(t, TypicalOrcWarrior())
+	req.Options.Iterations = 1
+	req.Encounter.DurationSeconds = 20
+	withTargets(req, 4)
+	res := Run(req)
+	var ohHits int
+	for _, ev := range res.Timeline {
+		if ev.Name != "Whirlwind Off-Hand" || ev.Kind != "hit" {
+			continue
+		}
+		ohHits++
+		if ev.TargetHits != 4 {
+			t.Fatalf("whirlwind off-hand timeline hit should fold 4 targets, got %d dmg=%.0f", ev.TargetHits, ev.Damage)
+		}
+		if ev.ResourceCost != 0 {
+			t.Fatalf("off-hand whirlwind should not pay extra rage, cost=%f", ev.ResourceCost)
+		}
+	}
+	if ohHits == 0 {
+		t.Fatal("expected whirlwind off-hand hits on the timeline")
 	}
 }

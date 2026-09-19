@@ -267,6 +267,7 @@ export type SimInput = {
   combatPotion?: number
   mhWeaponTemp?: string
   ohWeaponTemp?: string
+  encounterTargets?: Array<{ name: string; armor: number }>
 }
 
 export type SimProgress = (update: {
@@ -342,7 +343,13 @@ function toRequest(input: SimInput, overrides?: { iterations?: number; seed?: bi
     },
     encounter: {
       durationSeconds: input.durationSeconds,
-      armor: 7700,
+      armor: input.encounterTargets?.[0]?.armor || 7700,
+      targets: (input.encounterTargets?.length ? input.encounterTargets : [{ name: 'Boss', armor: 7700 }]).map(
+        (target) => ({
+          name: target.name || 'Target',
+          armor: target.armor || 0,
+        }),
+      ),
     },
     options: {
       iterations: overrides?.iterations ?? input.iterations,

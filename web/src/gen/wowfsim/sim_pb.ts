@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file wowfsim/sim.proto.
  */
 export const file_wowfsim_sim: GenFile = /*@__PURE__*/
-  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMixQMKBlBsYXllchIMCgRuYW1lGAEgASgJEh0KBWNsYXNzGAIgASgOMg4ud293ZnNpbS5DbGFzcxIbCgRyYWNlGAMgASgOMg0ud293ZnNpbS5SYWNlEg0KBWxldmVsGAQgASgFEhsKBGdlYXIYBSABKAsyDS53b3dmc2ltLkdlYXISJAoHdGFsZW50cxgGIAMoCzITLndvd2ZzaW0uVGFsZW50UGljaxISCgpyYWlkX2J1ZmZzGAcgAygJEigKC2JvbnVzX3N0YXRzGAggASgLMhMud293ZnNpbS5Cb251c1N0YXRzEjQKEmFiaWxpdHlfcHJpb3JpdGllcxgJIAMoCzIYLndvd2ZzaW0uQWJpbGl0eVByaW9yaXR5EiYKBnN0YW5jZRgKIAEoDjIWLndvd2ZzaW0uV2FycmlvclN0YW5jZRIVCg1jb21iYXRfcG90aW9uGAsgASgFEhYKDm1oX3dlYXBvbl90ZW1wGAwgASgJEhYKDm9oX3dlYXBvbl90ZW1wGA0gASgJEjwKGmV4ZWN1dGVfYWJpbGl0eV9wcmlvcml0aWVzGA4gAygLMhgud293ZnNpbS5BYmlsaXR5UHJpb3JpdHkiLwoPQWJpbGl0eVByaW9yaXR5EgoKAmlkGAEgASgJEhAKCHByaW9yaXR5GAIgASgFIt8BCgpCb251c1N0YXRzEhAKCHN0cmVuZ3RoGAEgASgBEg8KB2FnaWxpdHkYAiABKAESEQoJaW50ZWxsZWN0GAMgASgBEhQKDGF0dGFja19wb3dlchgEIAEoARITCgtzcGVsbF9wb3dlchgFIAEoARITCgtjcml0X2NoYW5jZRgGIAEoARISCgpoaXRfY2hhbmNlGAcgASgBEhkKEXNwZWxsX2NyaXRfY2hhbmNlGAggASgBEhgKEHNwZWxsX2hpdF9jaGFuY2UYCSABKAESEgoKd2VhcG9uX2RwcxgKIAEoASIsCgRHZWFyEiQKBWl0ZW1zGAEgAygLMhUud293ZnNpbS5FcXVpcHBlZEl0ZW0ilAMKDEVxdWlwcGVkSXRlbRIKCgJpZBgBIAEoBRIMCgRuYW1lGAIgASgJEh8KBHNsb3QYAyABKA4yES53b3dmc2ltLkl0ZW1TbG90EhIKCndlYXBvbl9kcHMYBCABKAESFwoPYXR0YWNrX3NwZWVkX21zGAUgASgFEhAKCHN0cmVuZ3RoGAYgASgFEg8KB2FnaWxpdHkYByABKAUSFAoMYXR0YWNrX3Bvd2VyGAggASgFEhMKC2NyaXRfY2hhbmNlGAkgASgBEhUKDWl0ZW1fc3ViY2xhc3MYCiABKAkSEgoKaGl0X2NoYW5jZRgLIAEoARIMCgRoYW5kGAwgASgJEhEKCWludGVsbGVjdBgNIAEoBRITCgtzcGVsbF9wb3dlchgOIAEoBRIZChFzcGVsbF9jcml0X2NoYW5jZRgPIAEoARIYChBzcGVsbF9oaXRfY2hhbmNlGBAgASgBEhIKCmVuY2hhbnRfaWQYEiABKAUSJAoHZWZmZWN0cxgTIAMoCzITLndvd2ZzaW0uSXRlbUVmZmVjdCLBAgoKSXRlbUVmZmVjdBIMCgRraW5kGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEdGV4dBgDIAEoCRIUCgxhdHRhY2tfcG93ZXIYBCABKAESEwoLc3BlbGxfcG93ZXIYBSABKAESDQoFaGFzdGUYBiABKAESDAoEY3JpdBgHIAEoARIQCghzdHJlbmd0aBgIIAEoARIPCgdhZ2lsaXR5GAkgASgBEhQKDGFybW9yX2lnbm9yZRgKIAEoARIMCgRyYWdlGAsgASgBEhAKCGR1cmF0aW9uGAwgASgBEhAKCGNvb2xkb3duGA0gASgBEg4KBmNoYW5jZRgOIAEoARIUCgxleHRyYV9hdHRhY2sYDyABKAUSEAoIc3RhY2tfYXAYECABKAESEAoIaW50ZXJ2YWwYESABKAESDAoEaWNvbhgSIAEoCSImCgpUYWxlbnRQaWNrEgoKAmlkGAEgASgFEgwKBHJhbmsYAiABKAUiNAoJRW5jb3VudGVyEhgKEGR1cmF0aW9uX3NlY29uZHMYASABKAESDQoFYXJtb3IYAiABKAEiMgoKU2ltT3B0aW9ucxISCgppdGVyYXRpb25zGAEgASgFEhAKCHJuZ19zZWVkGAIgASgDIuIBCglTaW1SZXN1bHQSEAoIZHBzX21lYW4YASABKAESEQoJZHBzX3N0ZGV2GAIgASgBEg8KB2Rwc19taW4YAyABKAESDwoHZHBzX21heBgEIAEoARISCgppdGVyYXRpb25zGAUgASgFEiYKB2FjdGlvbnMYBiADKAsyFS53b3dmc2ltLkFjdGlvbk1ldHJpYxIRCgltb2RpZmllcnMYByADKAkSKAoIdGltZWxpbmUYCCADKAsyFi53b3dmc2ltLlRpbWVsaW5lRXZlbnQSFQoNaXRlcmF0aW9uX2RwcxgJIAMoASKaAQoMQWN0aW9uTWV0cmljEgwKBG5hbWUYASABKAkSCwoDZHBzGAIgASgBEg0KBWNhc3RzGAMgASgBEg0KBWNyaXRzGAQgASgBEg4KBm1pc3NlcxgFIAEoARIMCgRpY29uGAYgASgJEg8KB2hpdF9kcHMYByABKAESEAoIY3JpdF9kcHMYCCABKAESEAoIYXZnX2Nhc3QYCSABKAEivgEKDVRpbWVsaW5lRXZlbnQSFAoMdGltZV9zZWNvbmRzGAEgASgBEgwKBG5hbWUYAiABKAkSDgoGZGFtYWdlGAMgASgBEgwKBGNyaXQYBCABKAgSDAoEbWlzcxgFIAEoCBIMCgRpY29uGAYgASgJEhUKDXJlc291cmNlX2tpbmQYByABKAkSEAoIcmVzb3VyY2UYCCABKAESDAoEa2luZBgJIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAogASgBIj8KClN0YXRXZWlnaHQSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRILCgNkcHMYAyABKAESCgoCZXAYBCABKAEikQEKEVN0YXRXZWlnaHRzUmVzdWx0EhQKDHJlZmVyZW5jZV9pZBgBIAEoCRIWCg5yZWZlcmVuY2VfbmFtZRgCIAEoCRIUCgxiYXNlbGluZV9kcHMYAyABKAESEgoKaXRlcmF0aW9ucxgEIAEoBRIkCgd3ZWlnaHRzGAUgAygLMhMud293ZnNpbS5TdGF0V2VpZ2h0KoYBCg1XYXJyaW9yU3RhbmNlEh4KGldBUlJJT1JfU1RBTkNFX1VOU1BFQ0lGSUVEEAASGQoVV0FSUklPUl9TVEFOQ0VfQkFUVExFEAESHAoYV0FSUklPUl9TVEFOQ0VfQkVSU0VSS0VSEAISHAoYV0FSUklPUl9TVEFOQ0VfREVGRU5TSVZFEAMqvwEKBUNsYXNzEhUKEUNMQVNTX1VOU1BFQ0lGSUVEEAASEQoNQ0xBU1NfV0FSUklPUhABEhEKDUNMQVNTX1BBTEFESU4QAhIQCgxDTEFTU19IVU5URVIQAxIPCgtDTEFTU19ST0dVRRAEEhAKDENMQVNTX1BSSUVTVBAFEhAKDENMQVNTX1NIQU1BThAGEg4KCkNMQVNTX01BR0UQBxIRCg1DTEFTU19XQVJMT0NLEAgSDwoLQ0xBU1NfRFJVSUQQCSqzAQoEUmFjZRIUChBSQUNFX1VOU1BFQ0lGSUVEEAASDgoKUkFDRV9IVU1BThABEgwKCFJBQ0VfT1JDEAISDgoKUkFDRV9EV0FSRhADEhIKDlJBQ0VfTklHSFRfRUxGEAQSDwoLUkFDRV9VTkRFQUQQBRIPCgtSQUNFX1RBVVJFThAGEg4KClJBQ0VfR05PTUUQBxIOCgpSQUNFX1RST0xMEAgSEQoNUkFDRV9TS1lCT1JORRAJKp4DCghJdGVtU2xvdBIZChVJVEVNX1NMT1RfVU5TUEVDSUZJRUQQABISCg5JVEVNX1NMT1RfSEVBRBABEhIKDklURU1fU0xPVF9ORUNLEAISFgoSSVRFTV9TTE9UX1NIT1VMREVSEAMSEgoOSVRFTV9TTE9UX0JBQ0sQBBITCg9JVEVNX1NMT1RfQ0hFU1QQBRITCg9JVEVNX1NMT1RfV1JJU1QQBhITCg9JVEVNX1NMT1RfSEFORFMQBxITCg9JVEVNX1NMT1RfV0FJU1QQCBISCg5JVEVNX1NMT1RfTEVHUxAJEhIKDklURU1fU0xPVF9GRUVUEAoSFgoSSVRFTV9TTE9UX0ZJTkdFUl8xEAsSFgoSSVRFTV9TTE9UX0ZJTkdFUl8yEAwSFwoTSVRFTV9TTE9UX1RSSU5LRVRfMRANEhcKE0lURU1fU0xPVF9UUklOS0VUXzIQDhIXChNJVEVNX1NMT1RfTUFJTl9IQU5EEA8SFgoSSVRFTV9TTE9UX09GRl9IQU5EEBASFAoQSVRFTV9TTE9UX1JBTkdFRBARQh1aG3dvd2Ytc2ltL2VuZ2luZS9nZW4vd293ZnNpbWIGcHJvdG8z");
+  fileDesc("ChF3b3dmc2ltL3NpbS5wcm90bxIHd293ZnNpbSJ6CgpTaW1SZXF1ZXN0Eh8KBnBsYXllchgBIAEoCzIPLndvd2ZzaW0uUGxheWVyEiUKCWVuY291bnRlchgCIAEoCzISLndvd2ZzaW0uRW5jb3VudGVyEiQKB29wdGlvbnMYAyABKAsyEy53b3dmc2ltLlNpbU9wdGlvbnMixQMKBlBsYXllchIMCgRuYW1lGAEgASgJEh0KBWNsYXNzGAIgASgOMg4ud293ZnNpbS5DbGFzcxIbCgRyYWNlGAMgASgOMg0ud293ZnNpbS5SYWNlEg0KBWxldmVsGAQgASgFEhsKBGdlYXIYBSABKAsyDS53b3dmc2ltLkdlYXISJAoHdGFsZW50cxgGIAMoCzITLndvd2ZzaW0uVGFsZW50UGljaxISCgpyYWlkX2J1ZmZzGAcgAygJEigKC2JvbnVzX3N0YXRzGAggASgLMhMud293ZnNpbS5Cb251c1N0YXRzEjQKEmFiaWxpdHlfcHJpb3JpdGllcxgJIAMoCzIYLndvd2ZzaW0uQWJpbGl0eVByaW9yaXR5EiYKBnN0YW5jZRgKIAEoDjIWLndvd2ZzaW0uV2FycmlvclN0YW5jZRIVCg1jb21iYXRfcG90aW9uGAsgASgFEhYKDm1oX3dlYXBvbl90ZW1wGAwgASgJEhYKDm9oX3dlYXBvbl90ZW1wGA0gASgJEjwKGmV4ZWN1dGVfYWJpbGl0eV9wcmlvcml0aWVzGA4gAygLMhgud293ZnNpbS5BYmlsaXR5UHJpb3JpdHkiLwoPQWJpbGl0eVByaW9yaXR5EgoKAmlkGAEgASgJEhAKCHByaW9yaXR5GAIgASgFIt8BCgpCb251c1N0YXRzEhAKCHN0cmVuZ3RoGAEgASgBEg8KB2FnaWxpdHkYAiABKAESEQoJaW50ZWxsZWN0GAMgASgBEhQKDGF0dGFja19wb3dlchgEIAEoARITCgtzcGVsbF9wb3dlchgFIAEoARITCgtjcml0X2NoYW5jZRgGIAEoARISCgpoaXRfY2hhbmNlGAcgASgBEhkKEXNwZWxsX2NyaXRfY2hhbmNlGAggASgBEhgKEHNwZWxsX2hpdF9jaGFuY2UYCSABKAESEgoKd2VhcG9uX2RwcxgKIAEoASIsCgRHZWFyEiQKBWl0ZW1z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ASABKAkSDAoEbmFtZRgCIAEoCRILCgNkcHMYAyABKAESCgoCZXAYBCABKAEikQEKEVN0YXRXZWlnaHRzUmVzdWx0EhQKDHJlZmVyZW5jZV9pZBgBIAEoCRIWCg5yZWZlcmVuY2VfbmFtZRgCIAEoCRIUCgxiYXNlbGluZV9kcHMYAyABKAESEgoKaXRlcmF0aW9ucxgEIAEoBRIkCgd3ZWlnaHRzGAUgAygLMhMud293ZnNpbS5TdGF0V2VpZ2h0KoYBCg1XYXJyaW9yU3RhbmNlEh4KGldBUlJJT1JfU1RBTkNFX1VOU1BFQ0lGSUVEEAASGQoVV0FSUklPUl9TVEFOQ0VfQkFUVExFEAESHAoYV0FSUklPUl9TVEFOQ0VfQkVSU0VSS0VSEAISHAoYV0FSUklPUl9TVEFOQ0VfREVGRU5TSVZFEAMqvwEKBUNsYXNzEhUKEUNMQVNTX1VOU1BFQ0lGSUVEEAASEQoNQ0xBU1NfV0FSUklPUhABEhEKDUNMQVNTX1BBTEFESU4QAhIQCgxDTEFTU19IVU5URVIQAxIPCgtDTEFTU19ST0dVRRAEEhAKDENMQVNTX1BSSUVTVBAFEhAKDENMQVNTX1NIQU1BThAGEg4KCkNMQVNTX01BR0UQBxIRCg1DTEFTU19XQVJMT0NLEAgSDwoLQ0xBU1NfRFJVSUQQCSqzAQoEUmFjZRIUChBSQUNFX1VOU1BFQ0lGSUVEEAASDgoKUkFDRV9IVU1BThABEgwKCFJBQ0VfT1JDEAISDgoKUkFDRV9EV0FSRhADEhIKDlJBQ0VfTklHSFRfRUxGEAQSDwoLUkFDRV9VTkRFQUQQBRIPCgtSQUNFX1RBVVJFThAGEg4KClJBQ0VfR05PTUUQBxIOCgpSQUNFX1RST0xMEAgSEQoNUkFDRV9TS1lCT1JORRAJKp4DCghJdGVtU2xvdBIZChVJVEVNX1NMT1RfVU5TUEVDSUZJRUQQABISCg5JVEVNX1NMT1RfSEVBRBABEhIKDklURU1fU0xPVF9ORUNLEAISFgoSSVRFTV9TTE9UX1NIT1VMREVSEAMSEgoOSVRFTV9TTE9UX0JBQ0sQBBITCg9JVEVNX1NMT1RfQ0hFU1QQBRITCg9JVEVNX1NMT1RfV1JJU1QQBhITCg9JVEVNX1NMT1RfSEFORFMQBxITCg9JVEVNX1NMT1RfV0FJU1QQCBISCg5JVEVNX1NMT1RfTEVHUxAJEhIKDklURU1fU0xPVF9GRUVUEAoSFgoSSVRFTV9TTE9UX0ZJTkdFUl8xEAsSFgoSSVRFTV9TTE9UX0ZJTkdFUl8yEAwSFwoTSVRFTV9TTE9UX1RSSU5LRVRfMRANEhcKE0lURU1fU0xPVF9UUklOS0VUXzIQDhIXChNJVEVNX1NMT1RfTUFJTl9IQU5EEA8SFgoSSVRFTV9TTE9UX09GRl9IQU5EEBASFAoQSVRFTV9TTE9UX1JBTkdFRBARQh1aG3dvd2Ytc2ltL2VuZ2luZS9nZW4vd293ZnNpbWIGcHJvdG8z");
 
 /**
  * SimRequest is the only input the UI sends into the Go engine.
@@ -467,6 +467,30 @@ export const TalentPickSchema: GenMessage<TalentPick> = /*@__PURE__*/
   messageDesc(file_wowfsim_sim, 7);
 
 /**
+ * @generated from message wowfsim.EncounterTarget
+ */
+export type EncounterTarget = Message<"wowfsim.EncounterTarget"> & {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * Unspecified (0) uses the encounter armor.
+   *
+   * @generated from field: double armor = 2;
+   */
+  armor: number;
+};
+
+/**
+ * Describes the message wowfsim.EncounterTarget.
+ * Use `create(EncounterTargetSchema)` to create a new message.
+ */
+export const EncounterTargetSchema: GenMessage<EncounterTarget> = /*@__PURE__*/
+  messageDesc(file_wowfsim_sim, 8);
+
+/**
  * @generated from message wowfsim.Encounter
  */
 export type Encounter = Message<"wowfsim.Encounter"> & {
@@ -481,6 +505,13 @@ export type Encounter = Message<"wowfsim.Encounter"> & {
    * @generated from field: double armor = 2;
    */
   armor: number;
+
+  /**
+   * Empty means a single boss. Extra entries are cleave/add targets.
+   *
+   * @generated from field: repeated wowfsim.EncounterTarget targets = 3;
+   */
+  targets: EncounterTarget[];
 };
 
 /**
@@ -488,7 +519,7 @@ export type Encounter = Message<"wowfsim.Encounter"> & {
  * Use `create(EncounterSchema)` to create a new message.
  */
 export const EncounterSchema: GenMessage<Encounter> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 8);
+  messageDesc(file_wowfsim_sim, 9);
 
 /**
  * @generated from message wowfsim.SimOptions
@@ -510,7 +541,7 @@ export type SimOptions = Message<"wowfsim.SimOptions"> & {
  * Use `create(SimOptionsSchema)` to create a new message.
  */
 export const SimOptionsSchema: GenMessage<SimOptions> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 9);
+  messageDesc(file_wowfsim_sim, 10);
 
 /**
  * @generated from message wowfsim.SimResult
@@ -571,7 +602,7 @@ export type SimResult = Message<"wowfsim.SimResult"> & {
  * Use `create(SimResultSchema)` to create a new message.
  */
 export const SimResultSchema: GenMessage<SimResult> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 10);
+  messageDesc(file_wowfsim_sim, 11);
 
 /**
  * @generated from message wowfsim.ActionMetric
@@ -625,6 +656,27 @@ export type ActionMetric = Message<"wowfsim.ActionMetric"> & {
    * @generated from field: double avg_cast = 9;
    */
   avgCast: number;
+
+  /**
+   * True for buffs, cooldown auras, and DoTs. False means uptime is not applicable.
+   *
+   * @generated from field: bool tracks_uptime = 10;
+   */
+  tracksUptime: boolean;
+
+  /**
+   * Mean fraction of the fight the aura was active (0-1). Ignore unless tracks_uptime.
+   *
+   * @generated from field: double uptime = 11;
+   */
+  uptime: number;
+
+  /**
+   * Mean dodges per iteration. Miss % in the UI is (misses + dodges) / casts.
+   *
+   * @generated from field: double dodges = 12;
+   */
+  dodges: number;
 };
 
 /**
@@ -632,7 +684,7 @@ export type ActionMetric = Message<"wowfsim.ActionMetric"> & {
  * Use `create(ActionMetricSchema)` to create a new message.
  */
 export const ActionMetricSchema: GenMessage<ActionMetric> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 11);
+  messageDesc(file_wowfsim_sim, 12);
 
 /**
  * @generated from message wowfsim.TimelineEvent
@@ -681,7 +733,9 @@ export type TimelineEvent = Message<"wowfsim.TimelineEvent"> & {
   resource: number;
 
   /**
-   * hit, tick, dot, or buff. Empty is treated as a hit.
+   * hit, tick, dot, buff, or cast. Empty is treated as a hit.
+   * Cast events use time_seconds as the start and duration_seconds as the hard-cast length;
+   * the matching hit is emitted when the cast lands.
    *
    * @generated from field: string kind = 9;
    */
@@ -691,6 +745,51 @@ export type TimelineEvent = Message<"wowfsim.TimelineEvent"> & {
    * @generated from field: double duration_seconds = 10;
    */
   durationSeconds: number;
+
+  /**
+   * Resource immediately before this action paid its cost (rage at press).
+   *
+   * @generated from field: double resource_before = 11;
+   */
+  resourceBefore: number;
+
+  /**
+   * Targets this hit resolved against. Extra Whirlwind/Cleave swings are folded in; damage is the combined total.
+   *
+   * @generated from field: int32 target_hits = 12;
+   */
+  targetHits: number;
+
+  /**
+   * Rage/energy paid for this action. Zero for whites, ticks, and extra-weapon hits.
+   *
+   * @generated from field: double resource_cost = 13;
+   */
+  resourceCost: number;
+
+  /**
+   * Per-target outcomes when extra hits are folded into this event. Independent miss/crit rolls.
+   *
+   * @generated from field: repeated double hit_damage = 14;
+   */
+  hitDamage: number[];
+
+  /**
+   * @generated from field: repeated bool hit_crit = 15;
+   */
+  hitCrit: boolean[];
+
+  /**
+   * @generated from field: repeated bool hit_miss = 16;
+   */
+  hitMiss: boolean[];
+
+  /**
+   * Rage/energy actually added by this action (whites, Charge, Bloodrage). Zero if none.
+   *
+   * @generated from field: double resource_gain = 17;
+   */
+  resourceGain: number;
 };
 
 /**
@@ -698,7 +797,7 @@ export type TimelineEvent = Message<"wowfsim.TimelineEvent"> & {
  * Use `create(TimelineEventSchema)` to create a new message.
  */
 export const TimelineEventSchema: GenMessage<TimelineEvent> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 12);
+  messageDesc(file_wowfsim_sim, 13);
 
 /**
  * @generated from message wowfsim.StatWeight
@@ -734,7 +833,7 @@ export type StatWeight = Message<"wowfsim.StatWeight"> & {
  * Use `create(StatWeightSchema)` to create a new message.
  */
 export const StatWeightSchema: GenMessage<StatWeight> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 13);
+  messageDesc(file_wowfsim_sim, 14);
 
 /**
  * @generated from message wowfsim.StatWeightsResult
@@ -771,7 +870,7 @@ export type StatWeightsResult = Message<"wowfsim.StatWeightsResult"> & {
  * Use `create(StatWeightsResultSchema)` to create a new message.
  */
 export const StatWeightsResultSchema: GenMessage<StatWeightsResult> = /*@__PURE__*/
-  messageDesc(file_wowfsim_sim, 14);
+  messageDesc(file_wowfsim_sim, 15);
 
 /**
  * @generated from enum wowfsim.WarriorStance

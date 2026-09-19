@@ -23,6 +23,8 @@ export type CatalogAbility = {
   buffHaste?: number
   buffCrit?: number
   buffAP?: number
+  buffAPMul?: number
+  buffSPMul?: number
   resource?: string
   cost?: number
   cooldown?: number

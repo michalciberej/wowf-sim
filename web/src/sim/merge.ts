@@ -48,6 +48,9 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
       casts: number
       crits: number
       misses: number
+      dodges: number
+      tracksUptime: boolean
+      uptime: number
     }
   >()
   const iterationDps: number[] = []
@@ -73,6 +76,9 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
           casts: action.casts * n,
           crits: action.crits * n,
           misses: action.misses * n,
+          dodges: action.dodges * n,
+          tracksUptime: action.tracksUptime,
+          uptime: action.uptime * n,
         })
       } else {
         current.dps += action.dps * n
@@ -82,6 +88,11 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
         current.casts += action.casts * n
         current.crits += action.crits * n
         current.misses += action.misses * n
+        current.dodges += action.dodges * n
+        current.uptime += action.uptime * n
+        if (action.tracksUptime) {
+          current.tracksUptime = true
+        }
       }
     }
   }
@@ -103,6 +114,9 @@ export function mergeSimResults(parts: SimResult[]): SimResult {
       casts: action.casts / iterations,
       crits: action.crits / iterations,
       misses: action.misses / iterations,
+      dodges: action.dodges / iterations,
+      tracksUptime: action.tracksUptime,
+      uptime: action.uptime / iterations,
     }),
   )
   mergedActions.sort((a, b) => b.dps - a.dps)

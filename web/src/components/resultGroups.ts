@@ -78,6 +78,7 @@ function sumActions(name: string, icon: string, parts: ActionMetric[]): ActionMe
   let casts = 0
   let crits = 0
   let misses = 0
+  let dodges = 0
   for (const part of parts) {
     dps += part.dps
     hitDps += part.hitDps
@@ -86,6 +87,7 @@ function sumActions(name: string, icon: string, parts: ActionMetric[]): ActionMe
     casts += part.casts
     crits += part.crits
     misses += part.misses
+    dodges += part.dodges
   }
   return create(ActionMetricSchema, {
     name,
@@ -97,6 +99,7 @@ function sumActions(name: string, icon: string, parts: ActionMetric[]): ActionMe
     casts,
     crits,
     misses,
+    dodges,
   })
 }
 

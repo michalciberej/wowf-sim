@@ -72,7 +72,8 @@
     "gcd": false,
     "cooldown": 120,
     "duration": 15,
-    "buffDamage": 0.1,
+    "buffAPMul": 0.1,
+    "buffSPMul": 0.1,
     "priority": 950,
     "spellId": 20572,
     "tooltip": "Blood Fury\nInstant\n2 min cooldown\nIncreases Attack Power and Spell Power by 10% for 15 sec."
@@ -167,7 +168,6 @@
     "requiresTalent": 105945,
     "rank": 1,
     "kind": "buff",
-    "skipRotation": true,
     "gcd": false,
     "cooldown": 30,
     "duration": 20,
@@ -211,6 +211,7 @@
     "priority": 0,
     "resource": "rage",
     "cost": 5,
+    "requiresProc": "dodge",
     "requiresStance": "battle",
     "spellId": 11585,
     "tooltip": "Overpower\n5 Rage\nMelee Range\nInstant cast\n5 sec cooldown\nRequires Warrior\nRequires level 60\nRequires Melee Weapon\nRequires Battle Stance\nInstantly overpower the enemy, causing weapon damage plus 35. Only useable after the target dodges. The Overpower cannot be blocked, dodged or parried."
@@ -283,6 +284,7 @@
     "resource": "rage",
     "cost": 25,
     "waitForReadyAbove": 1.5,
+    "maxTargets": 4,
     "requiresStance": "berserker",
     "spellId": 1680,
     "tooltip": "Whirlwind\n25 Rage\nInstant cast\n10 sec cooldown\nRequires Warrior\nRequires level 36\nRequires Melee Weapon\nRequires Berserker Stance\nIn a whirlwind of steel you attack up to 4 enemies within 8 yards, causing weapon damage to each enemy."
@@ -358,6 +360,7 @@
     "cost": 20,
     "dumpAbove": 40,
     "minTargets": 2,
+    "maxTargets": 2,
     "spellId": 20569,
     "tooltip": "Cleave\n20 Rage\nMelee Range\nNext Melee\nRequires Warrior\nRequires level 60\nRequires Melee Weapon\nA sweeping attack that does your weapon damage plus 50 to the target and his closest ally."
   },

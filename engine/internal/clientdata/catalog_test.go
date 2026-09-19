@@ -130,7 +130,7 @@ func TestForeverRacialsCatalog(t *testing.T) {
 	}
 	var fury, axe, wind bool
 	for _, racial := range Racials() {
-		if racial.Name == "Blood Fury" && racial.BuffDamage >= 0.09 {
+		if racial.Name == "Blood Fury" && racial.BuffAPMul >= 0.09 {
 			fury = true
 		}
 		if racial.Name == "Axe Specialization" && racial.CritWhile >= 0.009 {

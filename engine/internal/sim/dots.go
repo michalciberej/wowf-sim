@@ -158,6 +158,7 @@ func (f *fight) applyDot(id, name, icon string, total, duration, period float64,
 			stacks: stacks, spell: spell,
 		}
 		f.emitAura("dot", name, icon, duration)
+		f.addAuraUptime(name, expire)
 		return
 	}
 	f.dots = append(f.dots, combatDot{
@@ -166,6 +167,7 @@ func (f *fight) applyDot(id, name, icon string, total, duration, period float64,
 		stacks: stacks, spell: spell,
 	})
 	f.emitAura("dot", name, icon, duration)
+	f.addAuraUptime(name, expire)
 }
 
 func (f *fight) applyAbilityDot(ab clientdata.Ability, combo int) (direct float64, applied bool) {

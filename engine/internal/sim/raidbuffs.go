@@ -14,11 +14,39 @@ const (
 	windfuryChance   = 0.20
 )
 
+func encounterTargetCount(enc *pb.Encounter) int {
+	n := len(enc.GetTargets())
+	if n <= 0 {
+		return 1
+	}
+	if n > 8 {
+		return 8
+	}
+	return n
+}
+
 func encounterArmor(enc *pb.Encounter) float64 {
+	if ts := enc.GetTargets(); len(ts) > 0 && ts[0].GetArmor() > 0 {
+		return ts[0].GetArmor()
+	}
 	if enc != nil && enc.GetArmor() > 0 {
 		return enc.GetArmor()
 	}
 	return defaultBossArmor
+}
+
+func encounterTargetArmors(enc *pb.Encounter) []float64 {
+	n := encounterTargetCount(enc)
+	fallback := encounterArmor(enc)
+	out := make([]float64, n)
+	targets := enc.GetTargets()
+	for i := 0; i < n; i++ {
+		out[i] = fallback
+		if i < len(targets) && targets[i].GetArmor() > 0 {
+			out[i] = targets[i].GetArmor()
+		}
+	}
+	return out
 }
 
 type raidBuffState struct {

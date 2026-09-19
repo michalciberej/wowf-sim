@@ -14,8 +14,10 @@ import {
   cloneSlotMap,
   nextGearSetName,
   baselineFromResult,
+  DEFAULT_ENCOUNTER_TARGETS,
   type ClassSetup,
   type SettingsTab,
+  type EncounterFoe,
 } from './persist.ts'
 import { GearPanel } from './components/GearPanel.tsx'
 import { ItemPickerModal } from './components/ItemPickerModal.tsx'
@@ -24,7 +26,6 @@ import { RotationPanel } from './components/RotationPanel.tsx'
 import { TalentTrees } from './components/TalentTrees.tsx'
 import { SettingsPanel } from './components/SettingsPanel.tsx'
 import { StatWeightsPanel } from './components/StatWeightsPanel.tsx'
-import { SimTimeline } from './components/SimTimeline.tsx'
 import { SimResultPanel, DeltaText } from './components/SimResultPanel.tsx'
 import { CharacterStats } from './components/CharacterStats.tsx'
 import { enabledBuffIds } from './catalog/buffs.ts'
@@ -43,7 +44,7 @@ const CLASSES: Array<{ value: Class; label: string }> = [
   { value: Class.DRUID, label: 'Druid' },
 ]
 
-type LowerPanel = SettingsTab | 'result' | 'timeline'
+type LowerPanel = SettingsTab | 'result'
 const SETTINGS_TABS: SettingsTab[] = ['gear', 'talents', 'rotation', 'settings', 'weights']
 
 function isSettingsTab(panel: LowerPanel): panel is SettingsTab {
@@ -62,6 +63,9 @@ function App() {
   const [duration, setDuration] = useState(initial.duration)
   const [iterations, setIterations] = useState(initial.iterations)
   const [rngSeed, setRngSeed] = useState(initial.rngSeed)
+  const [encounterTargets, setEncounterTargets] = useState<EncounterFoe[]>(
+    initial.encounterTargets ?? DEFAULT_ENCOUNTER_TARGETS,
+  )
   const [usedSeed, setUsedSeed] = useState<bigint | null>(null)
   const [running, setRunning] = useState(false)
   const [runProgress, setRunProgress] = useState('')
@@ -144,6 +148,7 @@ function App() {
         setDuration(saved.duration)
         setIterations(saved.iterations)
         setRngSeed(saved.rngSeed)
+        setEncounterTargets(saved.encounterTargets ?? DEFAULT_ENCOUNTER_TARGETS)
         setFightLength(saved.duration)
         lastSettingsTab.current = saved.tab
         byClassRef.current = saved.byClass
@@ -227,6 +232,7 @@ function App() {
         iterations,
         rngSeed,
         tab: lastSettingsTab.current,
+        encounterTargets,
         byClass: byClassRef.current,
       })
     }, 200)
@@ -237,6 +243,7 @@ function App() {
     duration,
     iterations,
     rngSeed,
+    encounterTargets,
     lowerPanel,
     gearIds,
     enchantIds,
@@ -394,6 +401,7 @@ function App() {
           combatPotion,
           mhWeaponTemp,
           ohWeaponTemp,
+          encounterTargets,
         },
         (update) => {
           setLiveDps({ mean: update.dpsMean, stdev: update.dpsStdev, iterations: update.done })
@@ -439,6 +447,7 @@ function App() {
         combatPotion,
         mhWeaponTemp,
         ohWeaponTemp,
+        encounterTargets,
       })
       setStatWeights(next)
       setCustomEP(weightsFromMeasured(next.weights))
@@ -530,31 +539,22 @@ function App() {
             ))}
             <button
               type="button"
-              className={lowerPanel === 'result' ? 'active' : ''}
+              className={`tabs-results${lowerPanel === 'result' ? ' active' : ''}`}
               disabled={!result && !running}
               onClick={() => setLowerPanel('result')}
             >
               Results
             </button>
-            <button
-              type="button"
-              className={lowerPanel === 'timeline' ? 'active' : ''}
-              disabled={!result && !running}
-              onClick={() => setLowerPanel('timeline')}
-            >
-              Timeline
-            </button>
           </nav>
 
           <div className="main-body">
-            {lowerPanel === 'timeline' ? (
-              result ? <SimTimeline result={result} durationSeconds={fightLength} /> : null
-            ) : lowerPanel === 'result' ? (
+            {lowerPanel === 'result' ? (
               result ? (
                 <SimResultPanel
                   result={result}
                   seed={usedSeed}
                   live={running}
+                  durationSeconds={fightLength}
                   baseline={dpsBaseline}
                   onSaveBaseline={() => setDpsBaseline(baselineFromResult(result))}
                   onClearBaseline={() => setDpsBaseline(null)}
@@ -575,6 +575,7 @@ function App() {
                 duration={duration}
                 iterations={iterations}
                 rngSeed={rngSeed}
+                encounterTargets={encounterTargets}
                 selected={raidBuffs}
                 onRace={setRace}
                 onStance={setStance}
@@ -582,6 +583,7 @@ function App() {
                 onDuration={setDuration}
                 onIterations={setIterations}
                 onRngSeed={setRngSeed}
+                onEncounterTargets={setEncounterTargets}
                 onChange={setRaidBuffs}
                 combatPotion={combatPotion}
                 mhWeaponTemp={mhWeaponTemp}

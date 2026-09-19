@@ -17,6 +17,7 @@ web/public/wasm_exec.js
 
 # Local caches and secrets
 .env
+TODO.md
 .env.*
 data/wowhead/**
 !data/wowhead/.gitkeep

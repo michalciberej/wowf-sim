@@ -1156,8 +1156,7 @@ export function parseSpellTooltip(raw) {
 
   const buffAP = intStat(padded, /(?:by |Grants you )(\d+) (?:melee )?attack power/i)
   const apSpPct = intStat(padded, /increases attack power and spell power by (\d+(?:\.\d+)?)%/i)
-  const buffDamagePct =
-    apSpPct || intStat(padded, /increases (?:physical |all )?damage(?: done)? by (\d+)%/i)
+  const buffDamagePct = intStat(padded, /increases (?:physical |all )?damage(?: done)? by (\d+)%/i)
   const buffHastePct =
     intStat(padded, /spellcasting and attack speed by (\d+(?:\.\d+)?)%/i) ||
     intStat(padded, /attack speed by (\d+)%/i) ||
@@ -1207,6 +1206,8 @@ export function parseSpellTooltip(raw) {
     castTime,
     damageSP,
     buffAP,
+    buffAPMul: apSpPct / 100,
+    buffSPMul: apSpPct / 100,
     buffDamage: buffDamagePct / 100,
     buffHaste: buffHastePct / 100,
     buffCrit: buffCritPct / 100,
@@ -1339,7 +1340,7 @@ export function racialRotationAbility(spell, row = {}) {
   if (!spell.cooldown) {
     return null
   }
-  if (!(spell.buffCrit || spell.buffHaste || spell.buffDamage || spell.buffAP)) {
+  if (!(spell.buffCrit || spell.buffHaste || spell.buffDamage || spell.buffAP || spell.buffAPMul || spell.buffSPMul)) {
     return null
   }
   const out = {
@@ -1365,6 +1366,12 @@ export function racialRotationAbility(spell, row = {}) {
   }
   if (spell.buffDamage) {
     out.buffDamage = spell.buffDamage
+  }
+  if (spell.buffAPMul) {
+    out.buffAPMul = spell.buffAPMul
+  }
+  if (spell.buffSPMul) {
+    out.buffSPMul = spell.buffSPMul
   }
   if (spell.buffAP) {
     out.buffAP = spell.buffAP
@@ -1393,6 +1400,12 @@ export function catalogRacialFromParsed(spell, row = {}) {
   }
   if (spell.buffDamage) {
     out.buffDamage = spell.buffDamage
+  }
+  if (spell.buffAPMul) {
+    out.buffAPMul = spell.buffAPMul
+  }
+  if (spell.buffSPMul) {
+    out.buffSPMul = spell.buffSPMul
   }
   if (spell.buffHaste) {
     out.buffHaste = spell.buffHaste
@@ -1594,6 +1607,12 @@ export function applySpellToAbility(ability, spell, openerKeepCd = true) {
   }
   if (ability.kind === 'buff' && spell.buffAP) {
     next.buffAP = spell.buffAP
+  }
+  if (ability.kind === 'buff' && spell.buffAPMul) {
+    next.buffAPMul = spell.buffAPMul
+  }
+  if (ability.kind === 'buff' && spell.buffSPMul) {
+    next.buffSPMul = spell.buffSPMul
   }
   if (ability.kind === 'buff' && spell.buffDamage) {
     next.buffDamage = spell.buffDamage

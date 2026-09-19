@@ -6,6 +6,7 @@
     "race": 1,
     "rank": "Racial Passive",
     "passive": true,
+    "buffCrit": 0.02,
     "critWhileWeapon": "sword",
     "critWhile": 0.02,
     "tooltip": "Sword Specialization\nIncreases your critical strike chance with all spells and attacks by 2% while you have a sword or two-handed sword equipped."
@@ -49,7 +50,8 @@
     "passive": false,
     "cooldown": 120,
     "duration": 15,
-    "buffDamage": 0.1,
+    "buffAPMul": 0.1,
+    "buffSPMul": 0.1,
     "tooltip": "Blood Fury\nInstant\n2 min cooldown\nIncreases Attack Power and Spell Power by 10% for 15 sec."
   },
   {
@@ -69,6 +71,7 @@
     "race": 2,
     "rank": "Racial Passive",
     "passive": true,
+    "buffCrit": 0.01,
     "critWhileWeapon": "axe",
     "critWhile": 0.01,
     "tooltip": "Axe Specialization\nIncreases your critical strike chance with all spells and abilities by 1% while you have an axe or a two-handed axe equipped."
@@ -111,6 +114,7 @@
     "race": 3,
     "rank": "Racial Passive",
     "passive": true,
+    "buffCrit": 0.01,
     "critWhileWeapon": "mace",
     "critWhile": 0.01,
     "tooltip": "Mace Specialization\nIncreases your critical strike chance with all spells and attacks by 1% while you have a mace or two-handed mace equipped."

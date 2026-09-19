@@ -105,10 +105,18 @@ message TalentPick {
   int32 rank = 2;
 }
 
+message EncounterTarget {
+  string name = 1;
+  // Unspecified (0) uses the encounter armor.
+  double armor = 2;
+}
+
 message Encounter {
   double duration_seconds = 1;
   // Unspecified (0) is Patchwerk: 7700 armor, no mechanics.
   double armor = 2;
+  // Empty means a single boss. Extra entries are cleave/add targets.
+  repeated EncounterTarget targets = 3;
 }
 
 message SimOptions {
@@ -142,6 +150,12 @@ message ActionMetric {
   double crit_dps = 8;
   // Mean damage per cast, including misses as 0.
   double avg_cast = 9;
+  // True for buffs, cooldown auras, and DoTs. False means uptime is not applicable.
+  bool tracks_uptime = 10;
+  // Mean fraction of the fight the aura was active (0-1). Ignore unless tracks_uptime.
+  double uptime = 11;
+  // Mean dodges per iteration. Miss % in the UI is (misses + dodges) / casts.
+  double dodges = 12;
 }
 
 message TimelineEvent {
@@ -159,6 +173,18 @@ message TimelineEvent {
   // the matching hit is emitted when the cast lands.
   string kind = 9;
   double duration_seconds = 10;
+  // Resource immediately before this action paid its cost (rage at press).
+  double resource_before = 11;
+  // Targets this hit resolved against. Extra Whirlwind/Cleave swings are folded in; damage is the combined total.
+  int32 target_hits = 12;
+  // Rage/energy paid for this action. Zero for whites, ticks, and extra-weapon hits.
+  double resource_cost = 13;
+  // Per-target outcomes when extra hits are folded into this event. Independent miss/crit rolls.
+  repeated double hit_damage = 14;
+  repeated bool hit_crit = 15;
+  repeated bool hit_miss = 16;
+  // Rage/energy actually added by this action (whites, Charge, Bloodrage). Zero if none.
+  double resource_gain = 17;
 }
 
 message StatWeight {

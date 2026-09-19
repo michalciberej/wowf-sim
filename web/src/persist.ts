@@ -10,7 +10,15 @@ import type { TalentRanks } from './sim/engine.ts'
 export const STORAGE_KEY = 'wowf-sim.setup.v1'
 const VERSION = 2
 
-export type SettingsTab = 'gear' | 'talents' | 'rotation' | 'settings' | 'weights'
+export type EncounterFoe = {
+  name: string
+  armor: number
+}
+
+export const DEFAULT_BOSS_ARMOR = 7700
+export const MAX_ENCOUNTER_TARGETS = 8
+
+export const DEFAULT_ENCOUNTER_TARGETS: EncounterFoe[] = [{ name: 'Boss', armor: DEFAULT_BOSS_ARMOR }]
 
 export type SavedGearSet = {
   id: string
@@ -50,6 +58,7 @@ export type SavedRoot = {
   iterations: number
   rngSeed: number
   tab: SettingsTab
+  encounterTargets: EncounterFoe[]
   byClass: Record<number, ClassSetup>
 }
 
@@ -198,6 +207,31 @@ export function snapshotGearSet(
     gearIds: cloneSlotMap(gearIds),
     enchantIds: cloneSlotMap(enchantIds),
   }
+}
+
+function sanitizeEncounterTargets(raw: unknown): EncounterFoe[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return DEFAULT_ENCOUNTER_TARGETS.map((row) => ({ ...row }))
+  }
+  const out: EncounterFoe[] = []
+  for (const row of raw) {
+    if (!row || typeof row !== 'object') {
+      continue
+    }
+    const src = row as Record<string, unknown>
+    const name = String(src.name ?? '').trim().slice(0, 32) || `Target ${out.length + 1}`
+    out.push({
+      name,
+      armor: clamp(Number(src.armor), 0, 20000, DEFAULT_BOSS_ARMOR),
+    })
+    if (out.length >= MAX_ENCOUNTER_TARGETS) {
+      break
+    }
+  }
+  if (!out.length) {
+    return DEFAULT_ENCOUNTER_TARGETS.map((row) => ({ ...row }))
+  }
+  return out
 }
 
 function sanitizeGearSets(raw: unknown, playerClass: Class): SavedGearSet[] {
@@ -388,6 +422,7 @@ export function emptySavedRoot(): SavedRoot {
     iterations: 1000,
     rngSeed: 0,
     tab: 'gear',
+    encounterTargets: DEFAULT_ENCOUNTER_TARGETS.map((row) => ({ ...row })),
     byClass: {
       [playerClass]: defaultClassSetup(playerClass, Race.ORC),
     },
@@ -434,6 +469,7 @@ export function loadSavedRoot(): SavedRoot {
       iterations: clamp(Math.floor(Number(parsed.iterations)), 1, 20000, 1000),
       rngSeed: clamp(Math.floor(Number(parsed.rngSeed)), 0, Number.MAX_SAFE_INTEGER, 0),
       tab,
+      encounterTargets: sanitizeEncounterTargets(parsed.encounterTargets),
       byClass,
     }
   } catch {
