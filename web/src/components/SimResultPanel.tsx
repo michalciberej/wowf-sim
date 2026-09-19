@@ -367,6 +367,7 @@ function DpsLineChart({ events, mean }: { events: TimelineEvent[]; mean: number 
   if (!chart) {
     return <p>Run a sim to plot DPS over the first fight.</p>
   }
+  const plot = chart
 
   function onMove(event: MouseEvent<SVGSVGElement>) {
     const loc = svgPoint(event.currentTarget, event.clientX, event.clientY)
@@ -374,16 +375,16 @@ function DpsLineChart({ events, mean }: { events: TimelineEvent[]; mean: number 
       setHover(null)
       return
     }
-    if (loc.x < chart.left || loc.x > chart.left + chart.innerW || loc.y < chart.top || loc.y > chart.top + chart.innerH) {
+    if (loc.x < plot.left || loc.x > plot.left + plot.innerW || loc.y < plot.top || loc.y > plot.top + plot.innerH) {
       setHover(null)
       return
     }
-    const t = ((loc.x - chart.left) / chart.innerW) * chart.end
-    const i = nearestIndex(chart.points, t)
+    const t = ((loc.x - plot.left) / plot.innerW) * plot.end
+    const i = nearestIndex(plot.points, t)
     setHover({ i, clientX: event.clientX, clientY: event.clientY, vx: loc.x })
   }
 
-  const point = hover ? chart.points[hover.i] : null
+  const point = hover ? plot.points[hover.i] : null
 
   return (
     <>

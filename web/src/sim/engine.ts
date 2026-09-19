@@ -98,7 +98,7 @@ async function spawnExtraWorkers() {
   }
 }
 
-function stopPool() {
+export function stopPool() {
   for (const item of pool) {
     item.worker.terminate()
   }

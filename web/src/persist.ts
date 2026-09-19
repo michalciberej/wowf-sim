@@ -20,6 +20,8 @@ export const MAX_ENCOUNTER_TARGETS = 8
 
 export const DEFAULT_ENCOUNTER_TARGETS: EncounterFoe[] = [{ name: 'Boss', armor: DEFAULT_BOSS_ARMOR }]
 
+export type SettingsTab = 'gear' | 'talents' | 'rotation' | 'settings' | 'weights'
+
 export type SavedGearSet = {
   id: string
   name: string
@@ -460,7 +462,8 @@ export function loadSavedRoot(): SavedRoot {
         gearIds: sanitizeGear(DEFAULT_GEAR, playerClass),
       }
     }
-    const rawTab = parsed.tab === 'execute' ? 'rotation' : parsed.tab
+    const storedTab = (parsed as { tab?: string }).tab
+    const rawTab = storedTab === 'execute' ? 'rotation' : storedTab
     const tab = TABS.includes(rawTab as SettingsTab) ? (rawTab as SettingsTab) : 'gear'
     return {
       v: VERSION,
